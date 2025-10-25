@@ -16,7 +16,6 @@ class Context:
             self.scopes.pop()
 
     def declare_variable(self, name: str, data_type: DataType, mutable: bool):
-        # Check if variable exists in ANY scope (no shadowing allowed)
         if self.is_variable_declared(name):
             return False
         
