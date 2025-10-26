@@ -33,11 +33,7 @@ class SemanticAnalyzer(ASTVisitor):
             raise ValueError( f"Variable '{node.variable}' has already been declared at line {node.line}!!!!!!!!!!")
 
         self.context.currently_initializing = node.variable
-        if node.expr_node is  None:
-            expr_type = node.data_type
-            self.context.set_variable_value(node.variable, self.__set_default_for_type(node.data_type))
-        else:
-            expr_type = node.expr_node.accept(self)
+        expr_type = node.expr_node.accept(self)
 
         if not self.__is_type_compatible(expr_type, node.data_type):
             raise ValueError( f"Types do not match at line {node.line}: you cannot assign "
@@ -83,7 +79,8 @@ class SemanticAnalyzer(ASTVisitor):
         self.__ensure_operands_are_comparable(node, left_type, right_type)
         return DataType.BOOL
 
-    def __ensure_operands_are_comparable(self, node: BinaryOpNode, left_type: DataType, right_type: DataType):
+    @staticmethod
+    def __ensure_operands_are_comparable(node: BinaryOpNode, left_type: DataType, right_type: DataType):
         if (left_type == DataType.BOOL) != (right_type == DataType.BOOL):
             raise ValueError(f"You cannot compare using {node.operator} boolean with non-boolean!")
 
@@ -91,7 +88,8 @@ class SemanticAnalyzer(ASTVisitor):
         self.__ensure_both_operands_are_boolean(node, left_type, right_type)
         return DataType.BOOL
 
-    def __ensure_both_operands_are_boolean(self, node: BinaryOpNode, left_type: DataType, right_type: DataType):
+    @staticmethod
+    def __ensure_both_operands_are_boolean(node: BinaryOpNode, left_type: DataType, right_type: DataType):
         if left_type != DataType.BOOL or right_type != DataType.BOOL:
             raise ValueError( f"Logical operator {node.operator} requires boolean operands!")
 
@@ -107,7 +105,8 @@ class SemanticAnalyzer(ASTVisitor):
 
         return node.result_type
 
-    def __ensure_both_operands_are_numbers(self, node: BinaryOpNode, left_type: DataType, right_type: DataType):
+    @staticmethod
+    def __ensure_both_operands_are_numbers(node: BinaryOpNode, left_type: DataType, right_type: DataType):
         if left_type == DataType.BOOL or right_type == DataType.BOOL:
             raise ValueError(f"You cannot play math using {node.operator} on booleans!" )
 

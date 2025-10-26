@@ -56,7 +56,7 @@ define void @printResult(i32 %val) {
             *self.translated_lines,
             "}"])
 
-    def visit_declaration(self, node: DeclNode) -> None:  
+    def visit_declaration(self, node: DeclNode):
         llvm_type = node.data_type.to_llvm()
         value = node.expr_node.accept(self)
         reg = self.__get_variable_register(node.variable)
@@ -69,7 +69,7 @@ define void @printResult(i32 %val) {
 
         self.translated_lines.append(f"  {reg} = add {llvm_type} 0, {value}")
 
-    def visit_assign(self, node: AssignNode) -> None:
+    def visit_assign(self, node: AssignNode):
         var_type = self.variable_types[node.variable]
         llvm_type = var_type.to_llvm()
         value = node.expr_node.accept(self)
@@ -80,7 +80,7 @@ define void @printResult(i32 %val) {
 
         self.translated_lines.append(f"  {reg} = add {llvm_type} 0, {value}")
 
-    def visit_return(self, node: ReturnNode) -> None:
+    def visit_return(self, node: ReturnNode):
         value = node.expr_node.accept(self)
         return_type = self.__get_node_type(node.expr_node)
         cast_reg = self.__get_temp_register()
@@ -121,7 +121,9 @@ define void @printResult(i32 %val) {
 
     def __generate_comparison(self, node: BinaryOpNode, left_value: str, right_value: str, 
                               left_type: DataType, right_type: DataType, temp_reg: str):
-        operand_type = self.__infer_operand_type(node.left, node.right)
+        left = node.left.accept(self)
+        right = node.right.accept(self)
+        operand_type = self.__infer_operand_type(left, right)
         
         left_value = self.__promote_type(left_value, left_type, operand_type)
         right_value = self.__promote_type(right_value, right_type, operand_type)
@@ -131,7 +133,7 @@ define void @printResult(i32 %val) {
             f"  {temp_reg} = {llvm_op} {operand_type} {left_value}, {right_value}")
 
     def __generate_logical(self, node: BinaryOpNode, left_value: str, 
-                           right_value: str, temp_reg: str) -> None:
+                           right_value: str, temp_reg: str):
         llvm_op = node.operator.to_llvm()
         self.translated_lines.append(
             f"  {temp_reg} = {llvm_op} i1 {left_value}, {right_value}")

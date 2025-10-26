@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from ..visitor.ast_visitor import ASTVisitor
 
 class BinaryOpNode(ExprNode):
-    def __init__(self, left: FactorNode, operator: Operator, right: FactorNode):
+    def __init__(self, left: ExprNode, operator: Operator, right: ExprNode):
         self.left = left
         self.operator = operator
         self.right = right

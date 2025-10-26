@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class UnaryOpNode(ExprNode):
-    def __init__(self, operator: str, operand: FactorNode):
+    def __init__(self, operator: str, operand: ExprNode):
         self.operator = operator
         self.operand = operand
 

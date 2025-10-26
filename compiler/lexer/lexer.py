@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from .lexer_state import LexerState
-from ..token.token_type import TokenType
 from ..token.token_class import Token
 from .lexer_constants import *
 
@@ -18,7 +17,8 @@ class Lexer:
         self.current_token_start_line = 1
         self.current_token_start_index = 1
 
-    def __is_whitespace(self, char: str):
+    @staticmethod
+    def __is_whitespace(char: str):
         return char is not None and char in WHITESPACE
 
     def __add_token(self, token_type: TokenType, value: str, line: int = None, index: int = None):

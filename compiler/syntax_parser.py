@@ -52,7 +52,6 @@ class SyntaxParser:
         return self.__eat()
 
     def parse_program(self) -> ProgramNode:
-        self.__skip_newline()
         statements = self.__parse_statements()
         return_statement = self.__parse_program_return()
         self.__check_program_end()
@@ -64,7 +63,7 @@ class SyntaxParser:
 
         while True:
             token = self.__peek()
-            if(len(statements) == 0 and token and token.token_type == TokenType.THE_END):
+            if len(statements) == 0 and token and token.token_type == TokenType.THE_END:
                 raise ValueError("Program cannot be empty! You have to write something before the return statement!")
             
             if not token or token.token_type == TokenType.THE_END:
@@ -79,7 +78,6 @@ class SyntaxParser:
             statement = self.__parse_statement()
             if statement:
                 statements.append(statement)
-            self.__consume_newline_and_skip()
 
         return statements
 
@@ -95,6 +93,7 @@ class SyntaxParser:
 
     def __parse_statement(self) -> Optional[StmtNode]:
         token = self.__peek()
+        stmt = None
 
         match token.token_type:
             case TokenType.MUT | TokenType.CONST:
@@ -107,14 +106,12 @@ class SyntaxParser:
                 stmt = self.__parse_while_statement()
             case TokenType.BLOCK_BORDER:
                 self.__eat()
-                stmt = None
             case _:
                 raise ValueError(f"You should have either declared a variable, assigned this cutie to sth, "
                     f"or used control flow at line {token.line}, but you decided to use "
                     f"this token: {token.value}")
 
         self.__expect_line_end()
-
         return stmt
     
     def __expect_line_end(self):
@@ -127,8 +124,6 @@ class SyntaxParser:
         self.__expect_newline_or_end()
 
     def __define_line_type(self, token: Token):
-        token = self.__peek()
-
         if not token:
             raise ValueError("Why did you decide to abandon your work?! I want a statement!")
         
@@ -218,8 +213,6 @@ class SyntaxParser:
         elif_token = self.__expect_token(TokenType.ELIF)
         condition = self.__parse_expression()
         self.__expect_line_end()
-        self.__consume_newline_and_skip()
-        
         then_block = self.__parse_code_block()
         
         return ElifNode(condition, then_block, elif_token.line)
@@ -232,7 +225,6 @@ class SyntaxParser:
             condition = UnaryOpNode(NOT, condition)
         
         self.__expect_line_end()
-        self.__consume_newline_and_skip()
 
         body = self.__parse_code_block()
 
@@ -247,8 +239,7 @@ class SyntaxParser:
         self.__skip_line_start()
         self.__expect_token(TokenType.ELSE)
         self.__expect_line_end()
-        self.__consume_newline_and_skip()
-        
+
         return self.__parse_code_block()
 
     def __skip_line_start(self):
@@ -297,21 +288,15 @@ class SyntaxParser:
             token = self.__peek()
             if token.token_type == TokenType.RETURN:
                 return_node = self.__parse_return()
-                self.__consume_newline_and_skip()
-                self.__check_no_code_after_return()
+                self.__expect_newline_or_end()
                 break
 
             statement = self.__parse_statement()
             if statement:
                 statements.append(statement)
-            self.__consume_newline_and_skip()
+            self.__expect_newline_or_end()
 
         return statements, return_node
-
-    def __check_no_code_after_return(self):
-        token = self.__peek()
-        if token and not token.token_type.is_border():
-            raise ValueError(f"Code after return statement is not allowed at line {token.line}!")
 
     def __parse_return(self) -> ReturnNode:
         self.__expect_token(TokenType.RETURN)
@@ -404,9 +389,9 @@ class SyntaxParser:
             operand = self.__parse_unary()
             return UnaryOpNode(NOT, operand)
 
-        return self.__parse_factor()
+        return self.__parse_value()
 
-    def __parse_factor(self) -> FactorNode:
+    def __parse_value(self) -> Union[FactorNode, ExprNode]:
         token = self.__eat()
 
         if not token:
@@ -434,3 +419,12 @@ class SyntaxParser:
                 raise ValueError(
                     f"You should have used either a number, a variable, or a boolean "
                     f"at line {token.line}, not {token.value}!")
+
+    @staticmethod
+    def __set_default_for_type(data_type: DataType) -> FactorNode:
+        if data_type == DataType.BOOL:
+            return BooleanNode(FALSE)
+        elif data_type in [DataType.I16, DataType.I32, DataType.I64]:
+            return NumberNode("0")
+        else:
+            raise ValueError(f"No default value defined for {data_type}")
