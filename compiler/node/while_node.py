@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class WhileNode(ConditionNode):
     def __init__(self, condition: ExprNode, body: CodeBlockNode, line: int):
-        super().__init__("", condition, body, line)
+        super().__init__(condition, body, line)
 
     def accept(self, visitor: 'ASTVisitor'):
         return visitor.visit_while_loop(self)

@@ -40,12 +40,13 @@ class TokenType(Enum):
     
     BRACKET = auto()   # **
     
-    SIMPLE_LINE_BORDER = auto()   # #
-    MOOD_LINE_BORDER = auto()   # #~
+    SIMPLE_LINE_BORDER = auto()       # #
+    MOOD_LINE_BORDER_START = auto()   # #~
+    MOOD_LINE_BORDER_END = auto()     # ~#
     
     BLOCK_BORDER = auto()  # 🐖🐖🐖
     
-    VARIABLE_BORDER = auto()    # 🐽
+    VARIABLE_BORDER = auto()    # 🐖
     
     VARIABLE = auto()
     NUMBER = auto()
@@ -72,6 +73,7 @@ class TokenType(Enum):
         return self in {TokenType.MULTIPLY, TokenType.DIVIDE}
     
     def is_border(self) -> bool:
-        return self in {TokenType.BLOCK_BORDER, TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER}
-    
-    
+        return self in {TokenType.BLOCK_BORDER, 
+                        TokenType.SIMPLE_LINE_BORDER, 
+                        TokenType.MOOD_LINE_BORDER_START,
+                        TokenType.MOOD_LINE_BORDER_END}  # ✅ ADDED THIS LINE

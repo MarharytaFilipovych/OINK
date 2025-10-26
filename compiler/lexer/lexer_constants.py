@@ -22,15 +22,16 @@ SPECIAL_CHARS = {
 }
 
 MULTI_CHAR_TOKENS = {
-    '#~': TokenType.MOOD_LINE_BORDER,
-    '~#': TokenType.MOOD_END,
-    '...': TokenType.RETURN,
-    '**': TokenType.BRACKET,
-    '#': TokenType.SIMPLE_LINE_BORDER,
+    '...': TokenType.RETURN,         # 3 chars - check first
+    '#~': TokenType.MOOD_LINE_BORDER_START,  # 2 chars
+    '~#': TokenType.MOOD_LINE_BORDER_END,    # 2 chars  
+    '**': TokenType.BRACKET,         # 2 chars
+    '#': TokenType.SIMPLE_LINE_BORDER,       # 1 char - check last
 }
 
 EMOJI_TOKENS = {
-    '🐽': TokenType.VARIABLE_BORDER,
+    '🐖': TokenType.VARIABLE_BORDER,  # ✅ CHANGED - pig face for variable borders
+    '🐽': TokenType.I16_TYPE,  # ✅ CHANGED - pig snout for i16 type
     '🐷': TokenType.I32_TYPE,
     '🐗': TokenType.I64_TYPE,
     '😀': TokenType.MUT,

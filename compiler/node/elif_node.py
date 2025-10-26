@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class ElifNode(ConditionNode):
     def __init__(self, condition: ExprNode, then_block: CodeBlockNode, line: int):
-        super().__init__("", condition, then_block, line)
+        super().__init__(condition, then_block, line)
 
     def accept(self, visitor: 'ASTVisitor'):
         return visitor.visit_elif_statement(self)

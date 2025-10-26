@@ -108,7 +108,7 @@ class Lexer:
             f"placed at line {self.line}, column {self.index}!!!")
 
     def __try_multi_char_token(self) -> bool:
-        for length in [3, 2]:
+        for length in [3,2,1]:
             sequence = self.__peek_ahead(length)
             if sequence in MULTI_CHAR_TOKENS:
                 self.__add_token(MULTI_CHAR_TOKENS[sequence], sequence)

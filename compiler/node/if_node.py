@@ -14,7 +14,7 @@ class IfNode(ConditionNode):
                   then_block: CodeBlockNode,
                   elif_blocks: list[ElifNode],
                   else_block: Optional[CodeBlockNode], line: int):
-        super().__init__("", condition, then_block, line)
+        super().__init__(condition, then_block, line)
         self.elif_blocks = elif_blocks
         self.else_block = else_block
 
