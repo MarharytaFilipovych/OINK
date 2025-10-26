@@ -109,7 +109,7 @@ class SyntaxParser:
             case _:
                 raise ValueError(f"You should have either declared a variable, assigned this cutie to sth, "
                     f"or used control flow at line {token.line}, but you decided to use "
-                    f"this token: {token.value}")
+                    f"this token: {token.token_type}")
 
         self.__expect_line_end()
         return stmt
@@ -119,8 +119,8 @@ class SyntaxParser:
         if self.in_mood_line:
             self.__expect_token(TokenType.MOOD_LINE_BORDER_END) 
             self.in_mood_line = False
-        elif token and token.token_type == TokenType.SIMPLE_LINE_BORDER:
-            self.__eat()
+        else:
+            self.__expect_token(TokenType.SIMPLE_LINE_BORDER)
         self.__expect_newline_or_end()
 
     def __define_line_type(self, token: Token):
@@ -160,7 +160,7 @@ class SyntaxParser:
             self.__eat()
             init_expr = self.__parse_expression()
         else:
-            init_expr = None
+            init_expr = self.__set_default_for_type(var_type)
 
         return DeclNode(variable, init_expr, token_variable.line, can_mutate, var_type)
 
@@ -250,15 +250,13 @@ class SyntaxParser:
             self.__eat()
 
     def __parse_code_block(self) -> CodeBlockNode:
-        self.__skip_line_start()
-        self.__expect_token(TokenType.BLOCK_BORDER)
         self.__expect_line_end()
+        self.__skip_line_start()
 
         statements, return_node = self.__parse_block_contents()
 
-        self.__skip_line_start()
-        self.__expect_token(TokenType.BLOCK_BORDER)
         self.__expect_line_end()
+        self.__skip_line_start()
         
         scope_id = self.next_scope_id
         self.next_scope_id += 1
@@ -288,13 +286,13 @@ class SyntaxParser:
             token = self.__peek()
             if token.token_type == TokenType.RETURN:
                 return_node = self.__parse_return()
-                self.__expect_newline_or_end()
+                self.__expect_line_end()
                 break
 
             statement = self.__parse_statement()
             if statement:
                 statements.append(statement)
-            self.__expect_newline_or_end()
+            self.__expect_line_end()
 
         return statements, return_node
 

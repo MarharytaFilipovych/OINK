@@ -12,7 +12,7 @@ class Lexer:
         self.index = 1
         self.tokens = []
         self.state = LexerState.INITIAL
-
+        self.line_has_content = False
         self.current_token_start = 0
         self.current_token_start_line = 1
         self.current_token_start_index = 1
@@ -72,13 +72,17 @@ class Lexer:
 
     def __manage_initial_state(self, char):
         if char == NEWLINE:
-            self.__add_token(TokenType.NEWLINE, NEWLINE)
+            if self.line_has_content:
+                self.__add_token(TokenType.NEWLINE, NEWLINE)
+            self.line_has_content = False
             self.__move_to_next_char()
             return
 
         if self.__is_whitespace(char):
             self.__move_to_next_char()
             return
+
+        self.line_has_content = True
 
         if self.__try_multi_char_token():
             return
