@@ -8,6 +8,7 @@ from ..node.code_block_node import CodeBlockNode
 from ..node.decl_node import DeclNode
 from ..node.id_node import IDNode
 from ..node.if_node import IfNode
+from ..node.elif_node import ElifNode
 from ..node.while_node import WhileNode
 from ..node.number_node import NumberNode
 from ..node.program_node import ProgramNode
@@ -54,6 +55,10 @@ class ASTVisitor(ABC):
 
     @abstractmethod
     def visit_if_statement(self, node: IfNode):
+        pass
+
+    @abstractmethod
+    def visit_elif_statement(self, node: ElifNode):
         pass
 
     @abstractmethod

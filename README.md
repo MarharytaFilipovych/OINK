@@ -49,40 +49,18 @@ All code blocks are wrapped in `🐖🐖🐖`:
 # 🐖🐖🐖 #
 ```
 
----
-
-### Comments
-There are two types of comments:
-* Single-line comments:
-```piglang
-👀 This is a single-line comment
-# 😀 🐷 🐽x🐽 @ 10 #  👀 Comment at end of line
-```
-* Multi-line comments:
-```piglang
-👀👀👀
-This is a multi-line comment
-It can span multiple lines
-👀👀👀
-```
-# 😀 🐷 🐽x🐽 @ 10 #
-
----
-
 ## 📋 Language Specification
-
-### Variable naming
-
-The variable name must contain only *letters* or *&*, but the first symbol must be a letter
 
 ### Type System
 
-| Type | Description | Range |
+*! If you do not decalre a varibale it will get a relvant default value !*
+
+| Type | Description | Range | Default value |
 |------|-------------|-------|
-| `🐽` | 16-bit integer (i16) | -32,768 to 32,767 |
-| `🐷` | 32-bit integer (i32) | -2,147,483,648 to 2,147,483,647 |
-| `🐗` | 64-bit integer (i64) | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 |
-| `wow` | Boolean | `LOVE` (true) or `HATE` (false) |
+| `🐽` | 16-bit integer (i16) | -32,768 to 32,767 | 0 |
+| `🐷` | 32-bit integer (i32) | -2,147,483,648 to 2,147,483,647 | 0 |
+| `🐗` | 64-bit integer (i64) | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 | 0 |
+| `wow` | Boolean | `LOVE` (true) or `HATE` (false) | `HATE` |
 
 ### Mutability
 
@@ -170,19 +148,19 @@ The variable name must contain only *letters* or *&*, but the first symbol must 
 ### Conditional Logic
 ```piglang
 # 😀 🐷 🐽x🐽 @ 42 #
-# 😀 wow 🐽is_valid🐽 @ HATE #
+# 😀 wow 🐽is&valid🐽 @ HATE #
 
 # SAVE 🐽x🐽 > 0 hru 🐽x🐽 < 100 #
 # 🐖🐖🐖 #
-# 🐽is_valid🐽 @ LOVE #
+# 🐽is&valid🐽 @ LOVE #
 # 🐖🐖🐖 #
 # HURT 🐽x🐽 🌸🌸 0 #
 # 🐖🐖🐖 #
-# 🐽is_valid🐽 @ HATE #
+# 🐽is&valid🐽 @ HATE #
 # 🐖🐖🐖 #
 # KILL #
 # 🐖🐖🐖 #
-# 🐽is_valid🐽 @ HATE #
+# 🐽is&valid🐽 @ HATE #
 # 🐖🐖🐖 #
 
 # ... 🐽is_valid🐽 ... #
@@ -261,66 +239,87 @@ Mood lines negate the entire boolean condition:
 ## 📐 EBNF Grammar
 
 ```ebnf
-program ::= line* return_line
+A program is zero or more statement wrappers followed by a return statement:
 
-line ::= normal_line | mood_line
-normal_line ::= "#" line_content "#"
-mood_line ::= "#" "~" line_content "~" "#"
+program ::= statement_wrapper* return_statement
 
-line_content ::= stmt | block_delimiter | control_start
-return_line ::= "#" "..." expr "..." "#"
+Statements are wrapped in delimiters and can be normal or mood (inverted logic):
 
-stmt ::= decl | assign
-decl ::= mutability type "🐽" ID "🐽" [ "@" expr ]
-assign ::= "🐽" ID "🐽" "@" expr
+statement_wrapper ::= normal_statement | mood_statement
+normal_statement ::= "#" statement_content "#" NEWLINE
+mood_statement ::= "#" "~" statement_content "~" "#" NEWLINE
+statement_content ::= stmt | block_delimiter
+return_statement ::= "#" "..." expr "..." "#"
 
+Statements are either declarations, assignments, conditionals, or loops:
+stmt ::= decl | assign | if_stmt | while_stmt
+
+Declaration: mutability, type, identifier wrapped in 🐽, and initializer expression. Variables are immutable by default unless 😀 is present:
+decl ::= mutability type "🐽" ID "🐽" "@" expr
 mutability ::= "😀" | "😭"
 type ::= "🐽" | "🐷" | "🐗" | "wow"
 
-control_start ::= if_start | elif_start | else_start | loop_start
-if_start ::= "SAVE" expr
-elif_start ::= "HURT" expr
-else_start ::= "KILL"
-loop_start ::= "OINK" expr
+Assignment: identifier wrapped in 🐽, assignment operator, expression:
+assign ::= "🐽" ID "🐽" "@" expr
+
+Conditional statements: if block with optional elif blocks and else block:
+if_stmt ::= if_block elif_block* else_block?
+
+if_block ::= "#" "SAVE" expr "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* "#" "🐖🐖🐖" "#" NEWLINE
+elif_block ::= "#" "HURT" expr "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* "#" "🐖🐖🐖" "#" NEWLINE
+else_block ::= "#" "KILL" "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* "#" "🐖🐖🐖" "#" NEWLINE
+
+While loop: condition followed by body block:
+while_stmt ::= "#" "OINK" expr "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* "#" "🐖🐖🐖" "#" NEWLINE
 
 block_delimiter ::= "🐖🐖🐖"
 
-expr ::= logical_or_expr
-logical_or_expr ::= logical_and_expr { "bruh" logical_and_expr }*
+Expression: handles logical OR operations with lower precedence; chains terms with bruh (left-associative):
+expr ::= logical_and_expr { "bruh" logical_and_expr }*
+
+Logical AND: handles logical AND operations; chains comparison expressions with hru (left-associative):
 logical_and_expr ::= comparison_expr { "hru" comparison_expr }*
+
+Comparison: handles equality and relational operations:
 comparison_expr ::= additive_expr [ comparison_op additive_expr ]
 comparison_op ::= "🌸🌸" | "💩🌸" | "🌸>" | "🌸<" | ">" | "<"
 
+Additive expression: handles addition and subtraction with lower precedence; chains terms with ❤️ or 💔 (left-associative):
 additive_expr ::= multiplicative_expr { ("❤️" | "💔") multiplicative_expr }*
+
+Multiplicative expression: handles multiplication and division with higher precedence than expr; chains factors with 💞 or 💕 (left-associative):
 multiplicative_expr ::= unary_expr { ("💞" | "💕") unary_expr }*
+
+Unary expression: handles logical NOT operator:
 unary_expr ::= [ "💩" ] factor
 
-factor ::= NUMBER | "🐽" ID "🐽" | "**" expr "**" | boolean
+Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), or parenthesized sub-expressions for grouping and overriding precedence:
+factor ::= NUMBER | "🐽" ID "🐽" | "" expr "" | boolean
 boolean ::= "LOVE" | "HATE"
-
-ID ::= LETTER { LETTER | DIGIT | "_" }*
+ID ::= LETTER { LETTER | "&" }*
 NUMBER ::= [ "-" ] DIGIT { DIGIT }*
+NEWLINE ::= "\n" | "\r\n"
 ```
 
 ---
 
 ## 🔒 Safety Features
 
-### Type Overflow Checking
+### Type overflow checking
 All arithmetic operations automatically check for overflow/underflow:
 ```piglang
 # 😀 🐽 🐽small🐽 @ 32767 #
 # 🐽small🐽 @ 🐽small🐽 ❤️ 1 #  # Runtime error: i16 overflow!
 ```
 
-### Immutability Enforcement
+### Immutability enforcement
 Constants cannot be reassigned:
 ```piglang
 # 😭 🐷 🐽constant🐽 @ 100 #
 # 🐽constant🐽 @ 200 #  # Compile error: cannot assign to constant!
 ```
 
-### No Variable Shadowing
+### No variable shadowing
 Variables cannot be redeclared in any scope:
 ```piglang
 # 😀 🐷 🐽x🐽 @ 10 #
@@ -330,7 +329,21 @@ Variables cannot be redeclared in any scope:
 # 🐖🐖🐖 #
 ```
 
----
+### Comments
+There are two types of comments:
+* Single-line comments:
+```piglang
+👀 This is a single-line comment
+# 😀 🐷 🐽x🐽 @ 10 #  👀 Comment at end of line
+```
+* Multi-line comments:
+```piglang
+👀👀👀
+This is a multi-line comment
+It can span multiple lines
+👀👀👀
+# 😀 🐷 🐽x🐽 @ 10 #
+```
 
 ## 🎨 Style Guide
 
@@ -340,9 +353,9 @@ Variables cannot be redeclared in any scope:
 - Mood lines use `#~` and `~#`
 
 ### Variable Naming
-- Use descriptive names: `🐽counter🐽`, `🐽total_sum🐽`
-- Snake_case recommended
-- Always wrap in 🐽 emojis
+- Use descriptive names: `🐽counter🐽`, `🐽total&sum🐽`
+- Only letteters and & in variable names can be used!
+- Always wrap your variable name in 🐽
 
 ### Block Formatting
 ```piglang

@@ -9,7 +9,7 @@ class TokenType(Enum):
     BOOL = auto()      # wow
     
     MUT = auto()       # 😀
-    IMMUT = auto()     # 😭
+    CONST = auto()     # 😭
     
     IF = auto()        # SAVE
     ELIF = auto()      # HURT
@@ -38,17 +38,14 @@ class TokenType(Enum):
     
     ASSIGNMENT = auto() # @
     
-    LEFT_PAREN = auto()   # **
-    RIGHT_PAREN = auto()  # **
+    BRACKET = auto()   # **
     
-    LINE_START = auto()   # #
-    LINE_END = auto()     # #
-    MOOD_START = auto()   # #~
-    MOOD_END = auto()     # ~#
+    SIMPLE_LINE_BORDER = auto()   # #
+    MOOD_LINE_BORDER = auto()   # #~
     
-    BLOCK_DELIM = auto()  # 🐖🐖🐖
+    BLOCK_BORDER = auto()  # 🐖🐖🐖
     
-    PIG_SNOUT = auto()    # 🐽
+    VARIABLE_BORDER = auto()    # 🐽
     
     VARIABLE = auto()
     NUMBER = auto()
@@ -57,3 +54,24 @@ class TokenType(Enum):
 
     COMMENT = auto()           # 👀 (single line)
     MULTILINE_COMMENT = auto() # 👀👀👀
+
+    def if_for_comparision(self) -> bool:
+        return self in {TokenType.EQUALS, TokenType.NOT_EQUALS, TokenType.GREATER,
+                        TokenType.LESS, TokenType.GREATER_EQUAL, TokenType.LESS_EQUAL}
+    
+    def is_arithmetic_operator(self) -> bool:
+        return self in {TokenType.PLUS, TokenType.MINUS, TokenType.MULTIPLY, TokenType.DIVIDE}
+    
+    def is_logical_operator(self) -> bool:
+        return self in {TokenType.AND, TokenType.OR}
+    
+    def is_additive_operator(self) -> bool:
+        return self in {TokenType.PLUS, TokenType.MINUS}
+    
+    def is_multiplicative_operator(self) -> bool:
+        return self in {TokenType.MULTIPLY, TokenType.DIVIDE}
+    
+    def is_border(self) -> bool:
+        return self in {TokenType.BLOCK_BORDER, TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER}
+    
+    

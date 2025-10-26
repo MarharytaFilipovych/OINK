@@ -2,13 +2,13 @@
 from ..llvm_specifics.data_type import DataType
 from .stmt_node import StmtNode
 from .expr_node import ExprNode
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from ..visitor.ast_visitor import ASTVisitor
 
 class DeclNode(StmtNode):
-    def __init__(self, variable: str, expr_node: ExprNode, line: int, mutable: bool, data_type: DataType):
+    def __init__(self, variable: str, expr_node: Optional[ExprNode], line: int, mutable: bool, data_type: DataType):
         super().__init__(variable, expr_node, line)
         self.mutable = mutable
         self.data_type = data_type

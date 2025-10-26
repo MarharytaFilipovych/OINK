@@ -40,14 +40,15 @@ class Lexer:
         self.__move_to_next_char()
 
     def __move_to_next_char(self, count: int = 1):
-        for _ in range(count):
-            if self.current_position < len(self.source):
-                if self.source[self.current_position] == NEWLINE:
-                    self.line += 1
-                    self.index = 1
-                else:
-                    self.index += 1
-                self.current_position += 1
+        i = 0
+        while i < count and self.current_position < len(self.source):
+            if self.source[self.current_position] == NEWLINE:
+                self.line += 1
+                self.index = 1
+            else:
+                self.index += 1
+            self.current_position += 1
+            i += 1
 
     def tokenize(self) -> list[Token]:
         while self.current_position < len(self.source):
@@ -60,6 +61,10 @@ class Lexer:
                     self.__manage_identifier_state(char)
                 case LexerState.NUMBER:
                     self.__manage_number_state(char)
+                case LexerState.COMMENT:
+                    self.__manage_comment_state(char)
+                case LexerState.MULTILINE_COMMENT:
+                    self.__manage_multiline_comment_state()
                     
         self.__build_current_token()
         self.tokens.append(Token(TokenType.THE_END, "", self.line, self.index))
@@ -100,8 +105,7 @@ class Lexer:
 
         raise ValueError(
             f"I did not expect character '{char}' to be "
-            f"placed at line {self.line}, column {self.index}!!!"
-        )
+            f"placed at line {self.line}, column {self.index}!!!")
 
     def __try_multi_char_token(self) -> bool:
         for length in [3, 2]:
@@ -136,7 +140,7 @@ class Lexer:
         return False
 
     def __manage_identifier_state(self, char: str):
-        if char.isalnum() or char == VARIABLE_ALLOWED_SIGHN:
+        if char.isalpha() or char == VARIABLE_ALLOWED_SIGHN:
             self.__move_to_next_char()
         else:
             self.__build_current_token()

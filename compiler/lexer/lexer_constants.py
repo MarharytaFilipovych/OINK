@@ -22,19 +22,19 @@ SPECIAL_CHARS = {
 }
 
 MULTI_CHAR_TOKENS = {
-    '#~': TokenType.MOOD_START,
+    '#~': TokenType.MOOD_LINE_BORDER,
     '~#': TokenType.MOOD_END,
     '...': TokenType.RETURN,
-    '**': TokenType.LEFT_PAREN,
-    '#': TokenType.LINE_START,
+    '**': TokenType.BRACKET,
+    '#': TokenType.SIMPLE_LINE_BORDER,
 }
 
 EMOJI_TOKENS = {
-    '🐽': TokenType.PIG_SNOUT,
+    '🐽': TokenType.VARIABLE_BORDER,
     '🐷': TokenType.I32_TYPE,
     '🐗': TokenType.I64_TYPE,
     '😀': TokenType.MUT,
-    '😭': TokenType.IMMUT,
+    '😭': TokenType.CONST,
     '❤️': TokenType.PLUS,
     '💔': TokenType.MINUS,
     '💞': TokenType.MULTIPLY,
@@ -45,7 +45,7 @@ EMOJI_TOKENS = {
     '💩🌸': TokenType.NOT_EQUALS,
     '🌸>': TokenType.GREATER_EQUAL,
     '🌸<': TokenType.LESS_EQUAL,
-    '🐖🐖🐖': TokenType.BLOCK_DELIM,
+    '🐖🐖🐖': TokenType.BLOCK_BORDER,
     '👀👀👀': TokenType.MULTILINE_COMMENT
 }
 
