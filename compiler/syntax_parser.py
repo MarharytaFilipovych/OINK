@@ -53,6 +53,8 @@ class SyntaxParser:
 
     def parse_program(self) -> ProgramNode:
         statements = self.__parse_statements()
+        if len(statements) == 0:
+            raise ValueError(f"You cannot write a program with a single return statement!")
         return_statement = self.__parse_program_return()
         self.__check_program_end()
 
@@ -65,10 +67,11 @@ class SyntaxParser:
             token = self.__peek()
             if len(statements) == 0 and token and token.token_type == TokenType.THE_END:
                 raise ValueError("Program cannot be empty! You have to write something before the return statement!")
-            
+
             if not token or token.token_type == TokenType.THE_END:
-                raise ValueError('Program must end with "# ... expr ... #"!')
-                
+                if len(statements) > 0:
+                    raise ValueError('Program must end with "# ... expr ... #"!')    
+
             self.__define_line_type(token)
             
             token = self.__peek()
@@ -76,13 +79,16 @@ class SyntaxParser:
                 break
 
             statement = self.__parse_statement()
+            
             if statement:
                 statements.append(statement)
 
         return statements
 
     def __parse_program_return(self) -> ReturnNode:
-        return_statement = self.__parse_return()
+        self.__expect_token(TokenType.RETURN)
+        return_statement = self.__parse_expression()
+        self.__expect_token(TokenType.RETURN)
         self.__expect_line_end()
         return return_statement
 
@@ -103,10 +109,10 @@ class SyntaxParser:
                 stmt = self.__parse_assignment()
             case TokenType.IF:
                 stmt = self.__parse_if_statement()
-                consumes_own_line_end = True  # if statements consume their own line endings
+                consumes_own_line_end = True
             case TokenType.WHILE:
                 stmt = self.__parse_while_statement()
-                consumes_own_line_end = True  # while statements consume their own line endings
+                consumes_own_line_end = True
             case TokenType.BLOCK_BORDER:
                 self.__eat()
             case _:
@@ -193,6 +199,9 @@ class SyntaxParser:
 
     def __parse_if_statement(self) -> IfNode:
         if_token = self.__expect_token(TokenType.IF)
+        if not self.__peek() or self.__peek().token_type in [TokenType.MOOD_LINE_BORDER_END, TokenType.SIMPLE_LINE_BORDER]:
+            raise ValueError(f"If condition missing at line {if_token.line}!")
+
         condition = self.__parse_expression()
         
         if self.in_mood_line:
@@ -209,11 +218,8 @@ class SyntaxParser:
         return IfNode(condition, then_block, elif_blocks, else_block, if_token.line)
 
     def __peek_for_elif(self) -> bool:
-        """Check if the next non-border token is ELIF"""
         saved_index = self.current_token_index
         
-        # The code block already consumed its line ending, so we're at the next line
-        # Skip line border
         token = self.__peek()
         if token and token.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START]:
             self.current_token_index += 1
@@ -226,50 +232,45 @@ class SyntaxParser:
         return result
 
     def __parse_elif_block(self) -> ElifNode:
-        # We've already confirmed there's an elif through peek_for_elif
-        # We're positioned after the closing of the previous block
         
         self.__skip_line_start()
         elif_token = self.__expect_token(TokenType.ELIF)
+        if not self.__peek() or self.__peek().token_type in [TokenType.MOOD_LINE_BORDER_END, TokenType.SIMPLE_LINE_BORDER]:
+            raise ValueError(f"If condition missing at line {elif_token.line}!")
         condition = self.__parse_expression()
         
         if self.in_mood_line:
             condition = UnaryOpNode(NOT, condition)
             
         then_block = self.__parse_code_block()
-        # parse_code_block already consumed its line ending
         
         return ElifNode(condition, then_block, elif_token.line)
 
     def __parse_while_statement(self) -> WhileNode:
         while_token = self.__expect_token(TokenType.WHILE)
+        if not self.__peek() or self.__peek().token_type in [TokenType.MOOD_LINE_BORDER_END, TokenType.SIMPLE_LINE_BORDER]:
+            raise ValueError(f"If condition missing at line {while_token.line}!")
         condition = self.__parse_expression()
         
         if self.in_mood_line:
             condition = UnaryOpNode(NOT, condition)
         
         body = self.__parse_code_block()
-        # parse_code_block already consumed its line ending
 
         return WhileNode(condition, body, while_token.line)
 
     def __try_parse_else_block(self) -> Optional[CodeBlockNode]:
-        """Check if the next non-border token is ELSE"""
         saved_index = self.current_token_index
         
-        # Skip line border
         token = self.__peek()
         if token and token.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START]:
             self.current_token_index += 1
             token = self.__peek()
             if token and token.token_type == TokenType.ELSE:
-                # Found ELSE, don't restore - continue parsing
-                self.__eat()  # Consume ELSE token
+                self.__eat()
                 block = self.__parse_code_block()
-                # parse_code_block already consumed its line ending
                 return block
         
-        # No ELSE found, restore position
         self.current_token_index = saved_index
         return None
 
@@ -281,23 +282,18 @@ class SyntaxParser:
             self.__eat()
 
     def __parse_code_block(self) -> CodeBlockNode:
-        # After condition line: # SAVE condition #\n
-        # We should be at: # 🐖🐖🐖 #\n
         
-        # Expect opening delimiter line
-        self.__expect_line_end()  # consumes newline after condition
-        self.__skip_line_start()  # consumes #
-        self.__expect_token(TokenType.BLOCK_BORDER)  # consumes 🐖🐖🐖
-        self.__expect_line_end()  # consumes # and newline
+        self.__expect_line_end()  
+        self.__skip_line_start()  
+        self.__expect_token(TokenType.BLOCK_BORDER) 
+        self.__expect_line_end()
 
         statements, return_node = self.__parse_block_contents()
 
-        # After block contents, we should be at: # 🐖🐖🐖 #
-        # The newline before this was already consumed by the last statement
-        self.__skip_line_start()  # consumes #
-        self.__expect_token(TokenType.BLOCK_BORDER)  # consumes 🐖🐖🐖
-        self.__expect_line_end()  # consume # and newline
-        
+        self.__skip_line_start() 
+        self.__expect_token(TokenType.BLOCK_BORDER)  
+        self.__expect_line_end() 
+
         scope_id = self.next_scope_id
         self.next_scope_id += 1
         return CodeBlockNode(statements, return_node, scope_id)
@@ -307,26 +303,20 @@ class SyntaxParser:
         return_node = None
 
         while True:
-            # We're at the start of a line, could be a statement or closing delimiter
             token = self.__peek()
 
             if not token:
                 raise ValueError("Code block must be closed with 🐖🐖🐖!")
 
-            # Check if this is the closing delimiter line
             if token.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START]:
-                # Peek ahead to see if it's the closing block
                 saved_index = self.current_token_index
-                self.__eat()  # consume line border
+                self.__eat() 
                 next_token = self.__peek()
                 if next_token and next_token.token_type == TokenType.BLOCK_BORDER:
-                    # This is the closing delimiter, restore position and exit
                     self.current_token_index = saved_index
                     break
-                # Not a closing delimiter, restore and continue
                 self.current_token_index = saved_index
             
-            # Parse a statement
             self.__define_line_type(token)
             
             token = self.__peek()
@@ -338,7 +328,6 @@ class SyntaxParser:
             statement = self.__parse_statement()
             if statement:
                 statements.append(statement)
-            # __parse_statement already consumed the line ending
 
         return statements, return_node
 

@@ -82,11 +82,20 @@ class Lexer:
             self.__move_to_next_char()
             return
 
+        if self.__peek_ahead(len(MULTILINE_COMMENT)) == MULTILINE_COMMENT:
+            self.state = LexerState.MULTILINE_COMMENT
+            self.__move_to_next_char(len(MULTILINE_COMMENT))
+            return
+
+        if self.__peek_ahead(len(COMMENT)) == COMMENT:
+            self.state = LexerState.COMMENT
+            self.__move_to_next_char(len(COMMENT))
+            return
+
         self.line_has_content = True
 
         if self.__try_multi_char_token():
             return
-
         if self.__try_emoji_token():
             return
 
@@ -109,10 +118,11 @@ class Lexer:
 
         raise ValueError(
             f"I did not expect character '{char}' to be "
-            f"placed at line {self.line}, column {self.index}!!!")
+            f"placed at line {self.line}, column {self.index}!!!"
+        )
 
     def __try_multi_char_token(self) -> bool:
-        for length in [3,2,1]:
+        for length in [3, 2, 1]:
             sequence = self.__peek_ahead(length)
             if sequence in MULTI_CHAR_TOKENS:
                 self.__add_token(MULTI_CHAR_TOKENS[sequence], sequence)
@@ -123,16 +133,6 @@ class Lexer:
     def __try_emoji_token(self) -> bool:
         if ord(self.source[self.current_position]) <= 127:
             return False
-
-        if self.__peek_ahead(9) == MULTILINE_COMMENT:
-            self.state = LexerState.MULTILINE_COMMENT
-            self.__move_to_next_char(9)
-            return True
-        
-        if self.__peek_ahead(3) == COMMENT:
-            self.state = LexerState.COMMENT
-            self.__move_to_next_char(3)
-            return True
 
         for length in [9, 6, 3, 2, 1]:
             sequence = self.__peek_ahead(length)
@@ -153,9 +153,17 @@ class Lexer:
     def __manage_number_state(self, char: str):
         if char.isdigit():
             self.__move_to_next_char()
-        else:
-            self.__build_current_token()
-            self.state = LexerState.INITIAL
+            return
+
+        if char.isalpha() or char == VARIABLE_ALLOWED_SIGHN:
+            value = self.source[self.current_token_start:self.current_position + 1]
+            raise ValueError(
+                f"Do you think that this is a correct number: '{value}'? It is not!!!"
+                f" You placed that awful thing at line {self.current_token_start_line} "
+                f"and column {self.current_token_start_index}.")
+
+        self.__build_current_token()
+        self.state = LexerState.INITIAL
 
     def __build_identifier_token(self, value: str):
         token_type = KEYWORDS.get(value, TokenType.VARIABLE)
@@ -163,10 +171,10 @@ class Lexer:
 
     def __build_number_token(self, value: str):
         if not value.lstrip('-').isdigit():
-             raise ValueError(
+            raise ValueError(
                 f"Do you think that this is a correct number: '{value}'? It is not!!!"
                 f"You placed that awful thing at line {self.current_token_start_line} "
-                f"and column {self.current_token_start_index}." )
+                f"and column {self.current_token_start_index}.")
         self.__add_token(TokenType.NUMBER, value, self.current_token_start_line, self.current_token_start_index)
 
     def __build_current_token(self):
@@ -178,16 +186,17 @@ class Lexer:
                 self.__build_identifier_token(value)
             case LexerState.NUMBER:
                 self.__build_number_token(value)
-    
+
     def __manage_comment_state(self, char: str):
-        if char == NEWLINE:
-            self.state = LexerState.INITIAL
-        else:
+        while self.current_position < len(self.source) and self.source[self.current_position] != NEWLINE:
             self.__move_to_next_char()
+        self.state = LexerState.INITIAL
+        self.line_has_content = False
 
     def __manage_multiline_comment_state(self):
-        if self.__peek_ahead(9) == MULTILINE_COMMENT:
-            self.__move_to_next_char(9)
-            self.state = LexerState.INITIAL
-        else:
+        while self.current_position < len(self.source):
+            if self.__peek_ahead(len(MULTILINE_COMMENT)) == MULTILINE_COMMENT:
+                self.__move_to_next_char(len(MULTILINE_COMMENT))
+                self.state = LexerState.INITIAL
+                return
             self.__move_to_next_char()

@@ -15,6 +15,4 @@ define i32 @main() {
   %b = add i32 0, %_temp_1
   %_temp_2 = add i32 %a, %b
   %result = add i32 0, %_temp_2
-  call void @printResult(i32 %result)
-  ret i32 %result
 }

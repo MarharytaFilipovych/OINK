@@ -11,6 +11,4 @@ define void @printResult(i32 %val) {
 define i32 @main() {
   %_temp_0 = sext i16 42 to i32
   %x = add i32 0, %_temp_0
-  call void @printResult(i32 %x)
-  ret i32 %x
 }

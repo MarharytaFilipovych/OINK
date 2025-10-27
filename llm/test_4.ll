@@ -14,13 +14,11 @@ define i32 @main() {
   %_temp_1 = sext i16 0 to i32
   %result = add i32 0, %_temp_1
   %_temp_3 = sext i16 5 to i32
-  %_temp_2 = icmp sgt 🐷 %x, %_temp_3
+  %_temp_2 = icmp sgt i32 %x, %_temp_3
   br i1 %_temp_2, label %then_0, label %end_0
 then_0:
   %_temp_4 = sext i16 100 to i32
   %result.1 = add i32 0, %_temp_4
   br label %end_0
 end_0:
-  call void @printResult(i32 %result.1)
-  ret i32 %result.1
 }

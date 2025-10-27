@@ -130,7 +130,7 @@ define void @printResult(i32 %val) {
     
         llvm_op = node.operator.to_llvm()
         self.translated_lines.append(
-            f"  {temp_reg} = {llvm_op} {operand_type} {left_value}, {right_value}")
+            f"  {temp_reg} = {llvm_op} {operand_type.to_llvm()} {left_value}, {right_value}")
 
     def __generate_logical(self, node: BinaryOpNode, left_value: str, 
                            right_value: str, temp_reg: str):

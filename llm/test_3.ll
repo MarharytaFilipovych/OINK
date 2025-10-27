@@ -12,7 +12,4 @@ define i32 @main() {
   %flag = add i1 0, 1
   %_temp_0 = xor i1 %flag, 1
   %result = add i1 0, %_temp_0
-  %_temp_1 = zext i1 %result to i32
-  call void @printResult(i32 %_temp_1)
-  ret i32 %_temp_1
 }
