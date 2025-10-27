@@ -1,8 +1,6 @@
 # 🐷 OINK Programming Language
 
-## THE BEST LANGUAGE IN YOUR LIFE EVER*
-
----
+## THE BEST LANGUAGE IN YOUR LIFE EVER
 
 ## 🎯 Overview
 
@@ -276,7 +274,7 @@ NEWLINE ::= "\n" | "\r\n"
 
 ## 🔒 Safety Features
 
-### Type overflow checking
+### Type overflow checking (will be soon, not right now, sorry)
 All arithmetic operations automatically check for overflow/underflow:
 ```piglang
 # 😀 🐽 🐽small🐽 @ 32767 #
@@ -290,7 +288,7 @@ Constants cannot be reassigned:
 # 🐽constant🐽 @ 200 #  # Compile error: cannot assign to constant!
 ```
 
-### No variable shadowing
+### No variable shadowing (to be continued)
 Variables cannot be redeclared in any scope:
 ```piglang
 # 😀 🐷 🐽x🐽 @ 10 #
