@@ -1,4 +1,4 @@
-# 🐷 PigLang Programming Language
+# 🐷 OINK Programming Language
 
 ## THE BEST LANGUAGE IN YOUR LIFE EVER*
 
@@ -6,17 +6,18 @@
 
 ## 🎯 Overview
 
-PigLang is a unique programming language that combines:
+**OINK* is a unique programming language that combines:
 - **Emoji-based operators** for visual expressiveness
-- **Pig-themed syntax** with 🐽 variable wrapping and 🐖🐖🐖 blocks
+- **Pig-themed syntax** with 🐽 variable wrapping and 🐖🐖🐖 blocks, and funny piggy numeric data types(🐽,🐷, 🐗)
 - **Mood Lines** - innovative inverted logic execution
-- **Strict line structure** for clean, readable code
+- **Strict line structure** for clean, and for some people, readable code
 - **Type-safe arithmetic** with overflow checking
 
 ## ✨ Key Features
 
 ### 🐽 Pig-Wrapped Variables
-All variables are wrapped in pig, poop, heart or flower emojis:
+All variables are wrapped ina 🐽 snout emoji:
+
 ```piglang
 # 😀 🐷 🐽my_variable🐽 @ 42 #
 ```
@@ -42,6 +43,7 @@ Lines wrapped in `#~ ... ~#` execute with inverted logic:
 
 ### 🐖 Block Delimiters
 All code blocks are wrapped in `🐖🐖🐖`:
+
 ```piglang
 # SAVE condition #
 # 🐖🐖🐖 #
@@ -53,14 +55,14 @@ All code blocks are wrapped in `🐖🐖🐖`:
 
 ### Type System
 
-*! If you do not decalre a varibale it will get a relvant default value !*
+*! If you do not declare a varible, it will get a relevant default value !*
 
-| Type | Description | Range | Default value |
-|------|-------------|-------|
-| `🐽` | 16-bit integer (i16) | -32,768 to 32,767 | 0 |
-| `🐷` | 32-bit integer (i32) | -2,147,483,648 to 2,147,483,647 | 0 |
-| `🐗` | 64-bit integer (i64) | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 | 0 |
-| `wow` | Boolean | `LOVE` (true) or `HATE` (false) | `HATE` |
+| Type | Description        | Range                                             | Default value |
+|------|--------------------|---------------------------------------------------|----------------|
+| `🐽` | 16-bit integer (i16) | -32,768 to 32,767                                | 0              |
+| `🐷` | 32-bit integer (i32) | -2,147,483,648 to 2,147,483,647                 | 0              |
+| `🐗` | 64-bit integer (i64) | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 | 0      |
+| `wow` | Boolean             | `LOVE` (true) or `HATE` (false)                 | `HATE`         |
 
 ### Mutability
 
@@ -95,6 +97,10 @@ All code blocks are wrapped in `🐖🐖🐖`:
 ### Control Flow
 
 #### If-Elif-Else
+- `SAVE` If
+- `HURT` Elif
+- `KILL` Else
+
 ```piglang
 # SAVE condition #
 # 🐖🐖🐖 #
@@ -111,6 +117,8 @@ All code blocks are wrapped in `🐖🐖🐖`:
 ```
 
 #### While Loop
+- `OINK` While
+
 ```piglang
 # OINK condition #
 # 🐖🐖🐖 #
@@ -127,44 +135,6 @@ All code blocks are wrapped in `🐖🐖🐖`:
 5. `>`, `<`, `🌸>`, `🌸<`, `🌸🌸`, `💩🌸` (comparison)
 6. `hru` (logical AND)
 7. `bruh` (logical OR)
-
----
-
-## 📝 Example Programs
-
-### Hello Counter
-```piglang
-# 😀 🐷 🐽counter🐽 @ 0 #
-# 😭 🐷 🐽max🐽 @ 10 #
-
-# OINK 🐽counter🐽 < 🐽max🐽 #
-# 🐖🐖🐖 #
-# 🐽counter🐽 @ 🐽counter🐽 ❤️ 1 #
-# 🐖🐖🐖 #
-
-# ... 🐽counter🐽 ... #
-```
-
-### Conditional Logic
-```piglang
-# 😀 🐷 🐽x🐽 @ 42 #
-# 😀 wow 🐽is&valid🐽 @ HATE #
-
-# SAVE 🐽x🐽 > 0 hru 🐽x🐽 < 100 #
-# 🐖🐖🐖 #
-# 🐽is&valid🐽 @ LOVE #
-# 🐖🐖🐖 #
-# HURT 🐽x🐽 🌸🌸 0 #
-# 🐖🐖🐖 #
-# 🐽is&valid🐽 @ HATE #
-# 🐖🐖🐖 #
-# KILL #
-# 🐖🐖🐖 #
-# 🐽is&valid🐽 @ HATE #
-# 🐖🐖🐖 #
-
-# ... 🐽is_valid🐽 ... #
-```
 
 ### Using Mood Lines
 ```piglang
@@ -298,6 +268,7 @@ factor ::= NUMBER | "🐽" ID "🐽" | "" expr "" | boolean
 boolean ::= "LOVE" | "HATE"
 ID ::= LETTER { LETTER | "&" }*
 NUMBER ::= [ "-" ] DIGIT { DIGIT }*
+
 NEWLINE ::= "\n" | "\r\n"
 ```
 
@@ -331,12 +302,16 @@ Variables cannot be redeclared in any scope:
 
 ### Comments
 There are two types of comments:
+
 * Single-line comments:
+
 ```piglang
 👀 This is a single-line comment
 # 😀 🐷 🐽x🐽 @ 10 #  👀 Comment at end of line
 ```
+
 * Multi-line comments:
+
 ```piglang
 👀👀👀
 This is a multi-line comment
@@ -344,18 +319,19 @@ It can span multiple lines
 👀👀👀
 # 😀 🐷 🐽x🐽 @ 10 #
 ```
+---
 
 ## 🎨 Style Guide
 
 ### Line Structure
-- Each statement on its own line
+- Each statement must be on its own line
 - Lines start with `#` and end with `#`
-- Mood lines use `#~` and `~#`
+- Mood lines are warpped  in `#~` and `~#` (instead of usual `#`)
 
 ### Variable Naming
 - Use descriptive names: `🐽counter🐽`, `🐽total&sum🐽`
-- Only letteters and & in variable names can be used!
-- Always wrap your variable name in 🐽
+- Only letteters and `&` in variable names can be used!
+- Always wrap your variable name in `🐽`
 
 ### Block Formatting
 ```piglang
@@ -365,15 +341,12 @@ It can span multiple lines
 # statement2 #
 # 🐖🐖🐖 #
 ```
-
-### Comments
-PigLang does not support comments in the current specification. Use descriptive variable names instead.
-
 ---
 
 ## 🚀 Getting Started
 
-### Example: Fibonacci Calculator
+### Fibonacci Calculator
+
 ```piglang
 # 😀 🐷 🐽a🐽 @ 0 #
 # 😀 🐷 🐽b🐽 @ 1 #
@@ -391,57 +364,102 @@ PigLang does not support comments in the current specification. Use descriptive 
 # ... 🐽a🐽 ... #
 ```
 
+## 📝 Example Programs
+
+### Hello Counter
+
+```piglang
+# 😀 🐷 🐽counter🐽 @ 0 #
+# 😭 🐷 🐽max🐽 @ 10 #
+
+# OINK 🐽counter🐽 < 🐽max🐽 #
+# 🐖🐖🐖 #
+# 🐽counter🐽 @ 🐽counter🐽 ❤️ 1 #
+# 🐖🐖🐖 #
+
+# ... 🐽counter🐽 ... #
+```
+
+### Another program
+```piglang
+# 😀 🐷 🐽x🐽 @ 42 #
+
+# 😀 wow 🐽is&valid🐽 @ HATE #
+
+# SAVE 🐽x🐽 > 0 hru 🐽x🐽 < 100 #
+# 🐖🐖🐖 #
+# 🐽is&valid🐽 @ LOVE #
+# 🐖🐖🐖 #
+# HURT 🐽x🐽 🌸🌸 0 #
+# 🐖🐖🐖 #
+# 🐽is&valid🐽 @ HATE #
+# 🐖🐖🐖 #
+# KILL #
+# 🐖🐖🐖 #
+# 🐽is&valid🐽 @ HATE #
+# 🐖🐖🐖 #
+
+# ... 🐽is&valid🐽 ... #
+```
 ---
 
 ## 🤔 FAQ
 
 **Why pig emojis?**  
-*Answer*: BEACAUSE I DECIDED TO CHOOSE PUGS AS ANA SOURCE OF INSPIRATION
+*Answer*: BEACAUSE I DECIDED TO CHOOSE PIGS AS A SOURCE OF INSPIRATION
 
 **What's the purpose of Mood Lines?**  
 *Answer*: Mood Lines provide a unique way to write inverse logic without explicit negation operators, making certain patterns more concise.
 
 **Can I nest conditionals?**  
-*Answer*: Yes! You can nest any control structures within 🐖🐖🐖 blocks.
+*Answer*: Yes! You can nest any control structures, but do not forget about placing them within 🐖🐖🐖 blocks.
 
 **Is PigLang case-sensitive?**  
 *Answer*: Yes, identifiers are case-sensitive. `🐽myVar🐽` and `🐽MyVar🐽` are different variables.
 
 **Why `**` instead of `()`?**  
-*Answer*: To maintain PigLang's unique visual identity and distinguish it from traditional languages.
+*Answer*: To maintain PigLang's unique visual identity!!!!!!!!!!!!!!!!!!!!!!
 
 **Can I shadow variables?**
 *Answer*: No! PigLang does not allow variable shadowing. Once a variable is declared, it cannot be redeclared in any scope.
 
+**Can I use numbers within a varible name?**
+*Answer*: No! Your variable name must start with a letter (alpha) and then can be followed either by a letter or a `&` sign!
+
 ---
 
-## 🎉 Have Fun Coding!
+## 🎉 HAVE FUN CODING (OR NOT), MY LOVELY FRIENDS!
 
 **Remember:**
 - Wrap your variables in 🐽
 - Enclose blocks with 🐖🐖🐖
-- Use LOVE and HATE for booleans
-- Try Mood Lines for inverted logic
+- Use `LOVE` and `HATE` for booleans
+- Try *Mood Lines* for inverted logic
 - Every program must return something!
 - No variable shadowing allowed!
 - Use `hru` for AND and `bruh` for OR
 
-Happy PigLang coding! 🐷✨
+Happy *OINK* coding! 🐷✨
 
 ---
 
-## 📦 Implementation Notes
+## 📦HOW TO RUN IT???
 
-### Modified Files
-The following files have been updated to support PigLang:
+Unfortunatly, as for now, you cannot directly code in this amazing and superb language((
+That is because the compiler is not implemented yet. However, do not worry, cutie, because it will be eventually:)
+So, the time will come when you will use only this language on your daily basis and forget about other sacry languages at once:)
 
-1. **lexer_state.py** - Added EMOJI and MOOD_LINE states
-2. **token_type.py** - Complete rewrite with PigLang tokens (emoji operators, pig types, control flow keywords)
-3. **data_type.py** - Updated with pig emoji types (🐽 for i16, 🐷 for i32, 🐗 for i64, wow for bool)
-4. **operator.py** - Updated with emoji operators (❤️💔💞💕🌸💩) and logical operators (hru, bruh)
-5. **lexer.py** - Complete rewrite to handle emoji tokenization and PigLang syntax
-6. **context.py** - Modified to restrict variable shadowing across all scopes
+## ✨ WHAT SHOULD I DO NOW?
 
-### Logical Operator Changes
-- `aaNdd` → `hru` (AND operator)
-- `oorr` → `bruh` (OR operator)
+As I stated above -> WAIT.
+Nevertheless, you can run some tests and verify that it is working. 
+You can run these commands.... (but verify that you are not inside the *compiler* directory, you must be at the root level)
+
+```bash
+
+chmod +x tests.sh
+./tests.sh
+
+```
+
+# ENJOY🐽🐽🐽
