@@ -14,7 +14,7 @@ from .base_parser import BaseParser
 
 
 class ExpressionParser(BaseParser):
-    def _parse_type(self) -> DataType:
+    def _parse_type(self) -> Union[DataType, str]:
         token = self._eat()
         type_map = {
             TokenType.I16_TYPE: DataType.I16,
@@ -27,10 +27,15 @@ class ExpressionParser(BaseParser):
         if token.token_type in type_map:
             return type_map[token.token_type]
         
+        if token.token_type == TokenType.VARIABLE:
+            return token.value
+        
         raise ValueError(f"Expected type declaration at line {token.line}")
 
     @staticmethod
-    def _set_default_for_type(data_type: DataType) -> FactorNode:
+    def _set_default_for_type(data_type: Union[DataType, str]) -> FactorNode:
+        if isinstance(data_type, str):
+            raise ValueError(f"Cannot set default value for struct type {data_type}")
         if data_type == DataType.BOOL:
             return BooleanNode(FALSE)
         elif data_type in [DataType.I16, DataType.I32, DataType.I64]:
