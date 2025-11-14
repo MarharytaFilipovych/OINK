@@ -13,29 +13,34 @@ KEYWORDS = {
     "wow": TokenType.BOOL,
     "hru": TokenType.AND,
     "bruh": TokenType.OR,
+    "PIG": TokenType.FUNCTION,
+    "PIGLET": TokenType.MEMBER_FUNCTION,
+    "BOAR": TokenType.STRUCT,
 }
 
 SPECIAL_CHARS = {
     '@': TokenType.ASSIGNMENT,
     '>': TokenType.GREATER,
-    '<': TokenType.LESS
+    '<': TokenType.LESS,
+    '_': TokenType.MEMBER_ACCESS,
 }
 
 MULTI_CHAR_TOKENS = {
-    '...': TokenType.RETURN,         # 3 chars - check first
-    '#~': TokenType.MOOD_LINE_BORDER_START,  # 2 chars
-    '~#': TokenType.MOOD_LINE_BORDER_END,    # 2 chars  
-    '**': TokenType.BRACKET,         # 2 chars
-    '#': TokenType.SIMPLE_LINE_BORDER,       # 1 char - check last
+    '...': TokenType.RETURN,
+    '#~': TokenType.MOOD_LINE_BORDER_START,
+    '~#': TokenType.MOOD_LINE_BORDER_END,
+    '**': TokenType.BRACKET,
+    '#': TokenType.SIMPLE_LINE_BORDER,
 }
 
 EMOJI_TOKENS = {
-    '🐖': TokenType.VARIABLE_BORDER,  # ✅ CHANGED - pig face for variable borders
-    '🐽': TokenType.I16_TYPE,  # ✅ CHANGED - pig snout for i16 type
+    '🐖': TokenType.VARIABLE_BORDER,
+    '🐽': TokenType.I16_TYPE,
     '🐷': TokenType.I32_TYPE,
     '🐗': TokenType.I64_TYPE,
     '😀': TokenType.MUT,
     '😭': TokenType.CONST,
+    '😑': TokenType.VOID,
     '❤️': TokenType.PLUS,
     '💔': TokenType.MINUS,
     '💞': TokenType.MULTIPLY,
@@ -47,10 +52,12 @@ EMOJI_TOKENS = {
     '🌸>': TokenType.GREATER_EQUAL,
     '🌸<': TokenType.LESS_EQUAL,
     '🐖🐖🐖': TokenType.BLOCK_BORDER,
-    '👀👀👀': TokenType.MULTILINE_COMMENT
+    '👀👀👀': TokenType.MULTILINE_COMMENT,
+    'eat😋': TokenType.READ,
+    'print🤮': TokenType.PRINT,
 }
 
-MULTILINE_COMMENT = '👀👀👀'  
+MULTILINE_COMMENT = '👀👀👀'
 COMMENT = '👀'
 VARIABLE_ALLOWED_SIGHN = '&'
 NEWLINE = '\n'

@@ -7,6 +7,7 @@ class TokenType(Enum):
     I32_TYPE = auto()  # 🐷
     I64_TYPE = auto()  # 🐗
     BOOL = auto()      # wow
+    VOID = auto()      # 😑
     
     MUT = auto()       # 😀
     CONST = auto()     # 😭
@@ -48,6 +49,15 @@ class TokenType(Enum):
     
     VARIABLE_BORDER = auto()    # 🐖
     
+    FUNCTION = auto()        # PIG
+    MEMBER_FUNCTION = auto() # PIGLET
+    STRUCT = auto()          # BOAR
+    
+    MEMBER_ACCESS = auto()   # _
+    
+    READ = auto()       # eat😋
+    PRINT = auto()      # print🤮
+    
     VARIABLE = auto()
     NUMBER = auto()
     NEWLINE = auto()
@@ -76,4 +86,8 @@ class TokenType(Enum):
         return self in {TokenType.BLOCK_BORDER, 
                         TokenType.SIMPLE_LINE_BORDER, 
                         TokenType.MOOD_LINE_BORDER_START,
-                        TokenType.MOOD_LINE_BORDER_END}  # ✅ ADDED THIS LINE
+                        TokenType.MOOD_LINE_BORDER_END}
+    
+    def is_data_type(self) -> bool:
+        return self in {TokenType.I16_TYPE, TokenType.I32_TYPE, TokenType.I64_TYPE, 
+                        TokenType.BOOL, TokenType.VOID}
