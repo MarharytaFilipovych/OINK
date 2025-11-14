@@ -127,6 +127,44 @@ def assert_multiline_comment(self, lexemes):
     var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE][0]
     self.assertEqual(var_token.value, "x")
 
+def assert_struct_keyword(self, lexemes):
+    struct_token = [t for t in lexemes if t.token_type == TokenType.STRUCT][0]
+    self.assertEqual(struct_token.value, "BOAR")
+
+def assert_function_keyword(self, lexemes):
+    func_token = [t for t in lexemes if t.token_type == TokenType.FUNCTION][0]
+    self.assertEqual(func_token.value, "PIG")
+
+def assert_member_function_keyword(self, lexemes):
+    member_func_token = [t for t in lexemes if t.token_type == TokenType.MEMBER_FUNCTION][0]
+    self.assertEqual(member_func_token.value, "PIGLET")
+
+def assert_struct_with_fields(self, lexemes):
+    struct_token = [t for t in lexemes if t.token_type == TokenType.STRUCT]
+    var_tokens = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
+    self.assertEqual(len(struct_token), 1)
+    self.assertTrue(len(var_tokens) >= 2)
+
+def assert_function_with_params(self, lexemes):
+    func_token = [t for t in lexemes if t.token_type == TokenType.FUNCTION]
+    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
+    self.assertEqual(len(func_token), 1)
+    self.assertTrue(len(bracket_tokens) >= 2)
+
+def assert_void_return_type(self, lexemes):
+    void_token = [t for t in lexemes if t.token_type == TokenType.VOID][0]
+    self.assertEqual(void_token.value, "😑")
+
+def assert_member_access_operator(self, lexemes):
+    member_tokens = [t for t in lexemes if t.token_type == TokenType.MEMBER_ACCESS]
+    self.assertTrue(len(member_tokens) >= 1)
+
+def assert_struct_declaration_complete(self, lexemes):
+    struct_token = [t for t in lexemes if t.token_type == TokenType.STRUCT]
+    block_tokens = [t for t in lexemes if t.token_type == TokenType.BLOCK_BORDER]
+    self.assertEqual(len(struct_token), 1)
+    self.assertEqual(len(block_tokens), 2)
+
 
 all_tests = [
     ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 42 #\n", assert_simple_declaration),
@@ -144,6 +182,14 @@ all_tests = [
     ("brackets", "# 🐖x🐖 @ ** 🐖a🐖 ❤️ 🐖b🐖 ** #\n", assert_brackets),
     ("single_line_comment", "👀 This is a comment\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_single_line_comment),
     ("multiline_comment", "👀👀👀\nThis is a\nmulti-line comment\n👀👀👀\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_multiline_comment),
+    ("struct_keyword", "# BOAR 🐖Point🐖 #\n", assert_struct_keyword),
+    ("function_keyword", "# 🐷 PIG 🐖add🐖 #\n", assert_function_keyword),
+    ("member_function_keyword", "# 🐷 PIGLET 🐖getValue🐖 #\n", assert_member_function_keyword),
+    ("struct_with_fields", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n", assert_struct_with_fields),
+    ("function_with_params", "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n", assert_function_with_params),
+    ("void_return_type", "# 😑 PIG 🐖print🐖 #\n", assert_void_return_type),
+    ("member_access_operator", "# 🐖p🐖 _ 🐖x🐖 #\n", assert_member_access_operator),
+    ("struct_declaration_complete", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n", assert_struct_declaration_complete),
 ]
 
 for name, source, func in all_tests:

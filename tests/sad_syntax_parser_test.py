@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import unittest
 import sys
 import os
@@ -10,16 +9,19 @@ from compiler.syntax_parser.syntax_parser import SyntaxParser
 from compiler.lexer.lexer import Lexer
 from compiler.node.program_node import ProgramNode
 
+
 def parse_code(source: str) -> ProgramNode:
     lexer = Lexer(source)
     tokens = lexer.tokenize()
     parser = SyntaxParser(tokens)
     return parser.parse_program()
 
+
 class ExceptionCheckingTestCase(unittest.TestCase):
     def tearDown(self):
         if hasattr(self, "context") and getattr(self.context, "exception", None):
             self.assertTrue(self.context.exception, "Expected exception missing!")
+
 
 class SyntaxParserSadTest(ExceptionCheckingTestCase):
 
@@ -70,7 +72,64 @@ class SyntaxParserSadTest(ExceptionCheckingTestCase):
 # 🐖x🐖 @ 20 #
 # 🐖🐖🐖 #
 # ... 🐖x🐖 ... #"""),
-        ("incomplete_expression", "# 😀 🐷 🐖x🐖 @ 10 ❤️ #\n# ... 🐖x🐖 ... #")
+        ("incomplete_expression", "# 😀 🐷 🐖x🐖 @ 10 ❤️ #\n# ... 🐖x🐖 ... #"),
+        ("struct_without_name",
+         """# BOAR #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("struct_without_closing_block",
+         """# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# ... 0 ... #"""),
+        ("function_without_name",
+         """# 🐷 PIG #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("function_without_return_type",
+         """# PIG 🐖test🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("function_without_return_statement",
+         """# 🐷 PIG 🐖test🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 @ 10 #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("member_function_outside_struct",
+         """# 🐷 PIGLET 🐖test🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("duplicate_struct_name",
+         """# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖y🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("function_param_without_type",
+         """# 🐷 PIG 🐖add🐖 ** 🐖a🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖a🐖 ... #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("mismatched_function_brackets",
+         """# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 #
+# 🐖🐖🐖 #
+# ... 🐖a🐖 ... #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
     ]
 
     def test_all_failing_cases(self):

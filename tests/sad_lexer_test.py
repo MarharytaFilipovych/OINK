@@ -7,7 +7,13 @@ from happy_lexer_test import get_lexemes
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler.token.token_type import TokenType
-from sad_syntax_parser_test import ExceptionCheckingTestCase
+
+
+class ExceptionCheckingTestCase(unittest.TestCase):
+    def tearDown(self):
+        if hasattr(self, "context") and getattr(self.context, "exception", None):
+            self.assertTrue(self.context.exception, "Expected exception missing!")
+
 
 class TestLexerFailingCases(ExceptionCheckingTestCase):
     
@@ -25,6 +31,14 @@ class TestLexerFailingCases(ExceptionCheckingTestCase):
         ("standalone_ampersand", "# 😀 🐷 🐖x🐖 @ 10 & 5 #\n"),
         ("invalid_bracket", "# 🐖x🐖 @ ( 🐖a🐖 ❤️ 🐖b🐖 ) #\n"),
         ("invalid_mutability_marker", "# 🎉 🐷 🐖x🐖 @ 10 #\n"),
+        ("invalid_struct_keyword", "# STRUCT 🐖Point🐖 #\n"),
+        ("invalid_function_keyword", "# 🐷 FUNC 🐖test🐖 #\n"),
+        ("invalid_member_function_keyword", "# 🐷 METHOD 🐖test🐖 #\n"),
+        ("struct_name_without_border", "# BOAR Point #\n"),
+        ("function_name_without_border", "# 🐷 PIG test #\n"),
+        ("invalid_void_emoji", "# 😊 PIG 🐖test🐖 #\n"),
+        ("invalid_member_access", "# 🐖p🐖 . 🐖x🐖 #\n"),
+        ("invalid_block_border", "# 🐖🐖 #\n"),
     ]
 
     def test_all_failing_cases(self):
