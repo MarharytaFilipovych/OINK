@@ -40,7 +40,7 @@ class StatementParser(DeclarationParser):
     def _parse_variable_statement(self) -> StmtNode:
         saved_index = self.current_token_index
         self._eat()
-        var_token = self._expect_token(TokenType.VARIABLE)
+        self._expect_token(TokenType.VARIABLE)
         self._eat()
         
         next_token = self._peek()

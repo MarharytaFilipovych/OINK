@@ -6,7 +6,6 @@ from compiler.node.unary_op_node import UnaryOpNode
 from compiler.node.binary_op_node import BinaryOpNode
 from compiler.node.number_node import NumberNode
 from compiler.node.bool_node import BooleanNode
-from compiler.node.id_node import IDNode
 from compiler.llvm_specifics.data_type import DataType
 from compiler.llvm_specifics.operator import Operator
 from compiler.token.token_type import TokenType
@@ -30,7 +29,8 @@ class ExpressionParser(BaseParser):
         
         raise ValueError(f"Expected type declaration at line {token.line}")
 
-    def _set_default_for_type(self, data_type: DataType) -> FactorNode:
+    @staticmethod
+    def _set_default_for_type(data_type: DataType) -> FactorNode:
         if data_type == DataType.BOOL:
             return BooleanNode(FALSE)
         elif data_type in [DataType.I16, DataType.I32, DataType.I64]:

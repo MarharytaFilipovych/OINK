@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from .expr_node import ExprNode
-from .factor_node import FactorNode
 from ..llvm_specifics.operator import Operator
 from typing import TYPE_CHECKING
 

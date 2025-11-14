@@ -144,7 +144,7 @@ class Lexer:
         return False
 
     def __manage_identifier_state(self, char: str):
-        if char.isalpha() or char == VARIABLE_ALLOWED_SIGHN:
+        if char.isalpha() or char == VARIABLE_ALLOWED_SIGN:
             self.__move_to_next_char()
         else:
             self.__build_current_token()
@@ -155,7 +155,7 @@ class Lexer:
             self.__move_to_next_char()
             return
 
-        if char.isalpha() or char == VARIABLE_ALLOWED_SIGHN:
+        if char.isalpha() or char == VARIABLE_ALLOWED_SIGN:
             value = self.source[self.current_token_start:self.current_position + 1]
             raise ValueError(
                 f"Do you think that this is a correct number: '{value}'? It is not!!!"

@@ -6,9 +6,15 @@ from ..node.binary_op_node import BinaryOpNode
 from ..node.bool_node import BooleanNode
 from ..node.code_block_node import CodeBlockNode
 from ..node.decl_node import DeclNode
+from ..node.function_call_node import FunctionCallNode
+from ..node.function_decl_node import FunctionDeclNode
 from ..node.id_node import IDNode
 from ..node.if_node import IfNode
 from ..node.elif_node import ElifNode
+from ..node.io_nodes import ReadNode, PrintNode
+from ..node.member_access_node import MemberAccessNode
+from ..node.struct_decl_node import StructDeclNode
+from ..node.struct_init_node import StructInitNode
 from ..node.while_node import WhileNode
 from ..node.number_node import NumberNode
 from ..node.program_node import ProgramNode
@@ -67,4 +73,32 @@ class ASTVisitor(ABC):
 
     @abstractmethod
     def visit_code_block(self, node: CodeBlockNode):
+        pass
+
+    @abstractmethod
+    def visit_function_call(self, node: FunctionCallNode):
+        pass
+
+    @abstractmethod
+    def visit_function_declaration(self, node: FunctionDeclNode):
+        pass
+
+    @abstractmethod
+    def visit_read(self, node: ReadNode):
+        pass
+
+    @abstractmethod
+    def visit_print(self, node: PrintNode):
+        pass
+
+    @abstractmethod
+    def visit_member_access(self, node: MemberAccessNode):
+        pass
+
+    @abstractmethod
+    def visit_struct_declaration(self, node: StructDeclNode):
+        pass
+
+    @abstractmethod
+    def visit_struct_initialization(self, node: StructInitNode):
         pass

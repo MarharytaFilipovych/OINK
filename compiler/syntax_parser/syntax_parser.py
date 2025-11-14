@@ -85,7 +85,7 @@ class SyntaxParser(ControlFlowParser):
 
     def _parse_program_return(self) -> ReturnNode:
         self._expect_token(TokenType.RETURN)
-        return_statement = self._parse_expression()
+        return_statement = ReturnNode(self._parse_expression())
         self._expect_token(TokenType.RETURN)
         self._expect_line_end()
         return return_statement
