@@ -6,7 +6,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from compiler.syntax_parser import SyntaxParser
+from compiler.syntax_parser.syntax_parser import SyntaxParser
 from compiler.lexer.lexer import Lexer
 from compiler.node.program_node import ProgramNode
 

@@ -12,7 +12,6 @@ from compiler.node.assign_node import AssignNode
 from compiler.node.if_node import IfNode
 from compiler.node.while_node import WhileNode
 from compiler.node.binary_op_node import BinaryOpNode
-from compiler.node.number_node import NumberNode
 from compiler.llvm_specifics.data_type import DataType
 
 
