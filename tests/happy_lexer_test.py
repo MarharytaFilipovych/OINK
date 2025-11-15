@@ -167,17 +167,22 @@ def assert_struct_declaration_complete(self, lexemes):
     self.assertEqual(len(struct_token), 1)
     self.assertEqual(len(block_tokens), 2)
 
-def assert_print_statement(self, ast):
-    self.assertEqual(len(ast.statement_nodes), 1)
-    print_stmt = ast.statement_nodes[0]
-    self.assertIsInstance(print_stmt, PrintNode)
-    self.assertIsNotNone(print_stmt.expr)  
+def assert_print_statement(self, lexemes):
+    # This assertion verifies the order and type of tokens produced by the lexer.
+    expected_types = [TokenType.SIMPLE_LINE_BORDER, TokenType.PRINT, TokenType.VARIABLE_BORDER, TokenType.VARIABLE, TokenType.VARIABLE_BORDER, TokenType.SIMPLE_LINE_BORDER]
+    actual_types = [t.token_type for t in lexemes]
+    self.assertTrue(all(t1 == t2 for t1, t2 in zip(expected_types, actual_types)))
+    self.assertEqual(lexemes[1].value, "print🤮")
+    self.assertEqual(lexemes[3].value, "input&var")
 
-def assert_read_statement(self, ast):
-    self.assertEqual(len(ast.statement_nodes), 1)
-    read_stmt = ast.statement_nodes[0]
-    self.assertIsInstance(read_stmt, ReadNode)
-    self.assertEqual(read_stmt.variable, "input_var")
+def assert_read_statement(self, lexemes):
+    # This assertion only checks for the existence of the core tokens.
+    read_token = [t for t in lexemes if t.token_type == TokenType.READ]
+    var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
+    self.assertEqual(len(read_token), 1)
+    self.assertTrue(len(var_token) >= 1)
+    self.assertEqual(read_token[0].value, "eat😋")
+    self.assertEqual(var_token[0].value, "input&var")
 
 
 all_tests = [
@@ -204,8 +209,8 @@ all_tests = [
     ("void_return_type", "# 😑 PIG 🐖print🐖 #\n", assert_void_return_type),
     ("member_access_operator", "# 🐖p🐖 _ 🐖x🐖 #\n", assert_member_access_operator),
     ("struct_declaration_complete", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n", assert_struct_declaration_complete),
-    ( "print_statement", "# print🤮 🐖input_var🐖 #", assert_print_statement),
-    ( "read_statement","# 😀 🐷 🐖input_var🐖 #\n# eat😋 🐖input_var🐖 #",assert_read_statement)
+    ( "print_statement", "# print🤮 🐖input&var🐖 #", assert_print_statement),
+    ( "read_statement","# 😀 🐷 🐖input&var🐖 #\n# eat😋 🐖input&var🐖 #",assert_read_statement)
 ]
 
 for name, source, func in all_tests:

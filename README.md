@@ -249,10 +249,10 @@ struct_body ::= field_decl* member_function_decl*
 field_decl ::= "#" mutability type "🐖" ID "🐖" "#" NEWLINE
 
 Member function declaration within structure:
-member_function_decl ::= "#" return_type "PIGLET" "🐖" ID "🐖" param_list "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* return_statement "#" "🐖🐖🐖" "#" NEWLINE
+member_function_decl ::= "#" return_type "PIGLET" "🐖" ID "🐖" param_list "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* return_statement? "#" "🐖🐖🐖" "#" NEWLINE  <-- UPDATED
 
 Function declaration: return type, PIG keyword, name, parameters, and body:
-function_decl ::= "#" return_type "PIG" "🐖" ID "🐖" param_list "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* return_statement "#" "🐖🐖🐖" "#" NEWLINE
+function_decl ::= "#" return_type "PIG" "🐖" ID "🐖" param_list "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* return_statement? "#" "🐖🐖🐖" "#" NEWLINE  <-- UPDATED
 
 param_list ::= [ "**" type "🐖" ID "🐖" "**" ]*
 return_type ::= type | "😑"
@@ -556,19 +556,37 @@ Happy *OINK* coding! 🐷✨
 
 ## 📦 HOW TO RUN IT???
 
-Unfortunately, as for now, you cannot directly code in this amazing and superb language :(
-That is because the compiler is not fully implemented yet. However, do not worry, cutie, because it will be eventually :)
-So, the time will come when you will use only this language on your daily basis and forget about other scary languages at once :)
-
-## ✨ WHAT SHOULD I DO NOW?
-
-As I stated above -> WAIT.
-Nevertheless, you can run some tests and verify that it is working. 
-You can run these commands... (but verify that you are not inside the *compiler* directory, you must be at the root level)
+First of all, you should run some tests and verify that everything is working. 
+In order to do this, you must run these commands... (but verify that you are not inside the *compiler* directory, you must be at the root level)
 
 ```bash
 chmod +x tests.sh
 ./tests.sh
+```
+NOTE: this checks the work of syntax parser and lexer
+
+... and then these:
+
+```bash
+chmod +x full_compiler.sh
+./full_compiler.sh
+```
+
+NOTE: this checks the overall compiler work:)
+
+NOW YOU CAN WRITE YOUR OWN MASTERPIECE WITH OINK LANGUAGE. HOW?
+
+1) Place your perfect **OINK code** in a file with a **txt** extension.
+2) Locate it somewhere but keep in mind the location!
+3) Go to the folder where **compiler.py** file resides.
+4) Ensure that you are in the same location as the **compiler.py**.
+5) Run this command, speciing the path to your OINK code file location:
+
+```bash
+    python3 -m compiler <YOUR_CODE_LOCATION> ./llm/<YOUR_DESIRED_FILE_NAME>.ll
+    llc -filetype=obj -relocation-model=pic ./llm/test_$i.ll -o ./obj/<YOUR_DESIRED_FILE_NAME>.o
+    clang -fPIE ./obj/<YOUR_DESIRED_FILE_NAME>i.o -o ./exe/<YOUR_DESIRED_FILE_NAME>
+    ./exe/<YOUR_DESIRED_FILE_NAME>
 ```
 
 # ENJOY🐖🐖🐖

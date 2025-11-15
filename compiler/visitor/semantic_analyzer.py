@@ -283,7 +283,7 @@ class SemanticAnalyzer(ASTVisitor):
         self.context.enter_scope()
         self._declare_function_parameters(node)
 
-        if not node.body.return_node:
+        if node.return_type != DataType.VOID and not node.body.return_node:
             raise ValueError(f"Function '{node.variable}' must have a return statement!")
 
         self._expected_return_type = node.return_type
@@ -364,7 +364,7 @@ class SemanticAnalyzer(ASTVisitor):
 
         self._declare_function_parameters(node)
 
-        if not node.body.return_node:
+        if node.return_type != DataType.VOID and not node.body.return_node:
             raise ValueError(f"Member function '{node.variable}' in struct '{struct_name}' "
                 f"must have a return statement!")
 

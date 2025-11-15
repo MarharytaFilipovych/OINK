@@ -151,6 +151,8 @@ class SyntaxParser:
                 break
         
         statements = self.__parse_statements()
+        if not struct_declarations and not function_declarations and not statements:
+            raise ValueError("Program cannot be empty! You have to write something before the return statement!")
         return_statement = self.__parse_program_return()
         self.__check_program_end()
 
@@ -235,12 +237,12 @@ class SyntaxParser:
         
         params = []
         while self.__peek() and self.__peek().token_type == TokenType.BRACKET:
-            self.__eat()  # **
+            self.__eat()
             param_type = self.__parse_type()
             self.__expect_token(TokenType.VARIABLE_BORDER)
             param_name_token = self.__expect_token(TokenType.VARIABLE)
             self.__expect_token(TokenType.VARIABLE_BORDER)
-            self.__expect_token(TokenType.BRACKET)  # **
+            self.__expect_token(TokenType.BRACKET) 
             params.append(FunctionParam(param_type, param_name_token.value))
         
         self.__expect_line_end()
@@ -279,18 +281,18 @@ class SyntaxParser:
 
         while True:
             token = self.__peek()
-            if len(statements) == 0 and token and token.token_type == TokenType.THE_END:
-                raise ValueError("Program cannot be empty! You have to write something before the return statement!")
 
             if not token or token.token_type == TokenType.THE_END:
+                # If we hit the end and statements exist, the final return is missing.
                 if len(statements) > 0:
-                    raise ValueError('Program must end with "# ... expr ... #"!')    
+                    raise ValueError('Program must end with "# ... expr ... #"!')
+                break
 
             self.__define_line_type(token)
             
             token = self.__peek()
             if token.token_type == TokenType.RETURN:
-                break
+                break # <--- Correctly break here, final return follows
 
             statement = self.__parse_statement()
             
@@ -567,7 +569,7 @@ class SyntaxParser:
         self.__expect_token(TokenType.VARIABLE_BORDER)
         
         if self.__peek() and self.__peek().token_type == TokenType.MEMBER_ACCESS:
-            self.__eat()  # _
+            self.__eat()
             self.__expect_token(TokenType.VARIABLE_BORDER)
             member_token = self.__expect_token(TokenType.VARIABLE)
             self.__expect_token(TokenType.VARIABLE_BORDER)
@@ -612,7 +614,6 @@ class SyntaxParser:
         
         result = FunctionCallNode(func_name, arguments, line, None)
         
-        # Handle chaining
         if self.__peek() and self.__peek().token_type == TokenType.MEMBER_ACCESS:
             result = self.__parse_function_chain(result, line)
         
@@ -660,6 +661,8 @@ class SyntaxParser:
         if self.in_mood_line:
             condition = UnaryOpNode(NOT, condition)
         
+        self.__expect_line_end() 
+        
         then_block = self.__parse_code_block()
         
         elif_blocks = []
@@ -694,6 +697,8 @@ class SyntaxParser:
         if self.in_mood_line:
             condition = UnaryOpNode(NOT, condition)
             
+        self.__expect_line_end()
+            
         then_block = self.__parse_code_block()
         
         return ElifNode(condition, then_block, elif_token.line)
@@ -706,6 +711,8 @@ class SyntaxParser:
         
         if self.in_mood_line:
             condition = UnaryOpNode(NOT, condition)
+        
+        self.__expect_line_end()
         
         body = self.__parse_code_block()
 
@@ -734,16 +741,17 @@ class SyntaxParser:
             self.__eat()
 
     def __parse_code_block(self) -> CodeBlockNode:
-        self.__expect_line_end()  
-        self.__skip_line_start()  
-        self.__expect_token(TokenType.BLOCK_BORDER) 
-        self.__expect_line_end()
+        self.__skip_line_start()
+        self.__expect_token(TokenType.BLOCK_BORDER)
+        self.__expect_token(TokenType.SIMPLE_LINE_BORDER) 
+        self.__expect_newline_or_end()
 
         statements, return_node = self.__parse_block_contents()
 
         self.__skip_line_start() 
         self.__expect_token(TokenType.BLOCK_BORDER)  
-        self.__expect_line_end() 
+        self.__expect_token(TokenType.SIMPLE_LINE_BORDER) 
+        self.__expect_newline_or_end()
 
         scope_id = self.next_scope_id
         self.next_scope_id += 1
@@ -783,9 +791,19 @@ class SyntaxParser:
         return statements, return_node
 
     def __parse_return(self) -> ReturnNode:
-        self.__expect_token(TokenType.RETURN)
+        self.__expect_token(TokenType.RETURN) # Consumes the first '...'
+        
+        # FIX: Check if the next token is the end of the line border token (# or ~#). 
+        # This signifies a void return: # ... # or #~ ... ~#
+        next_token_type = self.__peek().token_type if self.__peek() else None
+        
+        if next_token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_END]:
+            # This is the VOID return: # ... # or #~ ... ~#
+            return ReturnNode(None) 
+
+        # Non-void return: # ... expr ... # or #~ ... expr ... ~#
         expr = self.__parse_expression()
-        self.__expect_token(TokenType.RETURN)
+        self.__expect_token(TokenType.RETURN) # Consumes the second '...'
         return ReturnNode(expr)
 
 
