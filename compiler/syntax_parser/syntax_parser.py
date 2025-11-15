@@ -194,7 +194,7 @@ class SyntaxParser:
                 
                 if next_token and next_token.token_type.is_data_type():
                     saved_index2 = self.current_token_index
-                    self.__eat()  # eat type
+                    self.__eat()
                     if self.__peek() and self.__peek().token_type == TokenType.MEMBER_FUNCTION:
                         self.current_token_index = saved_index
                         member_functions.append(self.__parse_member_function_declaration())
@@ -249,6 +249,9 @@ class SyntaxParser:
         
         body = self.__parse_code_block()
         
+        if return_type != DataType.VOID and body.return_node is None:
+            raise ValueError(f"Function '{func_name}' with return type must have a return statement at line {func_name_token.line}!")
+        
         return FunctionDeclNode(func_name, params, return_type, body, func_name_token.line)
 
     def __parse_member_function_declaration(self) -> FunctionDeclNode:
@@ -262,17 +265,20 @@ class SyntaxParser:
         
         params = []
         while self.__peek() and self.__peek().token_type == TokenType.BRACKET:
-            self.__eat()  # **
+            self.__eat()
             param_type = self.__parse_type()
             self.__expect_token(TokenType.VARIABLE_BORDER)
             param_name_token = self.__expect_token(TokenType.VARIABLE)
             self.__expect_token(TokenType.VARIABLE_BORDER)
-            self.__expect_token(TokenType.BRACKET)  # **
+            self.__expect_token(TokenType.BRACKET)
             params.append(FunctionParam(param_type, param_name_token.value))
         
         self.__expect_line_end()
         
         body = self.__parse_code_block()
+        
+        if return_type != DataType.VOID and body.return_node is None:
+            raise ValueError(f"Member function '{func_name}' with return type must have a return statement at line {func_name_token.line}!")
         
         return FunctionDeclNode(func_name, params, return_type, body, func_name_token.line)
     
@@ -283,7 +289,6 @@ class SyntaxParser:
             token = self.__peek()
 
             if not token or token.token_type == TokenType.THE_END:
-                # If we hit the end and statements exist, the final return is missing.
                 if len(statements) > 0:
                     raise ValueError('Program must end with "# ... expr ... #"!')
                 break
@@ -292,7 +297,7 @@ class SyntaxParser:
             
             token = self.__peek()
             if token.token_type == TokenType.RETURN:
-                break # <--- Correctly break here, final return follows
+                break
 
             statement = self.__parse_statement()
             
@@ -320,11 +325,9 @@ class SyntaxParser:
                     self.current_token_index = saved_index
                     stmt = self.__parse_assignment_or_call()
                 elif next_token and next_token.token_type == TokenType.BRACKET:
-                    # Function call
                     self.current_token_index = saved_index
                     stmt = self.__parse_function_call_statement()
                 else:
-                    # Assignment
                     self.current_token_index = saved_index
                     stmt = self.__parse_assignment()
             case TokenType.IF:
@@ -411,7 +414,7 @@ class SyntaxParser:
 
     def __parse_function_chain(self, prev_call: FunctionCallNode, line: int) -> FunctionCallNode:
         while self.__peek() and self.__peek().token_type == TokenType.MEMBER_ACCESS:
-            self.__eat()  # _
+            self.__eat()
             self.__expect_token(TokenType.VARIABLE_BORDER)
             func_token = self.__expect_token(TokenType.VARIABLE)
             self.__expect_token(TokenType.VARIABLE_BORDER)
@@ -791,23 +794,13 @@ class SyntaxParser:
         return statements, return_node
 
     def __parse_return(self) -> ReturnNode:
-        self.__expect_token(TokenType.RETURN) # Consumes the first '...'
+        self.__expect_token(TokenType.RETURN)
         
-        # FIX: Check if the next token is the end of the line border token (# or ~#). 
-        # This signifies a void return: # ... # or #~ ... ~#
         next_token_type = self.__peek().token_type if self.__peek() else None
         
         if next_token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_END]:
-            # This is the VOID return: # ... # or #~ ... ~#
-            return ReturnNode(None) 
+            return ReturnNode(None)
 
-        # Non-void return: # ... expr ... # or #~ ... expr ... ~#
         expr = self.__parse_expression()
-        self.__expect_token(TokenType.RETURN) # Consumes the second '...'
+        self.__expect_token(TokenType.RETURN)
         return ReturnNode(expr)
-
-
-
-
-
-
