@@ -122,13 +122,18 @@ class Lexer:
         )
 
     def __try_multi_char_token(self) -> bool:
-        for length in [3, 2, 1]:
+        max_len = max(len(t) for t in MULTI_CHAR_TOKENS)
+
+        for length in range(max_len, 0, -1): 
             sequence = self.__peek_ahead(length)
+
             if sequence in MULTI_CHAR_TOKENS:
                 self.__add_token(MULTI_CHAR_TOKENS[sequence], sequence)
                 self.__move_to_next_char(length)
                 return True
+
         return False
+
 
     def __try_emoji_token(self) -> bool:
         if ord(self.source[self.current_position]) <= 127:

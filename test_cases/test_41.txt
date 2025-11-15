@@ -1,0 +1,13 @@
+# BOAR 🐖Inner🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖a🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# BOAR 🐖Outer🐖 #
+# 🐖🐖🐖 #
+# 😀 🐖Inner🐖 🐖i🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Inner🐖 🐖inner_val🐖 @ 🐖Inner🐖 ** 5 ** #
+# 😀 🐖Outer🐖 🐖outer_val🐖 @ 🐖Outer🐖 ** 🐖inner_val🐖 ** #
+# ... 5 ... #

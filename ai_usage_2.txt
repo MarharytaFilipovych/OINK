@@ -1,3 +1,802 @@
 AI links:
 * https://claude.ai/share/35627d24-6e04-42aa-9926-3e916067a8be
-*
+* https://claude.ai/share/edbbcdc9-2b88-4302-8ff6-85bec50075cf
+* 
+
+-----
+gemini prompt for txt tests generation:
+me: "create a bash script that genates 50 failing tests and 50 happy tests for my OINK language that cover all possible functionality (adhere for readme for rules). These tests should be set up as txt files that contain oink language code. These tests are meant to be used by full_compiler.sh script."
+
+** i passed my repo for reference, but actually I could have just passed a readme
+
+The answer:
+"Hello there\! I'd be happy to generate the bash script you requested. This script will create a `test_cases` directory and populate it with 50 successful and 50 failing OINK language test files, covering all major features and potential errors based on the provided documentation.
+
+Here is the bash script:
+
+```bash
+#!/bin/bash
+
+# Define the directory for test cases
+TEST_DIR="./test_cases"
+
+# Create the test_cases directory if it doesn't exist
+mkdir -p $TEST_DIR
+echo "Created directory: $TEST_DIR"
+
+# --- Utility Functions and Constants ---
+
+# Constants from compiler/constants.py for overflow checks
+I16_MAX="32767"
+I32_MAX="2147483647"
+I64_MIN="-9223372036854775808"
+
+# Function to write content to a file
+write_test() {
+    local file_name="$1"
+    local content="$2"
+    echo -e "$content" > "$TEST_DIR/$file_name"
+    echo "Generated $file_name"
+}
+
+# --- Happy Path Tests (test_1.txt to test_50.txt) ---
+
+echo "--- Generating 50 Happy Path Tests ---"
+
+# 1. Simple i32 declaration and print
+write_test "test_1.txt" "# 😀 🐷 🐖result🐖 @ 42 #
+# print🤮 🐖result🐖 #
+# ... 42 ... #"
+
+# 2. Simple i16 arithmetic
+write_test "test_2.txt" "# 😀 🐽 🐖a🐖 @ 10 #
+# 😀 🐽 🐖b🐖 @ 20 #
+# 😀 🐽 🐖result🐖 @ 🐖a🐖 ❤️ 🐖b🐖 #
+# ... 30 ... #"
+
+# 3. Simple i64 arithmetic (Subtraction)
+write_test "test_3.txt" "# 😀 🐗 🐖a🐖 @ 10000000000 #
+# 😀 🐗 🐖b🐖 @ 5000000000 #
+# 😀 🐗 🐖result🐖 @ 🐖a🐖 💔 🐖b🐖 #
+# ... 5000000000 ... #"
+
+# 4. Mutable/Immutable i32
+write_test "test_4.txt" "# 😭 🐷 🐖const_val🐖 @ 10 #
+# 😀 🐷 🐖mut_val🐖 @ 20 #
+# 🐖mut_val🐖 @ 🐖const_val🐖 ❤️ 🐖mut_val🐖 #
+# ... 30 ... #"
+
+# 5. Addition and Subtraction Precedence (i32)
+write_test "test_5.txt" "# 😀 🐷 🐖a🐖 @ 5 #
+# 😀 🐷 🐖b🐖 @ 2 #
+# 😀 🐷 🐖c🐖 @ 3 #
+# 😀 🐷 🐖result🐖 @ 🐖a🐖 ❤️ 🐖b🐖 💔 🐖c🐖 #
+# ... 4 ... #" # (5 + 2) - 3 = 4
+
+# 6. Multiplication and Division Precedence (i32)
+write_test "test_6.txt" "# 😀 🐷 🐖a🐖 @ 10 #
+# 😀 🐷 🐖b🐖 @ 2 #
+# 😀 🐷 🐖c🐖 @ 3 #
+# 😀 🐷 🐖result🐖 @ 🐖a🐖 💕 🐖b🐖 💞 🐖c🐖 #
+# ... 15 ... #" # (10 / 2) * 3 = 15
+
+# 7. Full arithmetic expression
+write_test "test_7.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# 😀 🐷 🐖y🐖 @ 5 #
+# 😀 🐷 🐖result🐖 @ 🐖x🐖 ❤️ 🐖y🐖 💞 2 💔 1 #
+# ... 19 ... #" # 10 + (5 * 2) - 1 = 19
+
+# 8. Integer comparison (i32 > i32)
+write_test "test_8.txt" "# 😀 wow 🐖result🐖 @ 10 > 5 #
+# ... LOVE ... #"
+
+# 9. Greater or equal (i16 🌸> i16)
+write_test "test_9.txt" "# 😀 🐽 🐖a🐖 @ 5 #
+# 😀 🐽 🐖b🐖 @ 5 #
+# 😀 wow 🐖result🐖 @ 🐖a🐖 🌸> 🐖b🐖 #
+# ... LOVE ... #"
+
+# 10. Boolean declaration and print
+write_test "test_10.txt" "# 😀 wow 🐖flag1🐖 @ LOVE #
+# 😀 wow 🐖flag2🐖 @ HATE #
+# ... 🐖flag1🐖 hru 🐖flag2🐖 ... #" # LOVE hru HATE -> HATE
+
+# 11. Logical AND (hru)
+write_test "test_11.txt" "# 😀 wow 🐖result🐖 @ LOVE hru LOVE #
+# ... LOVE ... #"
+
+# 12. Logical OR (bruh)
+write_test "test_12.txt" "# 😀 wow 🐖result🐖 @ HATE bruh LOVE #
+# ... LOVE ... #"
+
+# 13. Logical NOT (💩)
+write_test "test_13.txt" "# 😀 wow 🐖result🐖 @ 💩 HATE #
+# ... LOVE ... #"
+
+# 14. Logical Precedence (AND before OR)
+write_test "test_14.txt" "# 😀 wow 🐖a🐖 @ LOVE #
+# 😀 wow 🐖b🐖 @ HATE #
+# 😀 wow 🐖c🐖 @ LOVE #
+# 😀 wow 🐖result🐖 @ 🐖a🐖 hru 🐖b🐖 bruh 🐖c🐖 #
+# ... LOVE ... #" # (LOVE AND HATE) OR LOVE -> HATE OR LOVE -> LOVE
+
+# 15. Simple IF statement (SAVE)
+write_test "test_15.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# SAVE 🐖x🐖 🌸🌸 10 #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 20 #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ... #" # x should be 20
+
+# 16. IF-ELSE statement (SAVE-KILL)
+write_test "test_16.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# SAVE 🐖x🐖 > 20 #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 30 #
+# 🐖🐖🐖 #
+# KILL #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 40 #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ... #" # x should be 40
+
+# 17. IF-ELIF statement (SAVE-HURT)
+write_test "test_17.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# SAVE 🐖x🐖 > 20 #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 50 #
+# 🐖🐖🐖 #
+# HURT 🐖x🐖 🌸🌸 10 #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 60 #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ... #" # x should be 60
+
+# 18. Full IF-ELIF-ELSE (SAVE-HURT-KILL)
+write_test "test_18.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# SAVE 🐖x🐖 > 20 #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 70 #
+# 🐖🐖🐖 #
+# HURT 🐖x🐖 🌸🌸 20 #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 80 #
+# 🐖🐖🐖 #
+# KILL #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 90 #
+# 🐖🐖🐖 #
+# ... 90 ... #" # x starts at 10, neither SAVE nor HURT runs, KILL runs.
+
+# 19. Nested IF statements
+write_test "test_19.txt" "# 😀 🐷 🐖x🐖 @ 1 #
+# SAVE 🐖x🐖 🌸🌸 1 #
+# 🐖🐖🐖 #
+# SAVE 🐖x🐖 < 5 #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 10 #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 10 ... #"
+
+# 20. Simple WHILE loop (OINK)
+write_test "test_20.txt" "# 😀 🐷 🐖i🐖 @ 0 #
+# OINK 🐖i🐖 < 3 #
+# 🐖🐖🐖 #
+# 🐖i🐖 @ 🐖i🐖 ❤️ 1 #
+# 🐖🐖🐖 #
+# ... 3 ... #"
+
+# 21. Loop with variable update inside
+write_test "test_21.txt" "# 😀 🐷 🐖count🐖 @ 0 #
+# 😀 🐷 🐖sum🐖 @ 0 #
+# OINK 🐖count🐖 < 5 #
+# 🐖🐖🐖 #
+# 🐖sum🐖 @ 🐖sum🐖 ❤️ 🐖count🐖 #
+# 🐖count🐖 @ 🐖count🐖 ❤️ 1 #
+# 🐖🐖🐖 #
+# ... 10 ... #" # 0+1+2+3+4 = 10
+
+# 22. Mood line: Assignment inversion (+ becomes -)
+write_test "test_22.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+#~ 🐖x🐖 @ 🐖x🐖 ❤️ 5 ~#
+# ... 5 ... #" # 10 - 5 = 5
+
+# 23. Mood line: Comparison inversion (> becomes 🌸<)
+write_test "test_23.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+#~ SAVE 🐖x🐖 > 5 ~#
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 20 #
+# 🐖🐖🐖 #
+# ... 20 ... #" # SAVE (x > 5) inverted is SAVE (x <= 5). Since 10 <= 5 is HATE, the block shouldn't run. Let's make it run.
+write_test "test_23.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+#~ SAVE 🐖x🐖 > 10 ~#
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 20 #
+# 🐖🐖🐖 #
+# ... 20 ... #" # SAVE (x > 10) inverted is SAVE (x <= 10). Since 10 <= 10 is LOVE, the block runs.
+
+# 24. Mood line: Boolean literal inversion (LOVE becomes HATE)
+write_test "test_24.txt" "#~ 😀 wow 🐖result🐖 @ LOVE ~#
+# ... HATE ... #" # LOVE is stored as HATE
+
+# 25. Mood line: IF condition with comparison inversion
+write_test "test_25.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+#~ SAVE 🐖x🐖 🌸🌸 10 ~# # 🌸🌸 becomes 💩🌸
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 50 #
+# 🐖🐖🐖 #
+# ... 50 ... #" # x 💩🌸 10 is HATE, which is true if inverted. So the block runs. Wait, the *condition* in the SAVE is inverted, not the *operator*. The operator is inverted first due to the mood line, and then the whole condition is evaluated.
+# SAVE (condition) -> condition is true. Mood Line flips condition to NOT(condition) is true.
+# Let's use the explicit rule: SAVE in mood line inverts the whole expression's logic.
+write_test "test_25.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+#~ SAVE 🐖x🐖 🌸🌸 10 ~# # The expression (x 🌸🌸 10) evaluates to LOVE. The Mood Line inverts the operator 🌸🌸 to 💩🌸. So it is SAVE (x 💩🌸 10) which is SAVE (HATE). Then the IF is evaluated.
+# The grammar says expression operators are inverted. The IF condition is treated as an expression.
+# x 🌸🌸 10 -> x 💩🌸 10 which is HATE. SAVE HATE means it doesn't run.
+# Let's ensure the conditional logic is covered.
+write_test "test_25.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+#~ SAVE 🐖x🐖 > 10 ~# # Operator > becomes 🌸<. Expression is (x 🌸< 10) which is HATE. SAVE HATE doesn't run.
+# KILL #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 20 #
+# 🐖🐖🐖 #
+# ... 20 ... #" # x should be 20
+
+# 26. Function: i32 PIG i32 (basic call)
+write_test "test_26.txt" "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖a🐖 ❤️ 🐖b🐖 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖add🐖 ** 10 ** ** 20 ** #
+# ... 30 ... #"
+
+# 27. Function: 😑 PIG (void function)
+write_test "test_27.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# 😑 PIG 🐖set_x🐖 ** 🐷 🐖val🐖 ** #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 🐖val🐖 #
+# ... 0 ... #
+# 🐖🐖🐖 #
+# 🐖set_x🐖 ** 50 ** #
+# ... 50 ... #" # Should print x which is 50
+
+# 28. Function: call with multiple parameters
+write_test "test_28.txt" "# 🐷 PIG 🐖sum_three🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** ** 🐷 🐖c🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖a🐖 ❤️ 🐖b🐖 ❤️ 🐖c🐖 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖sum_three🐖 ** 1 ** ** 2 ** ** 3 ** #
+# ... 6 ... #"
+
+# 29. Function: call chaining (`_`)
+write_test "test_29.txt" "# 🐷 PIG 🐖double🐖 ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 💞 2 ... #
+# 🐖🐖🐖 #
+# 🐷 PIG 🐖add_one🐖 ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ❤️ 1 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖double🐖 ** 10 ** _ 🐖add_one🐖 #
+# ... 21 ... #" # (10 * 2) + 1 = 21
+
+# 30. Function: recursive call (Factorial)
+write_test "test_30.txt" "# 🐷 PIG 🐖fact🐖 ** 🐷 🐖n🐖 ** #
+# 🐖🐖🐖 #
+# SAVE 🐖n🐖 🌸< 2 #
+# 🐖🐖🐖 #
+# ... 1 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖fact🐖 ** ** 🐖n🐖 💔 1 ** ** #
+# ... 🐖n🐖 💞 🐖result🐖 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖fact🐖 ** 4 ** #
+# ... 24 ... #" # 4! = 24
+
+# 31. Function: i16 PIG i16
+write_test "test_31.txt" "# 🐽 PIG 🐖half🐖 ** 🐽 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 💕 2 ... #
+# 🐖🐖🐖 #
+# 😀 🐽 🐖result🐖 @ 🐖half🐖 ** 20 ** #
+# ... 10 ... #"
+
+# 32. I/O: eat😋 and print🤮 i32
+write_test "test_32.txt" "# 😀 🐷 🐖a🐖 #
+# eat😋 🐖a🐖 #
+# 😀 🐷 🐖b🐖 @ 🐖a🐖 ❤️ 5 #
+# print🤮 🐖b🐖 #
+# ... 15 ... #" # Assuming input is '10'
+
+# 33. I/O: eat😋 and print🤮 i64
+write_test "test_33.txt" "# 😀 🐗 🐖large_num🐖 #
+# eat😋 🐖large_num🐖 #
+# print🤮 🐖large_num🐖 #
+# ... 100000000000 ... #" # Assuming input is '100000000000'
+
+# 34. Struct: simple declaration and definition
+write_test "test_34.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 😭 🐷 🐖y🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #"
+
+# 35. Struct: initialization and field access (i32)
+write_test "test_35.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** #
+# 😀 🐷 🐖val🐖 @ 🐖p🐖 _ 🐖x🐖 #
+# ... 10 ... #"
+
+# 36. Struct: member function (PIGLET) call (getter)
+write_test "test_36.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐷 PIGLET 🐖getX🐖 #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ... #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 5 ** #
+# 😀 🐷 🐖val🐖 @ 🐖p🐖 _ 🐖getX🐖 ** ** #
+# ... 5 ... #"
+
+# 37. Struct: member function (PIGLET) with argument (setter)
+write_test "test_37.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 😑 PIGLET 🐖setX🐖 ** 🐷 🐖newX🐖 ** #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 🐖newX🐖 #
+# ... #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** #
+# 🐖p🐖 _ 🐖setX🐖 ** 20 ** #
+# 😀 🐷 🐖val🐖 @ 🐖p🐖 _ 🐖x🐖 #
+# ... 20 ... #"
+
+# 38. Struct: complex field access (`p _ x ❤️ 1`)
+write_test "test_38.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** #
+# 😀 🐷 🐖val🐖 @ 🐖p🐖 _ 🐖x🐖 ❤️ 5 #
+# ... 15 ... #"
+
+# 39. Struct: member function calling a normal function
+write_test "test_39.txt" "# 🐷 PIG 🐖double🐖 ** 🐷 🐖a🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖a🐖 💞 2 ... #
+# 🐖🐖🐖 #
+# BOAR 🐖Value🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐷 PIGLET 🐖doubleX🐖 #
+# 🐖🐖🐖 #
+# ... 🐖double🐖 ** 🐖x🐖 ** ... #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# 😀 🐖Value🐖 🐖v🐖 @ 🐖Value🐖 ** 10 ** #
+# 😀 🐷 🐖val🐖 @ 🐖v🐖 _ 🐖doubleX🐖 ** ** #
+# ... 20 ... #"
+
+# 40. Struct: field assignment (`🐖p🐖 _ 🐖x🐖 @ 10 #`)
+write_test "test_40.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** #
+# 🐖p🐖 _ 🐖x🐖 @ 25 #
+# 😀 🐷 🐖val🐖 @ 🐖p🐖 _ 🐖x🐖 #
+# ... 25 ... #"
+
+# 41. Struct: field declared as another struct type
+write_test "test_41.txt" "# BOAR 🐖Inner🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖a🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# BOAR 🐖Outer🐖 #
+# 🐖🐖🐖 #
+# 😀 🐖Inner🐖 🐖i🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Inner🐖 🐖inner_val🐖 @ 🐖Inner🐖 ** 5 ** #
+# 😀 🐖Outer🐖 🐖outer_val🐖 @ 🐖Outer🐖 ** 🐖inner_val🐖 ** #
+# ... 5 ... #"
+
+# 42. Full expression precedence test
+write_test "test_42.txt" "# 😀 🐷 🐖r🐖 @ 10 ❤️ 2 💞 3 💔 5 💕 1 hru LOVE bruh HATE #
+# ... LOVE ... #" # 10 + (2*3) - (5/1) = 11. 11 hru LOVE is LOVE. LOVE bruh HATE is LOVE.
+
+# 43. i32 to i64 type widening on assignment
+write_test "test_43.txt" "# 😀 🐷 🐖i32_val🐖 @ 10 #
+# 😀 🐗 🐖i64_val🐖 @ 🐖i32_val🐖 #
+# ... 10 ... #"
+
+# 44. i16 to i32 type widening in arithmetic
+write_test "test_44.txt" "# 😀 🐽 🐖i16_val🐖 @ 10 #
+# 😀 🐷 🐖i32_val🐖 @ 50 #
+# 😀 🐷 🐖result🐖 @ 🐖i16_val🐖 ❤️ 🐖i32_val🐖 #
+# ... 60 ... #"
+
+# 45. Read/Print i16
+write_test "test_45.txt" "# 😀 🐽 🐖a🐖 #
+# eat😋 🐖a🐖 #
+# print🤮 🐖a🐖 #
+# ... 20 ... #" # Assuming input is '20'
+
+# 46. Mood Line: Logical inversion
+write_test "test_46.txt" "# 😀 wow 🐖a🐖 @ LOVE #
+#~ 😀 wow 🐖result🐖 @ 💩 🐖a🐖 ~# # 💩 becomes itself, but the entire literal is inverted. So, 💩 LOVE is HATE. HATE is stored as LOVE.
+# ... LOVE ... #"
+
+# 47. Assignment to an ID that is the result of a member access
+write_test "test_47.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** #
+# 🐖p🐖 _ 🐖x🐖 @ 15 #
+# ... 15 ... #" # Already covered in 40, let's make a new one.
+
+# 47 (New). Conditional with mixed logical/comparison operators
+write_test "test_47.txt" "# 😀 🐷 🐖x🐖 @ 5 #
+# SAVE 🐖x🐖 > 0 hru 🐖x🐖 🌸< 10 #
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 100 #
+# 🐖🐖🐖 #
+# ... 100 ... #"
+
+# 48. Function call argument is an expression
+write_test "test_48.txt" "# 🐷 PIG 🐖id🐖 ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖id🐖 ** ** 10 ❤️ 5 ** ** #
+# ... 15 ... #"
+
+# 49. Function chaining with a non-primitive return type in the middle (if allowed) - using simple primitive only
+write_test "test_49.txt" "# 🐷 PIG 🐖d_one🐖 ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 💞 2 ❤️ 1 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖d_one🐖 ** 2 ** _ 🐖d_one🐖 _ 🐖d_one🐖 #
+# ... 23 ... #" # (2*2+1=5) -> (5*2+1=11) -> (11*2+1=23)
+
+# 50. Empty mutable declaration, relying on default value
+write_test "test_50.txt" "# 😀 🐷 🐖x🐖 #
+# ... 0 ... #"
+
+
+# --- Failing Path Tests (test_fail_1.txt to test_fail_50.txt) ---
+
+echo "--- Generating 50 Failing Path Tests ---"
+
+# 1. Assigning to a constant (`😭`)
+write_test "test_fail_1.txt" "# 😭 🐷 🐖c🐖 @ 10 #
+# 🐖c🐖 @ 20 #
+# ... 1 ... #"
+
+# 2. Variable redeclaration (no shadowing)
+write_test "test_fail_2.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# 😀 🐷 🐖x🐖 @ 20 #
+# ... 1 ... #"
+
+# 3. Variable used before declaration
+write_test "test_fail_3.txt" "# 🐖x🐖 @ 10 #
+# ... 1 ... #"
+
+# 4. Self-assignment (`🐖x🐖 @ 🐖x🐖`)
+write_test "test_fail_4.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# 🐖x🐖 @ 🐖x🐖 #
+# ... 1 ... #"
+
+# 5. Declaring a variable with a non-existent type
+write_test "test_fail_5.txt" "# 😀 🐖FakeType🐖 🐖x🐖 @ 10 #
+# ... 1 ... #"
+
+# 6. Assigning i32 to bool variable
+write_test "test_fail_6.txt" "# 😀 wow 🐖b🐖 @ LOVE #
+# 🐖b🐖 @ 10 #
+# ... 1 ... #"
+
+# 7. Arithmetic operation on boolean values (`LOVE ❤️ 1`)
+write_test "test_fail_7.txt" "# 😀 🐷 🐖r🐖 @ LOVE ❤️ 1 #
+# ... 1 ... #"
+
+# 8. Comparison between bool and integer (`LOVE > 1`)
+write_test "test_fail_8.txt" "# 😀 wow 🐖r🐖 @ LOVE > 1 #
+# ... 1 ... #"
+
+# 9. Logical AND on integers (`1 hru 2`)
+write_test "test_fail_9.txt" "# 😀 wow 🐖r🐖 @ 1 hru 2 #
+# ... 1 ... #"
+
+# 10. IF condition is not boolean (i32)
+write_test "test_fail_10.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# SAVE 🐖x🐖 #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 11. WHILE condition is not boolean (i32)
+write_test "test_fail_11.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# OINK 🐖x🐖 #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 12. Function return type mismatch (i32 returns i16)
+write_test "test_fail_12.txt" "# 🐷 PIG 🐖get_i16🐖 #
+# 🐖🐖🐖 #
+# ... 10 ... #
+# 🐖🐖🐖 #
+# ... 0 ... #"
+
+# 13. Function call with wrong number of arguments
+write_test "test_fail_13.txt" "# 🐷 PIG 🐖add_one🐖 ** 🐷 🐖a🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖a🐖 ❤️ 1 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖r🐖 @ 🐖add_one🐖 ** 1 ** ** 2 ** #
+# ... 1 ... #"
+
+# 14. Function call with argument type mismatch
+write_test "test_fail_14.txt" "# 🐷 PIG 🐖add_one🐖 ** 🐷 🐖a🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖a🐖 ❤️ 1 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖r🐖 @ 🐖add_one🐖 ** LOVE ** #
+# ... 1 ... #"
+
+# 15. Duplicate parameter name in function
+write_test "test_fail_15.txt" "# 🐷 PIG 🐖dup_param🐖 ** 🐷 🐖x🐖 ** ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 16. Non-existent function call
+write_test "test_fail_16.txt" "# 😀 🐷 🐖r🐖 @ 🐖non_existent🐖 ** 1 ** #
+# ... 1 ... #"
+
+# 17. Missing return statement in non-void function
+write_test "test_fail_17.txt" "# 🐷 PIG 🐖no_return🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 @ 10 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 18. Accessing a member on a primitive type (i32)
+write_test "test_fail_18.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# 😀 🐷 🐖r🐖 @ 🐖x🐖 _ 🐖field🐖 #
+# ... 1 ... #"
+
+# 19. Accessing a non-existent field in a struct
+write_test "test_fail_19.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 1 ** #
+# 😀 🐷 🐖r🐖 @ 🐖p🐖 _ 🐖y🐖 #
+# ... 1 ... #"
+
+# 20. Struct init: wrong number of fields (too few)
+write_test "test_fail_20.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 😀 🐷 🐖y🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 1 ** #
+# ... 1 ... #"
+
+# 21. Struct init: field type mismatch (i32 for bool)
+write_test "test_fail_21.txt" "# BOAR 🐖BoolHolder🐖 #
+# 🐖🐖🐖 #
+# 😀 wow 🐖b🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖BoolHolder🐖 🐖h🐖 @ 🐖BoolHolder🐖 ** 10 ** #
+# ... 1 ... #"
+
+# 22. Attempt to reassign entire struct variable (`AssignNode`)
+write_test "test_fail_22.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p1🐖 @ 🐖Point🐖 ** 1 ** #
+# 😀 🐖Point🐖 🐖p2🐖 @ 🐖Point🐖 ** 2 ** #
+# 🐖p1🐖 @ 🐖p2🐖 #
+# ... 1 ... #"
+
+# 23. Attempt to return struct from main
+write_test "test_fail_23.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 1 ** #
+# ... 🐖p🐖 ... #"
+
+# 24. Reading into a boolean variable
+write_test "test_fail_24.txt" "# 😀 wow 🐖b🐖 #
+# eat😋 🐖b🐖 #
+# ... 1 ... #"
+
+# 25. Printing a struct variable
+write_test "test_fail_25.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 1 #
+# print🤮 🐖p🐖 #
+# ... 0 ... #"
+
+# 26. Unary NOT (💩) applied to an integer
+write_test "test_fail_26.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# 😀 wow 🐖r🐖 @ 💩 🐖x🐖 #
+# ... 1 ... #"
+
+# 27. Malformed assignment: missing `@`
+write_test "test_fail_27.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# 🐖x🐖 20 #
+# ... 1 ... #"
+
+# 28. Missing `NEWLINE` between statements
+write_test "test_fail_28.txt" "# 😀 🐷 🐖x🐖 @ 10 # # 😀 🐷 🐖y🐖 @ 20 #
+# ... 1 ... #"
+
+# 29. Code after return statement
+write_test "test_fail_29.txt" "# ... 1 ... #
+# 😀 🐷 🐖x🐖 @ 10 #"
+
+# 30. `SAVE` statement missing condition
+write_test "test_fail_30.txt" "# SAVE #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 31. `OINK` statement missing condition
+write_test "test_fail_31.txt" "# OINK #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 32. Unmatched block delimiter (missing closing `🐖🐖🐖`)
+write_test "test_fail_32.txt" "# SAVE LOVE #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 33. `HURT` without preceding `SAVE`
+write_test "test_fail_33.txt" "# HURT LOVE #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 34. `KILL` without preceding `SAVE`
+write_test "test_fail_34.txt" "# KILL #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 35. Struct init: using non-existent struct name
+write_test "test_fail_35.txt" "# 😀 🐖NonExistent🐖 🐖p🐖 @ 🐖NonExistent🐖 ** 1 ** #
+# ... 1 ... #"
+
+# 36. Duplicate struct declaration
+write_test "test_fail_36.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 37. Duplicate field name in struct declaration
+write_test "test_fail_37.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 38. Function call: missing argument brackets
+write_test "test_fail_38.txt" "# 🐷 PIG 🐖id🐖 ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖r🐖 @ 🐖id🐖 ** 1 ** #
+# ... 1 ... #" # Missing closing '**' on the last argument
+
+# 39. Function declaration: missing `PIG` keyword
+write_test "test_fail_39.txt" "# 🐷 🐖id🐖 ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ... #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 40. Member function declared outside a struct (PIGLET should be inside BOAR)
+write_test "test_fail_40.txt" "# 🐷 PIGLET 🐖test🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 🐖🐖🐖 #
+# ... 1 ... #"
+
+# 41. Invalid variable name character (`#` is invalid)
+write_test "test_fail_41.txt" "# 😀 🐷 🐖x#y🐖 @ 10 #
+# ... 1 ... #"
+
+# 42. Logical OR on different types (one bool, one int)
+write_test "test_fail_42.txt" "# 😀 wow 🐖r🐖 @ LOVE bruh 1 #
+# ... 1 ... #"
+
+# 43. Comparison with wrong operator for bool (`LOVE ❤️ HATE`)
+write_test "test_fail_43.txt" "# 😀 wow 🐖r🐖 @ LOVE ❤️ HATE #
+# ... 1 ... #"
+
+# 44. Invalid character in variable name (`-` is invalid)
+write_test "test_fail_44.txt" "# 😀 🐷 🐖my-var🐖 @ 10 #
+# ... 1 ... #"
+
+# 45. Integer overflow/underflow on addition (i16 max)
+write_test "test_fail_45.txt" "# 😀 🐽 🐖i16_max🐖 @ $I16_MAX #
+# 😀 🐽 🐖r🐖 @ 🐖i16_max🐖 ❤️ 1 #
+# ... 1 ... #"
+
+# 46. Integer overflow/underflow on subtraction (i64 min)
+write_test "test_fail_46.txt" "# 😀 🐗 🐖i64_min🐖 @ $I64_MIN #
+# 😀 🐗 🐖r🐖 @ 🐖i64_min🐖 💔 1 #
+# ... 1 ... #"
+
+# 47. Division by zero
+write_test "test_fail_47.txt" "# 😀 🐷 🐖x🐖 @ 10 #
+# 😀 🐷 🐖r🐖 @ 🐖x🐖 💕 0 #
+# ... 1 ... #"
+
+# 48. Function call to non-existent member function
+write_test "test_fail_48.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 1 ** #
+# 😀 🐷 🐖r🐖 @ 🐖p🐖 _ 🐖nonExistentMethod🐖 ** ** #
+# ... 1 ... #"
+
+# 49. Function chaining with non-function as a link (a member access chaining a function)
+write_test "test_fail_49.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 1 ** #
+# 😀 🐷 🐖r🐖 @ 🐖p🐖 _ 🐖x🐖 _ 🐖non_func_link🐖 #
+# ... 1 ... #"
+
+# 50. Declaring a struct variable without initialization
+write_test "test_fail_50.txt" "# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 😀 🐖Point🐖 🐖p🐖 #
+# ... 1 ... #"
+
+echo "--- All 100 test files generated in $TEST_DIR ---"
+echo "You can now run './full_compiler.sh' from the root directory to test the compiler."
+```"
+

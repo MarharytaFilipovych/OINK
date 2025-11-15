@@ -31,6 +31,8 @@ MULTI_CHAR_TOKENS = {
     '~#': TokenType.MOOD_LINE_BORDER_END,
     '**': TokenType.BRACKET,
     '#': TokenType.SIMPLE_LINE_BORDER,
+    'eat😋': TokenType.READ,
+    'print🤮': TokenType.PRINT
 }
 
 EMOJI_TOKENS = {
@@ -53,8 +55,6 @@ EMOJI_TOKENS = {
     '🌸<': TokenType.LESS_EQUAL,
     '🐖🐖🐖': TokenType.BLOCK_BORDER,
     '👀👀👀': TokenType.MULTILINE_COMMENT,
-    'eat😋': TokenType.READ,
-    'print🤮': TokenType.PRINT,
 }
 
 MULTILINE_COMMENT = '👀👀👀'
