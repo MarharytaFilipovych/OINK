@@ -132,7 +132,7 @@ def assert_struct_member_function_call(self, ast):
     
     func_call = decl.expr_node
     self.assertIsInstance(func_call, FunctionCallNode)
-    self.assertEqual(func_call.variable, "getValue")
+    self.assertEqual(func_call.value, "getValue")
     self.assertEqual(func_call.object_name, "c")
 
 def assert_read_i32(self, ast):
@@ -150,7 +150,7 @@ def assert_chained_function_calls(self, ast):
     self.assertIsInstance(decl, DeclNode)
     func_call = decl.expr_node
     self.assertIsInstance(func_call, FunctionCallNode)
-    self.assertEqual(func_call.variable, "double") 
+    self.assertEqual(func_call.value, "double")
     self.assertEqual(len(func_call.arguments), 1)
     self.assertIsInstance(func_call.arguments[0], FunctionCallNode)
     self.assertEqual(func_call.arguments[0].variable, "getValue")
