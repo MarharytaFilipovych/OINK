@@ -187,7 +187,7 @@ class CodeGenerator(ASTVisitor):
     def _widen_value_if_needed(self, value: str, expr_node, target_type: DataType) -> str:
         expr_type = self.type_converter.get_node_type(expr_node)
         return value if not isinstance(expr_type, DataType) \
-                else self.struct_ops.convert_type_if_needed(value, expr_type, target_type.keyword)
+                else self.struct_ops._convert_type_if_needed(value, expr_type, target_type.keyword)
 
     def _get_llvm_type_string(self, return_type) -> str:
         return self.type_converter.get_llvm_type(return_type) if isinstance(return_type, str) \
