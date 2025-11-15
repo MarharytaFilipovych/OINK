@@ -90,22 +90,36 @@ class SyntaxParser:
         if token and token.token_type == TokenType.NEWLINE:
             self.__eat()
 
-    def __parse_type(self) -> DataType:
-        token = self.__eat()
-        match token.token_type:
-            case TokenType.I16_TYPE:
-                return DataType.I16
-            case TokenType.I32_TYPE:
-                return DataType.I32
-            case TokenType.I64_TYPE:
-                return DataType.I64
-            case TokenType.BOOL:
-                return DataType.BOOL
-            case TokenType.VOID:
-                return DataType.VOID
-            case _:
-                raise ValueError(f"I expected some type declaration at line {token.line}!")
-
+    def __parse_type(self) -> Union[DataType, str]:
+        token = self.__peek()
+        if not token:
+            raise ValueError("Expected a type but got nothing!")
+        
+        if token.token_type == TokenType.VARIABLE_BORDER:
+            self.__eat()
+            struct_token = self.__expect_token(TokenType.VARIABLE)
+            struct_name = struct_token.value
+            self.__expect_token(TokenType.VARIABLE_BORDER)
+            if struct_name not in self.declared_structs:
+                raise ValueError(f"Unknown type '{struct_name}' at line {struct_token.line}!")
+            return struct_name
+        
+        if token.token_type.is_data_type():
+            self.__eat()
+            match token.token_type:
+                case TokenType.I16_TYPE:
+                    return DataType.I16
+                case TokenType.I32_TYPE:
+                    return DataType.I32
+                case TokenType.I64_TYPE:
+                    return DataType.I64
+                case TokenType.BOOL:
+                    return DataType.BOOL
+                case TokenType.VOID:
+                    return DataType.VOID
+        
+        raise ValueError(f"I expected some type declaration at line {token.line}!")
+                
     @staticmethod
     def __set_default_for_type(data_type: DataType) -> FactorNode:
         if data_type == DataType.BOOL:
@@ -430,6 +444,21 @@ class SyntaxParser:
 
         var_type = self.__parse_type()
 
+        if isinstance(var_type, str):
+            self.__expect_token(TokenType.VARIABLE_BORDER)
+            token_variable = self.__expect_token(TokenType.VARIABLE)
+            variable = token_variable.value
+            self.__expect_token(TokenType.VARIABLE_BORDER)
+
+            token = self.__peek()
+            if token and token.token_type == TokenType.ASSIGNMENT:
+                self.__eat()
+                init_expr = self.__parse_expression()
+            else:
+                raise ValueError(f"Struct type variables must be initialized at line {token_variable.line}!")
+
+            return DeclNode(variable, init_expr, token_variable.line, can_mutate, var_type)
+
         self.__expect_token(TokenType.VARIABLE_BORDER)
         token_variable = self.__expect_token(TokenType.VARIABLE)
         variable = token_variable.value
@@ -443,6 +472,7 @@ class SyntaxParser:
             init_expr = self.__set_default_for_type(var_type)
 
         return DeclNode(variable, init_expr, token_variable.line, can_mutate, var_type)
+
 
     def __parse_assignment(self) -> AssignNode:
         self.__expect_token(TokenType.VARIABLE_BORDER)
@@ -569,7 +599,11 @@ class SyntaxParser:
 
     def __parse_variable_or_call(self) -> Union[FactorNode, ExprNode]:
         var_token = self.__expect_token(TokenType.VARIABLE)
+        var_name = var_token.value
         self.__expect_token(TokenType.VARIABLE_BORDER)
+        
+        if var_name in self.declared_structs and self.__peek() and self.__peek().token_type == TokenType.BRACKET:
+            return self.__parse_struct_init(var_name, var_token.line)
         
         if self.__peek() and self.__peek().token_type == TokenType.MEMBER_ACCESS:
             self.__eat()
@@ -578,17 +612,14 @@ class SyntaxParser:
             self.__expect_token(TokenType.VARIABLE_BORDER)
             
             if self.__peek() and self.__peek().token_type == TokenType.BRACKET:
-                return self.__parse_member_function_call(var_token.value, member_token.value, var_token.line)
+                return self.__parse_member_function_call(var_name, member_token.value, var_token.line)
             else:
-                return MemberAccessNode(var_token.value, member_token.value, var_token.line)
+                return MemberAccessNode(var_name, member_token.value, var_token.line)
         
         if self.__peek() and self.__peek().token_type == TokenType.BRACKET:
-            return self.__parse_function_call_expr(var_token.value, var_token.line)
+            return self.__parse_function_call_expr(var_name, var_token.line)
         
-        if var_token.value in self.declared_structs and self.__peek() and self.__peek().token_type == TokenType.BRACKET:
-            return self.__parse_struct_init(var_token.value, var_token.line)
-        
-        return IDNode(var_token.value, var_token.line)
+        return IDNode(var_name, var_token.line)
 
     def __parse_function_call_expr(self, func_name: str = None, line: int = None) -> FunctionCallNode:
         if func_name is None:
@@ -606,14 +637,14 @@ class SyntaxParser:
             
             while self.__peek() and self.__peek().token_type == TokenType.BRACKET:
                 saved_index = self.current_token_index
-                self.__eat()  
+                self.__eat()
                 if self.__peek() and self.__peek().token_type == TokenType.BRACKET:
                     self.current_token_index = saved_index
                     break
-                self.__eat() 
+                self.__eat()
                 arguments.append(self.__parse_expression())
         
-        self.__expect_token(TokenType.BRACKET)  
+        self.__expect_token(TokenType.BRACKET)
         
         result = FunctionCallNode(func_name, arguments, line, None)
         

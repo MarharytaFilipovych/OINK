@@ -2,7 +2,8 @@ AI links:
 * https://claude.ai/share/35627d24-6e04-42aa-9926-3e916067a8be
 * https://claude.ai/share/edbbcdc9-2b88-4302-8ff6-85bec50075cf
 * https://chatgpt.com/share/6918c1d8-61bc-8011-81ad-31c36fa44281
-
+* https://claude.ai/share/6321b9d8-0350-45e6-acb1-2da80588f38b
+* 
 -----
 gemini prompt for txt tests generation:
 me: "create a bash script that genates 50 failing tests and 50 happy tests for my OINK language that cover all possible functionality (adhere for readme for rules). These tests should be set up as txt files that contain oink language code. These tests are meant to be used by full_compiler.sh script."

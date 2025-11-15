@@ -5,6 +5,8 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from compiler.node.function_call_node import FunctionCallNode
+from compiler.node.io_nodes import PrintNode, ReadNode
 from compiler.syntax_parser.syntax_parser import SyntaxParser
 from compiler.lexer.lexer import Lexer
 from compiler.node.program_node import ProgramNode
@@ -114,6 +116,45 @@ def assert_struct_field_types(self, ast):
     self.assertEqual(struct.fields[0].field_type, DataType.I32)
     self.assertEqual(struct.fields[1].field_type, DataType.I32)
 
+def assert_function_with_struct_param(self, ast):
+    self.assertEqual(len(ast.function_declarations), 1)
+    func = ast.function_declarations[0]
+    self.assertEqual(len(func.params), 1)
+    self.assertEqual(func.params[0].name, "p")
+    self.assertEqual(func.params[0].param_type, "Point") 
+
+def assert_struct_member_function_call(self, ast):
+    self.assertEqual(len(ast.statement_nodes), 2)
+    func_call = ast.statement_nodes[1].expr_node if isinstance(ast.statement_nodes[1], DeclNode) else ast.statement_nodes[1]
+    decl = ast.statement_nodes[1]
+    self.assertIsInstance(decl, DeclNode)
+    self.assertEqual(decl.variable, "result")
+    
+    func_call = decl.expr_node
+    self.assertIsInstance(func_call, FunctionCallNode)
+    self.assertEqual(func_call.variable, "getValue")
+    self.assertEqual(func_call.object_name, "c")
+
+def assert_read_i32(self, ast):
+    read_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(read_stmt, ReadNode)
+    self.assertEqual(read_stmt.variable, "x")
+
+def assert_print_expression(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsNotNone(print_stmt.expr_node)
+
+def assert_chained_function_calls(self, ast):
+    decl = ast.statement_nodes[0] 
+    self.assertIsInstance(decl, DeclNode)
+    func_call = decl.expr_node
+    self.assertIsInstance(func_call, FunctionCallNode)
+    self.assertEqual(func_call.variable, "double") 
+    self.assertEqual(len(func_call.arguments), 1)
+    self.assertIsInstance(func_call.arguments[0], FunctionCallNode)
+    self.assertEqual(func_call.arguments[0].variable, "getValue")
+
 
 all_tests = [
     (
@@ -123,7 +164,7 @@ all_tests = [
     ),
     (
         "immutable_declaration",
-        "# 😭 🐷 🐖constant🐖 @ 100 #\n# ... 🐖constant🐖 ... #",
+        "# 😭 🐷 🐖constant🐖 @ 100 #\n# ... 🐖constant🐖 ... #", # Added @ 100 initializer
         assert_immutable_decl
     ),
     (
@@ -229,6 +270,48 @@ all_tests = [
 # ... 0 ... #""",
         assert_struct_field_types
     ),
+(
+        "function_with_struct_param",
+        """# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# 🐷 PIG 🐖process🐖 ** 🐖Point🐖 🐖p🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖p🐖 _ 🐖x🐖 ... #
+# 🐖🐖🐖 #
+# ... 0 ... #""",
+        assert_function_with_struct_param
+    ),
+    (
+        "struct_member_function_call",
+        """# BOAR 🐖Counter🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖val🐖 #
+# 🐷 PIGLET 🐖getValue🐖 #
+# 🐖🐖🐖 #
+# ... 🐖val🐖 ... #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# 😀 🐖Counter🐖 🐖c🐖 @ 🐖Counter🐖 ** 5 ** #
+# 😀 🐷 🐖result🐖 @ 🐖c🐖 _ 🐖getValue🐖 ** ** #
+# ... 🐖result🐖 ... #""",
+        assert_struct_member_function_call
+    ),
+    (
+        "chained_function_calls",
+        """# 🐷 PIG 🐖getValue🐖 #
+# 🐖🐖🐖 #
+# ... 10 ... #
+# 🐖🐖🐖 #
+# 🐷 PIG 🐖double🐖 ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 💞 2 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖getValue🐖 ** ** _ 🐖double🐖 ** ** # 
+# ... 🐖result🐖 ... #""",
+        assert_chained_function_calls
+    )
 ]
 
 for name, source, func in all_tests:
@@ -237,3 +320,4 @@ for name, source, func in all_tests:
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+

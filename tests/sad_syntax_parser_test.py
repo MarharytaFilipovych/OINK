@@ -130,6 +130,33 @@ class SyntaxParserSadTest(ExceptionCheckingTestCase):
 # ... 🐖a🐖 ... #
 # 🐖🐖🐖 #
 # ... 0 ... #"""),
+("struct_field_without_type",
+         """# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐖x🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("function_param_without_type",
+         """# 🐷 PIG 🐖test🐖 ** 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 0 ... #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("member_function_without_return",
+         """# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐷 PIGLET 🐖getX🐖 #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+# ... 0 ... #"""),
+        ("read_without_variable",
+         """# eat😋 #
+# ... 0 ... #"""),
+        ("print_without_expression",
+         """# print🤮 #
+# ... 0 ... #""")
     ]
 
     def test_all_failing_cases(self):
