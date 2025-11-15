@@ -1,7 +1,7 @@
 AI links:
 * https://claude.ai/share/35627d24-6e04-42aa-9926-3e916067a8be
 * https://claude.ai/share/edbbcdc9-2b88-4302-8ff6-85bec50075cf
-* 
+* https://chatgpt.com/share/6918c1d8-61bc-8011-81ad-31c36fa44281
 
 -----
 gemini prompt for txt tests generation:

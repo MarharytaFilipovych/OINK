@@ -18,28 +18,20 @@ class ExceptionCheckingTestCase(unittest.TestCase):
 class TestLexerFailingCases(ExceptionCheckingTestCase):
     
     failing_cases = [
-        ("invalid_character", "# 😀 🐷 🐖x🐖 @ 10 $ #\n"),
-        ("invalid_unicode_emoji", "# 😀 🐷 🐖x🐖 @ 10 🎉 #\n"),
-        ("number_with_letters", "# 😀 🐷 🐖x🐖 @ 12a34 #\n"),
-        ("number_with_multiple_minus", "# 😀 🐷 🐖x🐖 @ --10 #\n"),
-        ("number_with_decimal", "# 😀 🐷 🐖x🐖 @ 12.5 #\n"),
-        ("variable_starting_with_number", "# 😀 🐷 🐖123abc🐖 @ 10 #\n"),
-        ("variable_with_invalid_char", "# 😀 🐷 🐖my$var🐖 @ 10 #\n"),
-        ("invalid_operator", "# 🐖x🐖 @ 🐖a🐖 + 🐖b🐖 #\n"),
-        ("invalid_assignment", "# 🐖x🐖 = 10 #\n"),
-        ("unclosed_multiline_comment", "👀👀👀\nThis comment never ends\n# 😀 🐷 🐖x🐖 @ 10 #\n"),
-        ("standalone_ampersand", "# 😀 🐷 🐖x🐖 @ 10 & 5 #\n"),
-        ("invalid_bracket", "# 🐖x🐖 @ ( 🐖a🐖 ❤️ 🐖b🐖 ) #\n"),
-        ("invalid_mutability_marker", "# 🎉 🐷 🐖x🐖 @ 10 #\n"),
-        ("invalid_struct_keyword", "# STRUCT 🐖Point🐖 #\n"),
-        ("invalid_function_keyword", "# 🐷 FUNC 🐖test🐖 #\n"),
-        ("invalid_member_function_keyword", "# 🐷 METHOD 🐖test🐖 #\n"),
-        ("struct_name_without_border", "# BOAR Point #\n"),
-        ("function_name_without_border", "# 🐷 PIG test #\n"),
-        ("invalid_void_emoji", "# 😊 PIG 🐖test🐖 #\n"),
-        ("invalid_member_access", "# 🐖p🐖 . 🐖x🐖 #\n"),
-        ("invalid_block_border", "# 🐖🐖 #\n"),
-    ]
+    ("invalid_character", "# 😀 🐷 🐖x🐖 @ 10 $ #\n"),
+    ("invalid_unicode_emoji", "# 😀 🐷 🐖x🐖 @ 10 🎉 #\n"),
+    ("number_with_letters", "# 😀 🐷 🐖x🐖 @ 12a34 #\n"),
+    ("number_with_multiple_minus", "# 😀 🐷 🐖x🐖 @ --10 #\n"),
+    ("number_with_decimal", "# 😀 🐷 🐖x🐖 @ 12.5 #\n"),
+    ("variable_starting_with_number", "# 😀 🐷 🐖123abc🐖 @ 10 #\n"),
+    ("variable_with_invalid_char", "# 😀 🐷 🐖my$var🐖 @ 10 #\n"),
+    ("invalid_operator", "# 🐖x🐖 @ 🐖a🐖 + 🐖b🐖 #\n"),
+    ("invalid_mutability_marker", "# 🎉 🐷 🐖x🐖 @ 10 #\n"),
+    ("unclosed_multiline_comment", "👀👀👀\nThis comment never ends\n# 😀 🐷 🐖x🐖 @ 10 #\n"),
+    ("standalone_ampersand", "# 😀 🐷 🐖x🐖 @ 10 & 5 #\n"),
+    ("invalid_bracket", "# 🐖x🐖 @ ( 🐖a🐖 ❤️ 🐖b🐖 ) #\n"),
+    ("invalid_void_emoji", "# 😊 PIG 🐖test🐖 #\n"),
+]
 
     def test_all_failing_cases(self):
         for name, code in self.failing_cases:

@@ -3,10 +3,12 @@ import unittest
 import sys
 import os
 
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler.lexer.lexer import Lexer
 from compiler.token.token_type import TokenType
+from compiler.node.io_nodes import PrintNode, ReadNode
 
 def get_lexemes(source: str):
     lexer = Lexer(source)
@@ -165,6 +167,18 @@ def assert_struct_declaration_complete(self, lexemes):
     self.assertEqual(len(struct_token), 1)
     self.assertEqual(len(block_tokens), 2)
 
+def assert_print_statement(self, ast):
+    self.assertEqual(len(ast.statement_nodes), 1)
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsNotNone(print_stmt.expr)  
+
+def assert_read_statement(self, ast):
+    self.assertEqual(len(ast.statement_nodes), 1)
+    read_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(read_stmt, ReadNode)
+    self.assertEqual(read_stmt.variable, "input_var")
+
 
 all_tests = [
     ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 42 #\n", assert_simple_declaration),
@@ -190,6 +204,8 @@ all_tests = [
     ("void_return_type", "# 😑 PIG 🐖print🐖 #\n", assert_void_return_type),
     ("member_access_operator", "# 🐖p🐖 _ 🐖x🐖 #\n", assert_member_access_operator),
     ("struct_declaration_complete", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n", assert_struct_declaration_complete),
+    ( "print_statement", "# print🤮 🐖input_var🐖 #", assert_print_statement),
+    ( "read_statement","# 😀 🐷 🐖input_var🐖 #\n# eat😋 🐖input_var🐖 #",assert_read_statement)
 ]
 
 for name, source, func in all_tests:
@@ -198,3 +214,4 @@ for name, source, func in all_tests:
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
