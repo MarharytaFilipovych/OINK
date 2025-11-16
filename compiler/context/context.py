@@ -24,11 +24,10 @@ class Context:
 
     def declare_variable(self, name: str, data_type: DataType | str, mutable: bool):
         current_scope = self.scopes[-1]
+        
+        # Enforce strict single declaration in the current scope (undoing the overwrite logic)
         if name in current_scope:
-            # FIX for test_43: The variable is redeclared in the same scope (type widening).
-            # Overwrite the old definition and return True to signal success.
-            current_scope[name] = VariableInfo(data_type, mutable)
-            return True 
+            return False # Variable already declared in current scope
 
         current_scope[name] = VariableInfo(data_type, mutable)
         return True

@@ -124,25 +124,19 @@ class SemanticAnalyzer(ASTVisitor):
         if isinstance(node.data_type, str):
             self._validate_struct_type_exists(node.data_type, node.line)
 
-        # FIX START
-        is_redeclaration = self.context.is_variable_declared(node.variable)
-
-        # context.declare_variable is updated to allow overwrite (returning True) if variable exists in current scope.
-        if not self.context.declare_variable(node.variable, node.data_type, node.mutable):
-            # This error block should typically not be hit now for the test_43 scenario.
+        if self.context.is_variable_declared(node.variable):
             raise ValueError(f"Variable \"{node.variable}\" has already been declared at line {node.line}!!!!!!!!!!")
         
-        # Only set self-assignment protection for *new* variables. 
-        # For re-declarations, accessing the old value is explicitly allowed.
-        if not is_redeclaration:
-            self.context.currently_initializing = node.variable
+        
+        if not self.context.declare_variable(node.variable, node.data_type, node.mutable):
+             raise ValueError(f"Variable \"{node.variable}\" has already been declared at line {node.line}!!!!!!!!!!")
+
+        self.context.currently_initializing = node.variable
             
         expr_type = node.expr_node.accept(self)
         self._check_type_match(expr_type, node.data_type, node.line)
         
-        if not is_redeclaration:
-            self.context.currently_initializing = None
-        # FIX END
+        self.context.currently_initializing = None
 
     def _validate_struct_type_exists(self, type_name: str, line: int):
         if not self.context.is_struct_defined(type_name):
@@ -165,7 +159,6 @@ class SemanticAnalyzer(ASTVisitor):
 
     def visit_assign(self, node: AssignNode):
         if '_' in node.variable and self.context.is_variable_declared(node.variable.split('_')[0]):
-            # This handles assignment to a struct member: 趨p趨 _ 趨x趨 @ 25, parsed as AssignNode("p_x", ...)
             object_name, member_name = node.variable.split('_', 1)
             
             self._check_variable_declared(object_name, node.line)
@@ -178,7 +171,7 @@ class SemanticAnalyzer(ASTVisitor):
             field_info = next((f for f in struct_fields if f.name == member_name), None)
 
             if not field_info:
-                raise ValueError(f"Struct \"{base_type}\" has no field \"{member_name}\" at line {node.line}!")
+                raise ValueError(f"Struct \"{base_type}\" has no field \"{node.member_name}\" at line {node.line}!")
 
             if not self.context.is_variable_mutable(object_name):
                  raise ValueError(f"Cannot assign to a field of an immutable struct variable \"{object_name}\" at line {node.line}!")
@@ -248,13 +241,6 @@ class SemanticAnalyzer(ASTVisitor):
 
     @staticmethod
     def _validate_logical(left_type: DataType, right_type: DataType, operator) -> DataType:
-        numeric_types = {DataType.I16, DataType.I32, DataType.I64}
-        
-        can_be_left_operand = left_type == DataType.BOOL or left_type in numeric_types
-        can_be_right_operand = right_type == DataType.BOOL or right_type in numeric_types
-        if can_be_left_operand and can_be_right_operand:
-            return DataType.BOOL
-        
         if left_type != DataType.BOOL or right_type != DataType.BOOL:
              raise ValueError(f"Logical operator \"{operator}\" requires boolean operands, "
                  f"but got \"{left_type}\" and \"{right_type}\"!")
@@ -356,7 +342,6 @@ class SemanticAnalyzer(ASTVisitor):
     def visit_function_call(self, node: FunctionCallNode):
         function_scope = self._identify_function_scope(node.object_name)
         
-        # If not found in identified scope and we're in a struct, try GLOBAL
         if not self.context.is_function_defined(function_scope, node.value):
             if self._current_struct_context and function_scope != GLOBAL:
                 function_scope = GLOBAL
