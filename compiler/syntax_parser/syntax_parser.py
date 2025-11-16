@@ -47,20 +47,23 @@ class SyntaxParser:
     def parse_program(self) -> ProgramNode:
         self.reader.skip_newlines()
         struct_declarations = []
-        while self.peek_and_check_struct():
-            struct_declarations.append(self.parse_struct_declaration())
-            self.reader.skip_newlines()
         function_declarations = []
-        while self.peek_and_check_function():
-            function_declarations.append(self.parse_function_declaration())
+        
+        # Parse structs and functions in any order
+        while self.peek_and_check_struct() or self.peek_and_check_function():
+            if self.peek_and_check_struct():
+                struct_declarations.append(self.parse_struct_declaration())
+            elif self.peek_and_check_function():
+                function_declarations.append(self.parse_function_declaration())
             self.reader.skip_newlines()
+        
         statements = self.parse_statements()
         if not struct_declarations and not function_declarations and not statements:
             raise ValueError("Program cannot be empty! You have to write something before the return statement!")
         return_statement = self.parse_program_return()
         self.check_program_end()
         return ProgramNode(struct_declarations, function_declarations, statements, return_statement)
-
+    
     def peek_and_check_struct(self) -> bool:
         if not self.reader.peek() or self.reader.peek().token_type != TokenType.SIMPLE_LINE_BORDER:
             return False

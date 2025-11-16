@@ -2,12 +2,10 @@
 # 🐖🐖🐖 #
 # 😀 🐷 🐖a🐖 #
 # 🐖🐖🐖 #
-# ... 0 ... #
 # BOAR 🐖Outer🐖 #
 # 🐖🐖🐖 #
 # 😀 🐖Inner🐖 🐖i🐖 #
 # 🐖🐖🐖 #
-# ... 0 ... #
 # 😀 🐖Inner🐖 🐖inner&val🐖 @ 🐖Inner🐖 ** 5 ** #
 # 😀 🐖Outer🐖 🐖outer&val🐖 @ 🐖Outer🐖 ** 🐖inner&val🐖 ** #
 # ... 5 ... #

@@ -34,8 +34,8 @@ class SemanticAnalyzer(ASTVisitor):
         self._current_struct_context: Optional[str] = None
 
     def visit_program(self, node: ProgramNode):
-        [struct_decl.accept(self) for struct_decl in node.struct_declarations]
-        [self._register_function(func_decl) for func_decl in node.function_declarations]
+        [self._register_function(func_decl) for func_decl in node.function_declarations] 
+        [struct_decl.accept(self) for struct_decl in node.struct_declarations] 
         [func_decl.accept(self) for func_decl in node.function_declarations]
         [stmt.accept(self) for stmt in node.statement_nodes]
         node.return_node.accept(self)
@@ -159,7 +159,6 @@ class SemanticAnalyzer(ASTVisitor):
         data_type = self.context.get_variable_type(node.variable)
         expr_type = node.expr_node.accept(self)
         self._check_type_match(expr_type, data_type, node.line)
-
 
     def visit_return(self, node: ReturnNode):
         returned_type = node.expr_node.accept(self) if node.expr_node else DataType.VOID 
@@ -305,8 +304,15 @@ class SemanticAnalyzer(ASTVisitor):
 
     def visit_function_call(self, node: FunctionCallNode):
         function_scope = self._identify_function_scope(node.object_name)
+        
+        # If not found in identified scope and we're in a struct, try GLOBAL
         if not self.context.is_function_defined(function_scope, node.value):
-            raise ValueError(f"Function \"{node.value}\" not defined at line {node.line}!")
+            if self._current_struct_context and function_scope != GLOBAL:
+                function_scope = GLOBAL
+            
+            if not self.context.is_function_defined(function_scope, node.value):
+                raise ValueError(f"Function \"{node.value}\" not defined at line {node.line}!")
+        
         func_info = self.context.get_function_info(function_scope, node.value)
         self._validate_argument_count(node, func_info)
         self._validate_argument_types(node, func_info)
