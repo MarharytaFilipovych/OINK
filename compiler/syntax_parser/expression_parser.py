@@ -134,9 +134,23 @@ class ExpressionParser:
             else:
                 return MemberAccessNode(var_name, member_token.value, var_token.line)
 
-        return self.parse_function_call_expr(var_name, var_token.line) \
-            if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET \
-                else IDNode(var_name, var_token.line)
+        next_token = self.reader.peek()
+        if next_token and next_token.token_type == TokenType.BRACKET:
+            token_after_bracket = self.reader.peek(1)
+
+            # If the token after the bracket is the RETURN token ('...'), 
+            # it means this ID is the last argument of an outer expression, so it is NOT a function call.
+            if token_after_bracket and token_after_bracket.token_type == TokenType.RETURN:
+                return IDNode(var_name, var_token.line)
+            
+            # If the next token is BRACKET, it's a zero-argument function call (ID ** **).
+            if token_after_bracket and token_after_bracket.token_type == TokenType.BRACKET:
+                return self.parse_function_call_expr(var_name, var_token.line)
+            
+            # If it's followed by anything else (e.g., VARIABLE_BORDER for the next argument), it must be a function call with arguments.
+            return self.parse_function_call_expr(var_name, var_token.line)
+        
+        return IDNode(var_name, var_token.line)
 
     def parse_function_call_expr(self, func_name: str = None, line: int = None) -> FunctionCallNode:
         if func_name is None:
