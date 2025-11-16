@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler.node.function_call_node import FunctionCallNode
-from compiler.node.io_nodes import PrintNode, ReadNode
+from compiler.node.read_node import PrintNode, ReadNode
 from compiler.syntax_parser.syntax_parser import SyntaxParser
 from compiler.lexer.lexer import Lexer
 from compiler.node.program_node import ProgramNode

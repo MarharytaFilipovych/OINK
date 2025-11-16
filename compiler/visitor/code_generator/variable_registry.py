@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from typing import Union, Optional
+from ...constants import UNDERLINE, VARIABLE_ALLOWED_SIGN
 from ...llvm_specifics.data_type import DataType
 
 
@@ -11,7 +12,7 @@ class VariableRegistry:
 
     @staticmethod
     def _sanitize_name(variable: str) -> str:
-        return variable.replace('&', '_')
+        return variable.replace(VARIABLE_ALLOWED_SIGN, UNDERLINE)
 
     def get_variable_register(self, variable: str) -> str:
         sanitized_name = self._sanitize_name(variable)

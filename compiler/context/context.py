@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from typing import Optional
-
 from .function_table import FunctionTable
 from ..context.function_info import FunctionInfo
 from ..llvm_specifics.data_type import DataType
@@ -24,11 +23,8 @@ class Context:
 
     def declare_variable(self, name: str, data_type: DataType | str, mutable: bool):
         current_scope = self.scopes[-1]
-        
-        # Enforce strict single declaration in the current scope (undoing the overwrite logic)
         if name in current_scope:
-            return False # Variable already declared in current scope
-
+            return False
         current_scope[name] = VariableInfo(data_type, mutable)
         return True
 

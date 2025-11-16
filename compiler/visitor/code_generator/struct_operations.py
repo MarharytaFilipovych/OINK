@@ -40,11 +40,9 @@ class StructOperations:
             field_ptr = self.get_struct_field_ptr(node.value, struct_reg, i)
 
             if isinstance(expr_type, str):
-                # FIX for test_41: When a field is a struct type (string), 
-                # we only need to store the pointer (expr_value) into the field location (field_ptr).
                 self.emitter.emit_line(f"  store {field_llvm_type} {expr_value}, {field_llvm_type}* {field_ptr}")
             else:
-                expr_value = self._convert_type_if_needed(expr_value, expr_type, field_data_type)
+                expr_value = self.convert_type_if_needed(expr_value, expr_type, field_data_type)
                 self.emitter.emit_line(f"  store {field_llvm_type} {expr_value}, {field_llvm_type}* {field_ptr}")
 
     def get_struct_field_ptr(self, struct_name: str, struct_ptr: str, field_index: int) -> str:
@@ -54,7 +52,7 @@ class StructOperations:
             f"%struct.{struct_name}* {struct_ptr}, i32 0, i32 {field_index}")
         return field_ptr
 
-    def _convert_type_if_needed(self, value: str, expr_type, target_type_str: str) -> str:
+    def convert_type_if_needed(self, value: str, expr_type, target_type_str: str) -> str:
         if not isinstance(expr_type, DataType):
             return value
         try:
@@ -115,12 +113,12 @@ class StructOperations:
     def _get_field_info(self, struct_name: str, field_name: str, 
                        base_reg: str) -> tuple[str, str, str]:
         fields = self.struct_definitions[struct_name]
-        field_index, field_llvm_type, field_data_type = self._find_field(fields, field_name)
+        field_index, field_llvm_type, field_data_type = self.find_field(fields, field_name)
         field_ptr = self.get_struct_field_ptr(struct_name, base_reg, field_index)
         return field_ptr, field_llvm_type, field_data_type
 
     @staticmethod
-    def _find_field(fields: list, field_name: str) -> tuple[int, str, str]:
+    def find_field(fields: list, field_name: str) -> tuple[int, str, str]:
         for i, (name, field_type, fdata) in enumerate(fields):
             if name == field_name:
                 return i, field_type, fdata

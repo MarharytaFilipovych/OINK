@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler.lexer.lexer import Lexer
 from compiler.token.token_type import TokenType
-from compiler.node.io_nodes import PrintNode, ReadNode
+from compiler.node.read_node import PrintNode, ReadNode
 
 def get_lexemes(source: str):
     lexer = Lexer(source)

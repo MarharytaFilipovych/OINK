@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from pickle import GLOBAL
 from typing import Optional
-from ..constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT
+from ..constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT, UNDERLINE
+from ..node.print_node import PrintNode
 from ..visitor.ast_visitor import ASTVisitor
 from ..context.context import Context
 from ..llvm_specifics.data_type import DataType
@@ -23,7 +24,7 @@ from ..node.unary_op_node import UnaryOpNode
 from ..node.struct_decl_node import StructDeclNode
 from ..node.struct_init_node import StructInitNode
 from ..node.while_node import WhileNode
-from ..node.io_nodes import ReadNode, PrintNode
+from ..node.read_node import ReadNode
 
 
 class SemanticAnalyzer(ASTVisitor):
@@ -132,10 +133,8 @@ class SemanticAnalyzer(ASTVisitor):
              raise ValueError(f"Variable \"{node.variable}\" has already been declared at line {node.line}!!!!!!!!!!")
 
         self.context.currently_initializing = node.variable
-            
         expr_type = node.expr_node.accept(self)
         self._check_type_match(expr_type, node.data_type, node.line)
-        
         self.context.currently_initializing = None
 
     def _validate_struct_type_exists(self, type_name: str, line: int):
@@ -158,40 +157,56 @@ class SemanticAnalyzer(ASTVisitor):
                 f"you cannot assign \"{expr_type}\" to \"{expected_type}\"! Be careful!")
 
     def visit_assign(self, node: AssignNode):
-        if '_' in node.variable and self.context.is_variable_declared(node.variable.split('_')[0]):
-            object_name, member_name = node.variable.split('_', 1)
-            
-            self._check_variable_declared(object_name, node.line)
-            
-            base_type = self.context.get_variable_type(object_name)
-            if not isinstance(base_type, str):
-                raise ValueError(f"Cannot assign member \"{member_name}\" on primitive type \"{base_type}\" at line {node.line}!")
+        if UNDERLINE in node.variable:
+            self.__handle_struct_assignment(node)
+        else:
+            self.__handle_simple_assignment(node)
 
-            struct_fields = self.context.get_struct_definition(base_type)
-            field_info = next((f for f in struct_fields if f.name == member_name), None)
+    def __handle_struct_assignment(self, node: AssignNode):
+        object_name, member_name = node.variable.split(UNDERLINE, 1)
 
-            if not field_info:
-                raise ValueError(f"Struct \"{base_type}\" has no field \"{node.member_name}\" at line {node.line}!")
+        self._check_variable_declared(object_name, node.line)
 
-            if not self.context.is_variable_mutable(object_name):
-                 raise ValueError(f"Cannot assign to a field of an immutable struct variable \"{object_name}\" at line {node.line}!")
+        base_type = self.context.get_variable_type(object_name)
+        self.__check_struct_type(base_type, member_name, node.line)
 
-            if not field_info.mutable:
-                 raise ValueError(f"Cannot assign to immutable field \"{member_name}\" in struct \"{base_type}\" at line {node.line}!")
+        struct_fields = self.context.get_struct_definition(base_type)
+        field_info = self.__get_struct_field(struct_fields, member_name, node.line)
 
-            data_type = field_info.field_type
-            expr_type = node.expr_node.accept(self)
-            self._check_type_match(expr_type, data_type, node.line)
-            
+        self.__check_struct_mutability(object_name, field_info, node.line)
+
+        data_type = field_info.field_type
+        expr_type = node.expr_node.accept(self)
+        self._check_type_match(expr_type, data_type, node.line)
+
+    @staticmethod
+    def __check_struct_type(base_type, member_name, line):
+        if isinstance(base_type, str):
             return
+        raise ValueError(f"Cannot assign member \"{member_name}\" on primitive type \"{base_type}\" at line {line}!")
 
-        # Original logic for non-member assignment
+    @staticmethod
+    def __get_struct_field(struct_fields, member_name, line):
+        field_info = next((f for f in struct_fields if f.name == member_name), None)
+        if not field_info:
+            raise ValueError(f"Struct has no field \"{member_name}\" at line {line}!")
+        return field_info
+
+    def __check_struct_mutability(self, object_name, field_info, line):
+        if not self.context.is_variable_mutable(object_name):
+            raise ValueError(
+                f"Cannot assign to a field of an immutable struct variable \"{object_name}\" at line {line}!")
+        if not field_info.mutable:
+            raise ValueError(f"Cannot assign to immutable field \"{field_info.name}\" at line {line}!")
+
+    def __handle_simple_assignment(self, node: AssignNode):
         self._check_variable_declared(node.variable, node.line)
         self._check_variable_mutable(node.variable, node.line)
 
         if isinstance(node.expr_node, IDNode) and node.expr_node.value == node.variable:
             raise ValueError(f"Self-assignment like \"{node.variable} = {node.variable}\" "
-                f"is not allowed at line {node.line}!")
+                             f"is not allowed at line {node.line}!")
+
         data_type = self.context.get_variable_type(node.variable)
         expr_type = node.expr_node.accept(self)
         self._check_type_match(expr_type, data_type, node.line)

@@ -120,42 +120,46 @@ class ExpressionParser:
         var_name = var_token.value
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
 
-        if var_name in self.declared_structs and self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+        if self.__is_struct_initialization(var_name):
             return self.parse_struct_init(var_name, var_token.line)
 
-        if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS:
-            self.reader.eat()
-            self.reader.expect_token(TokenType.VARIABLE_BORDER)
-            member_token = self.reader.expect_token(TokenType.VARIABLE)
-            self.reader.expect_token(TokenType.VARIABLE_BORDER)
+        if self.__is_member_access():
+            return self.__parse_member_access(var_name, var_token.line)
 
-            if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
-                return self.parse_member_function_call(var_name, member_token.value, var_token.line)
-            else:
-                return MemberAccessNode(var_name, member_token.value, var_token.line)
+        if self.__is_function_call():
+            return self.parse_function_call_expr(var_name, var_token.line)
 
+        return IDNode(var_name, var_token.line)
+
+    def __is_struct_initialization(self, var_name: str) -> bool:
+        return var_name in self.declared_structs and self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET
+
+    def __is_member_access(self) -> bool:
+        return self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS
+
+    def __parse_member_access(self, var_name: str, line: int) -> Union[MemberAccessNode, ExprNode]:
+        self.reader.eat()
+        self.reader.expect_token(TokenType.VARIABLE_BORDER)
+        member_token = self.reader.expect_token(TokenType.VARIABLE)
+        self.reader.expect_token(TokenType.VARIABLE_BORDER)
+
+        if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+            return self.parse_member_function_call(var_name, member_token.value, line)
+        else:
+            return MemberAccessNode(var_name, member_token.value, line)
+
+    def __is_function_call(self) -> bool:
         next_token = self.reader.peek()
         if next_token and next_token.token_type == TokenType.BRACKET:
             token_after_bracket = self.reader.peek(1)
-
-            # If the token after the bracket is the RETURN token ('...'), 
-            # it means this ID is the last argument of an outer expression, so it is NOT a function call.
-            if token_after_bracket and token_after_bracket.token_type == TokenType.RETURN:
-                return IDNode(var_name, var_token.line)
-            
-            # NEW: If the token after the bracket is a line terminator ('#' or '~#'), 
-            # it means this ID is the last part of the overall statement's expression (e.g., struct init argument).
-            if token_after_bracket and token_after_bracket.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_END]:
-                return IDNode(var_name, var_token.line)
-
-            # If the next token is BRACKET, it's a zero-argument function call (ID ** **).
-            if token_after_bracket and token_after_bracket.token_type == TokenType.BRACKET:
-                return self.parse_function_call_expr(var_name, var_token.line)
-            
-            # If it's followed by anything else (e.g., VARIABLE_BORDER for the next argument), it must be a function call with arguments.
-            return self.parse_function_call_expr(var_name, var_token.line)
-        
-        return IDNode(var_name, var_token.line)
+            if token_after_bracket and token_after_bracket.token_type in [
+                TokenType.RETURN,
+                TokenType.SIMPLE_LINE_BORDER,
+                TokenType.MOOD_LINE_BORDER_END
+            ]:
+                return False
+            return True
+        return False
 
     def parse_function_call_expr(self, func_name: str = None, line: int = None) -> FunctionCallNode:
         if func_name is None:

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from typing import Union
-
 from .token_reader import TokenReader
 from ..llvm_specifics.data_type import DataType
 from ..node.factor_node import FactorNode

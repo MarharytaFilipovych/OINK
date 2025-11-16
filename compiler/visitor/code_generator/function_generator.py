@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from typing import Optional, Union
+
+from ...constants import VARIABLE_ALLOWED_SIGN, UNDERLINE
 from ...llvm_specifics.data_type import DataType
 from ...context.function_info import FunctionInfo
 
@@ -18,8 +20,9 @@ class FunctionGenerator:
     @staticmethod
     def _type_to_string(type_obj: Union[DataType, str]) -> str:
         return type_obj.keyword if isinstance(type_obj, DataType) else type_obj
-        
-    def _string_to_type(self, type_str: str) -> Union[DataType, str]:
+
+    @staticmethod
+    def _string_to_type(type_str: str) -> Union[DataType, str]:
         try:
             return DataType.from_string(type_str)
         except ValueError:
@@ -48,7 +51,7 @@ class FunctionGenerator:
         
         return_type = self.type_converter.get_node_type(node)
         return_llvm_type = self._get_llvm_type(return_type)
-        func_name = node.value.replace('&', '_')
+        func_name = node.value.replace(VARIABLE_ALLOWED_SIGN, UNDERLINE)
 
         func_info = self.function_signatures.get(func_name)
         
@@ -148,7 +151,6 @@ class FunctionGenerator:
         if isinstance(data_type, DataType):
             return data_type.to_llvm()
         try:
-            # FIX for test_39: If the string is an LLVM primitive type, return it directly.
             if isinstance(data_type, str) and data_type in ["i16", "i32", "i64", "i1", "void"]:
                 return data_type
             return DataType.from_string(data_type).to_llvm()

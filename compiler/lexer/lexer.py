@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from .lexer_state import LexerState
 from ..token.token_class import Token
-from .lexer_constants import *
+from ..constants import *
+from ..token.token_type import TokenType
 
 
 class Lexer:
@@ -62,7 +63,7 @@ class Lexer:
                 case LexerState.NUMBER:
                     self.__manage_number_state(char)
                 case LexerState.COMMENT:
-                    self.__manage_comment_state(char)
+                    self.__manage_comment_state()
                 case LexerState.MULTILINE_COMMENT:
                     self.__manage_multiline_comment_state()
                     
@@ -104,7 +105,7 @@ class Lexer:
             self.__move_to_next_char()
             return
 
-        if char == '-' and self.__peek_ahead(2) and self.__peek_ahead(2)[1].isdigit():
+        if char == MINUS and self.__peek_ahead(2) and self.__peek_ahead(2)[1].isdigit():
             self.__start_new_token(LexerState.NUMBER)
             return
 
@@ -117,7 +118,7 @@ class Lexer:
             return
 
         raise ValueError(
-            f"I did not expect character '{char}' to be "
+            f"I did not expect character \"{char}\" to be "
             f"placed at line {self.line}, column {self.index}!!!"
         )
 
@@ -192,7 +193,7 @@ class Lexer:
             case LexerState.NUMBER:
                 self.__build_number_token(value)
 
-    def __manage_comment_state(self, char: str):
+    def __manage_comment_state(self):
         while self.current_position < len(self.source) and self.source[self.current_position] != NEWLINE:
             self.__move_to_next_char()
         self.state = LexerState.INITIAL

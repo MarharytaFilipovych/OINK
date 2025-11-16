@@ -241,7 +241,7 @@ Note: `_` is the member access operator (pig tail!)
 ```ebnf
 A program consists of optional structure declarations, function declarations, statements, and a return statement:
 
-program ::= function_decl* struct_decl* statement_wrapper* return_statement
+program ::= (function_decl | struct_decl)* statement_wrapper* return_statement
 
 Structure declaration: BOAR keyword, structure name, fields, and optional member functions:
 struct_decl ::= "#" "BOAR" "🐖" ID "🐖" "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE struct_body "#" "🐖🐖🐖" "#" NEWLINE

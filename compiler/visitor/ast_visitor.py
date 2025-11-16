@@ -11,7 +11,8 @@ from ..node.function_decl_node import FunctionDeclNode
 from ..node.id_node import IDNode
 from ..node.if_node import IfNode
 from ..node.elif_node import ElifNode
-from ..node.io_nodes import ReadNode, PrintNode
+from ..node.print_node import PrintNode
+from ..node.read_node import ReadNode
 from ..node.member_access_node import MemberAccessNode
 from ..node.struct_decl_node import StructDeclNode
 from ..node.struct_init_node import StructInitNode

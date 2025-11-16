@@ -48,7 +48,8 @@ class LLVMEmitter:
 
         return "\n".join(result)
 
-    def _get_io_functions_llvm(self) -> str:
+    @staticmethod
+    def _get_io_functions_llvm() -> str:
         return """declare i32 @printf(i8*, ...)
 declare i32 @scanf(i8*, ...)
 

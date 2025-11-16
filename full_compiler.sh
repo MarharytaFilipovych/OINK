@@ -14,18 +14,13 @@ for i in {1..48}; do
     llc -filetype=obj -relocation-model=pic ./llm/test_$i.ll -o ./obj/test_$i.o
     clang -fPIE ./obj/test_$i.o -o ./exe/test_$i
     
-    # Check for tests that require input (eat😋) and pipe the expected value
     if [ "$i" -eq 32 ]; then
-        # test_32.txt: expects input 10 (10 + 5 = 15)
         EXEC_CMD="echo \"10\" | ./exe/test_$i"
     elif [ "$i" -eq 33 ]; then
-        # test_33.txt: expects input 100000000000 (i64 read)
         EXEC_CMD="echo \"100000000000\" | ./exe/test_$i"
     elif [ "$i" -eq 45 ]; then
-        # test_45.txt: expects input 20 (i16 read)
         EXEC_CMD="echo \"20\" | ./exe/test_$i"
     else
-        # Default execution for tests without input
         EXEC_CMD="./exe/test_$i"
     fi
     

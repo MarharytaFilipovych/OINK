@@ -9,7 +9,7 @@ from ...node.unary_op_node import UnaryOpNode
 from ...node.struct_init_node import StructInitNode
 from ...node.member_access_node import MemberAccessNode
 from ...node.function_call_node import FunctionCallNode
-from ...constants import I16_MAX, I16_MIN, I32_MAX, I32_MIN
+from ...constants import I16_MAX, I16_MIN, I32_MAX, I32_MIN, UNDERLINE, VARIABLE_ALLOWED_SIGN
 
 
 def _get_binary_op_type(node: BinaryOpNode) -> DataType:
@@ -31,25 +31,31 @@ class TypeConverter:
         self.struct_ops = struct_ops
         self.function_return_types = function_return_types
 
-    def get_llvm_type(self, type_obj) -> str:
+    @staticmethod
+    def get_llvm_type(type_obj) -> str:
+        llvm_types = {
+            DataType.I16.to_llvm(),
+            DataType.I32.to_llvm(),
+            DataType.I64.to_llvm(),
+            DataType.BOOL.to_llvm(),
+            DataType.VOID.to_llvm()
+        }
+
         if isinstance(type_obj, DataType):
             return type_obj.to_llvm()
         if isinstance(type_obj, str):
-            # FIX for test_39: If the string is an LLVM primitive type, return it directly.
-            if type_obj in ["i16", "i32", "i64", "i1", "void"]:
+            if type_obj in llvm_types:
                 return type_obj
             try:
                 return DataType.from_string(type_obj).to_llvm()
             except ValueError:
                 return f"%struct.{type_obj}*"
-        return "i32"
+        return DataType.I32.to_llvm()
 
     def get_node_type(self, node) -> Union[DataType, str]:
         if isinstance(node, IDNode):
-            # FIX for test_41: Ensure a default DataType is returned if variable type lookup is None.
             var_type = self.variable_registry.get_variable_type(node.value)
             return var_type if var_type is not None else DataType.I32
-            
         if isinstance(node, NumberNode):
             return self._infer_number_type(int(node.value))
         if isinstance(node, BooleanNode):
@@ -76,20 +82,14 @@ class TypeConverter:
 
     def _get_member_access_type(self, node: MemberAccessNode) -> Union[DataType, str]:
         obj_type = self.variable_registry.get_variable_type(node.value)
-        
-        # FIX for test_41: If the base object variable is not found (returns None), treat it as an i32.
         if obj_type is None:
             return DataType.I32
-        
         if not isinstance(obj_type, str):
             return obj_type
-        
         fields = self.struct_ops.struct_definitions[obj_type]
         field_info = next((f for f in fields if f[0] == node.member_name), None)
-        
         if not field_info:
             return DataType.I32
-        
         try:
             return DataType.from_string(field_info[2])
         except ValueError:
@@ -99,12 +99,12 @@ class TypeConverter:
         if node.object_name:
             obj_type = self.variable_registry.get_variable_type(node.object_name)
             if isinstance(obj_type, str):
-                mangled_name = f"{obj_type}_{node.value}".replace('&', '_')
-                type_str = self.function_return_types.get(mangled_name, "i32")
+                mangled_name = f"{obj_type}_{node.value}".replace(VARIABLE_ALLOWED_SIGN, UNDERLINE)
+                type_str = self.function_return_types.get(mangled_name, DataType.I32.to_llvm())
                 return _parse_return_type(type_str)
-        
-        func_name = node.value.replace('&', '_')
-        type_str = self.function_return_types.get(func_name, "i32")
+
+        func_name = node.value.replace(VARIABLE_ALLOWED_SIGN, UNDERLINE)
+        type_str = self.function_return_types.get(func_name, DataType.I32.to_llvm())
         return _parse_return_type(type_str)
 
     def infer_operand_type(self, left_node, right_node) -> str:
@@ -112,12 +112,12 @@ class TypeConverter:
         right_type = self.get_node_type(right_node)
 
         if not isinstance(left_type, DataType) or not isinstance(right_type, DataType):
-            return "i32"
+            return DataType.I32.to_llvm()
 
         if left_type == DataType.I64 or right_type == DataType.I64:
-            return "i64"
+            return DataType.I64.to_llvm()
         if left_type == DataType.I32 or right_type == DataType.I32:
-            return "i32"
+            return DataType.I32.to_llvm()
         if left_type == DataType.I16 or right_type == DataType.I16:
-            return "i16"
-        return "i1"
+            return DataType.I16.to_llvm()
+        return DataType.BOOL.to_llvm()

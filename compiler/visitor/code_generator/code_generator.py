@@ -6,7 +6,7 @@ from ...node.code_block_node import CodeBlockNode
 from ...node.if_node import IfNode
 from ...node.elif_node import ElifNode
 from ...node.while_node import WhileNode
-from ...constants import NOT
+from ...constants import NOT, UNDERLINE
 from .variable_registry import VariableRegistry
 from .llvm_emitter import LLVMEmitter
 from .type_converter import TypeConverter
@@ -15,7 +15,6 @@ from .function_generator import FunctionGenerator
 
 
 class CodeGenerator(ASTVisitor):
-
     def __init__(self):
         self.variable_registry = VariableRegistry()
         self.emitter = LLVMEmitter()
@@ -72,7 +71,6 @@ class CodeGenerator(ASTVisitor):
         self._declare_struct_variable(node) if isinstance(node.data_type, str)\
             else self._declare_primitive_variable(node)
 
-
     def _declare_struct_variable(self, node):
         struct_value = node.expr_node.accept(self)
         reg = self.variable_registry.get_variable_register(node.variable)
@@ -96,46 +94,28 @@ class CodeGenerator(ASTVisitor):
             self.func_gen.store_field_to_this(node.variable, expr_value)
             return
 
-        # NEW LOGIC START: Handle member assignment outside of a member function, 
-        # identified by the mangled name 'object_name_member_name' in the parser
-        if '_' in node.variable and node.variable.count('_') == 1:
-            object_name, member_name = node.variable.split('_')
+        if UNDERLINE in node.variable and node.variable.count(UNDERLINE) == 1:
+            object_name, member_name = node.variable.split(UNDERLINE)
             object_type = self.variable_registry.get_variable_type(object_name)
 
-            if isinstance(object_type, str): # Check if the object is a struct type
+            if isinstance(object_type, str):
                 self._handle_struct_field_assignment(object_name, member_name, object_type, node)
                 return
-        # NEW LOGIC END
-        
         var_type = self._get_assignable_variable_type(node)
         self._emit_assignment_code(node, var_type)
         
-    # NEW HELPER START: Handles assignment to a field of a struct instance (e.g., p.x = 25)
     def _handle_struct_field_assignment(self, object_name: str, member_name: str, struct_name: str, node):
-        
-        # 1. Get pointer to the struct instance (must already be declared)
         object_ptr = self.variable_registry.get_current_register(object_name)
-        
-        # 2. Get the pointer to the specific field
         fields = self.struct_ops.struct_definitions[struct_name]
-        # Use existing helper to find field info
-        field_index, field_llvm_type, field_data_type_str = self.struct_ops._find_field(fields, member_name)
-            
+        field_index, field_llvm_type, field_data_type_str = self.struct_ops.find_field(fields, member_name)
         field_ptr = self.struct_ops.get_struct_field_ptr(struct_name, object_ptr, field_index)
-
-        # 3. Evaluate the expression
         expr_value = node.expr_node.accept(self)
         expr_type = self.type_converter.get_node_type(node.expr_node)
-        
-        # 4. Perform type conversion if needed and store the result
         if isinstance(expr_type, str):
-            # This handles assignment/copy of another struct instance to a struct field
             self.struct_ops.copy_struct_fields(field_data_type_str, expr_value, field_ptr)
         else:
-            # Primitive field assignment (with widening/truncating if necessary)
-            expr_value = self.struct_ops._convert_type_if_needed(expr_value, expr_type, field_data_type_str)
+            expr_value = self.struct_ops.convert_type_if_needed(expr_value, expr_type, field_data_type_str)
             self.emitter.emit_line(f"  store {field_llvm_type} {expr_value}, {field_llvm_type}* {field_ptr}")
-    # NEW HELPER END
 
     def _get_assignable_variable_type(self, node):
         var_type = self.variable_registry.get_variable_type(node.variable)
@@ -215,27 +195,18 @@ class CodeGenerator(ASTVisitor):
     def _generate_logical_operation(self, node, left_value, right_value, temp_reg):
         left_type = self.type_converter.get_node_type(node.left)
         right_type = self.type_converter.get_node_type(node.right)
-
-        # Convert operands to i1 if they are numeric types
         left_value = self._convert_to_bool_if_numeric(left_value, left_type)
         right_value = self._convert_to_bool_if_numeric(right_value, right_type)
-
         llvm_op = node.operator.to_llvm()
         self.emitter.emit_line(f"  {temp_reg} = {llvm_op} i1 {left_value}, {right_value}")
 
-    # New helper function
     def _convert_to_bool_if_numeric(self, value: str, value_type) -> str:
         if not isinstance(value_type, DataType) or value_type == DataType.BOOL:
             return value
-        
-        # Numeric to boolean conversion: check if value is NOT equal to zero
         llvm_type = value_type.to_llvm()
         temp_reg = self.emitter.get_temp_register()
         self.emitter.emit_line(f"  {temp_reg} = icmp ne {llvm_type} {value}, 0")
-        
-        # The result of icmp ne is i1, which is the type needed for logical operations
         return temp_reg
-
 
     def _generate_arithmetic(self, node, left_value, right_value, left_type, right_type, temp_reg):
         result_type = node.result_type if node.result_type else DataType.I32
@@ -248,7 +219,6 @@ class CodeGenerator(ASTVisitor):
     def _widen_to_type(self, value: str, current_type: DataType, target_llvm_type: str) -> str:
         if not isinstance(current_type, DataType):
             return value
-
         current_llvm = current_type.to_llvm()
         return value if current_llvm == target_llvm_type \
             else self.struct_ops.widen_value(value, current_llvm, target_llvm_type)
@@ -256,7 +226,7 @@ class CodeGenerator(ASTVisitor):
     def _widen_value_if_needed(self, value: str, expr_node, target_type: DataType) -> str:
         expr_type = self.type_converter.get_node_type(expr_node)
         return value if not isinstance(expr_type, DataType) \
-                else self.struct_ops._convert_type_if_needed(value, expr_type, target_type.keyword)
+                else self.struct_ops.convert_type_if_needed(value, expr_type, target_type.keyword)
 
     def _get_llvm_type_string(self, return_type) -> str:
         return self.type_converter.get_llvm_type(return_type) if isinstance(return_type, str) \
@@ -296,15 +266,11 @@ class CodeGenerator(ASTVisitor):
         current_fallthrough_label = next_label 
         if node.elif_blocks:
             current_fallthrough_label = self._emit_elif_blocks(
-                node.elif_blocks, 
-                elif_start_label, 
-                label_id, 
-                end_label, 
-                node.else_block is not None)
+                node.elif_blocks, elif_start_label,
+                label_id, end_label, node.else_block is not None)
         
         if node.else_block:
             self._emit_else_block(node.else_block, current_fallthrough_label, end_label)
-        
         self.emitter.emit_label(end_label)
 
     def visit_elif_statement(self, node: ElifNode):
@@ -320,7 +286,6 @@ class CodeGenerator(ASTVisitor):
 
     def _emit_elif_blocks(self, elif_blocks, start_label: str, label_id: int, end_label: str, has_else: bool) -> str:
         current_label = start_label
-        
         for i, elif_block in enumerate(elif_blocks):
             self.emitter.emit_label(current_label)
             condition_value = elif_block.condition.accept(self)
@@ -348,19 +313,14 @@ class CodeGenerator(ASTVisitor):
         cond_label = f"while_cond_{label_id}"
         body_label = f"while_body_{label_id}"
         end_label = f"while_end_{label_id}"
-
         self.emitter.emit_line(f"  br label %{cond_label}")
         self.emitter.emit_label(cond_label)
-        
-        condition_value = node.condition.accept(self) 
-        
+        condition_value = node.condition.accept(self)
         self.emitter.emit_line(f"  br i1 {condition_value}, label %{body_label}, label %{end_label}")
-        
         self.emitter.emit_label(body_label)
         node.block.accept(self)
         if not node.block.return_node:
             self.emitter.emit_line(f"  br label %{cond_label}")
-        
         self.emitter.emit_label(end_label)
 
     def visit_code_block(self, node: CodeBlockNode):
@@ -391,30 +351,45 @@ class CodeGenerator(ASTVisitor):
     def visit_read(self, node):
         var_type = self.variable_registry.get_variable_type(node.variable)
         scanf_format_len = self._get_scanf_format_len(var_type)
-        
-        temp_ptr = self.emitter.get_temp_register() 
-        
+        format_string_name = self.__get_scanf_format_string(var_type)
+        temp_ptr = self.__allocate_temp(var_type)
+        self.__call_scanf(temp_ptr, var_type, scanf_format_len, format_string_name)
+        temp_val = self.__load_temp_value(var_type, temp_ptr)
+        self.__store_to_variable(node.variable, var_type, temp_val)
+
+    @staticmethod
+    def __get_scanf_format_string(var_type) -> str:
         llvm_type_name = var_type.to_llvm().replace('%', '')
         if llvm_type_name == 'i16':
-            format_string_name = "@read_i16_format"
+            return "@read_i16_format"
         elif llvm_type_name == 'i32':
-            format_string_name = "@read_i32_format"
+            return "@read_i32_format"
         elif llvm_type_name == 'i64':
-            format_string_name = "@read_i64_format"
+            return "@read_i64_format"
         else:
             raise ValueError(f"Unsupported read type: {llvm_type_name}")
 
+    def __allocate_temp(self, var_type):
+        temp_ptr = self.emitter.get_temp_register()
         self.emitter.emit_line(f"  {temp_ptr} = alloca {var_type.to_llvm()}")
-        self.emitter.emit_line(f"  call i32 (i8*, ...) @scanf(i8* getelementptr inbounds "
-                              f"([{scanf_format_len} x i8], [{scanf_format_len} x i8]* "
-                              f"{format_string_name}, i32 0, i32 0), "
-                              f"{var_type.to_llvm()}* {temp_ptr})")
-        
+        return temp_ptr
+
+    def __call_scanf(self, temp_ptr, var_type, scanf_format_len, format_string_name):
+        self.emitter.emit_line(
+            f"  call i32 (i8*, ...) @scanf(i8* getelementptr inbounds "
+            f"([{scanf_format_len} x i8], [{scanf_format_len} x i8]* {format_string_name}, i32 0, i32 0), "
+            f"{var_type.to_llvm()}* {temp_ptr})"
+        )
+
+    def __load_temp_value(self, var_type, temp_ptr):
         temp_val = self.emitter.get_temp_register()
         self.emitter.emit_line(f"  {temp_val} = load {var_type.to_llvm()}, {var_type.to_llvm()}* {temp_ptr}")
-        current_ptr = self.variable_registry.get_current_register(node.variable) 
+        return temp_val
+
+    def __store_to_variable(self, variable_name, var_type, temp_val):
+        current_ptr = self.variable_registry.get_current_register(variable_name)
         self.emitter.emit_line(f"  store {var_type.to_llvm()} {temp_val}, {var_type.to_llvm()}* {current_ptr}")
-        
+
     def visit_print(self, node):
         value = node.expr_node.accept(self)
         expr_type = self.type_converter.get_node_type(node.expr_node)
