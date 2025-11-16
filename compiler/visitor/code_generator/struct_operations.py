@@ -40,7 +40,9 @@ class StructOperations:
             field_ptr = self.get_struct_field_ptr(node.value, struct_reg, i)
 
             if isinstance(expr_type, str):
-                self.copy_struct_fields(field_data_type, expr_value, field_ptr)
+                # FIX for test_41: When a field is a struct type (string), 
+                # we only need to store the pointer (expr_value) into the field location (field_ptr).
+                self.emitter.emit_line(f"  store {field_llvm_type} {expr_value}, {field_llvm_type}* {field_ptr}")
             else:
                 expr_value = self._convert_type_if_needed(expr_value, expr_type, field_data_type)
                 self.emitter.emit_line(f"  store {field_llvm_type} {expr_value}, {field_llvm_type}* {field_ptr}")

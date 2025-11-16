@@ -213,8 +213,29 @@ class CodeGenerator(ASTVisitor):
         self.emitter.emit_line(f"  {temp_reg} = {llvm_op} {operand_type} {left_value}, {right_value}")
 
     def _generate_logical_operation(self, node, left_value, right_value, temp_reg):
+        left_type = self.type_converter.get_node_type(node.left)
+        right_type = self.type_converter.get_node_type(node.right)
+
+        # Convert operands to i1 if they are numeric types
+        left_value = self._convert_to_bool_if_numeric(left_value, left_type)
+        right_value = self._convert_to_bool_if_numeric(right_value, right_type)
+
         llvm_op = node.operator.to_llvm()
         self.emitter.emit_line(f"  {temp_reg} = {llvm_op} i1 {left_value}, {right_value}")
+
+    # New helper function
+    def _convert_to_bool_if_numeric(self, value: str, value_type) -> str:
+        if not isinstance(value_type, DataType) or value_type == DataType.BOOL:
+            return value
+        
+        # Numeric to boolean conversion: check if value is NOT equal to zero
+        llvm_type = value_type.to_llvm()
+        temp_reg = self.emitter.get_temp_register()
+        self.emitter.emit_line(f"  {temp_reg} = icmp ne {llvm_type} {value}, 0")
+        
+        # The result of icmp ne is i1, which is the type needed for logical operations
+        return temp_reg
+
 
     def _generate_arithmetic(self, node, left_value, right_value, left_type, right_type, temp_reg):
         result_type = node.result_type if node.result_type else DataType.I32
