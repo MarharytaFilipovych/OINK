@@ -25,22 +25,21 @@ def _parse_return_type(type_str: str) -> Union[DataType, str]:
         return type_str
 
 
-def get_llvm_type(type_obj) -> str:
-    if isinstance(type_obj, DataType):
-        return type_obj.to_llvm()
-    if isinstance(type_obj, str):
-        try:
-            return DataType.from_string(type_obj).to_llvm()
-        except ValueError:
-            return f"%struct.{type_obj}*"
-    return "i32"
-
-
 class TypeConverter:
     def __init__(self, variable_registry, struct_ops, function_return_types: dict):
         self.variable_registry = variable_registry
         self.struct_ops = struct_ops
         self.function_return_types = function_return_types
+
+    def get_llvm_type(self, type_obj) -> str:
+        if isinstance(type_obj, DataType):
+            return type_obj.to_llvm()
+        if isinstance(type_obj, str):
+            try:
+                return DataType.from_string(type_obj).to_llvm()
+            except ValueError:
+                return f"%struct.{type_obj}*"
+        return "i32"
 
     def get_node_type(self, node) -> Union[DataType, str]:
         if isinstance(node, IDNode):
