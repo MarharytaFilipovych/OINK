@@ -153,7 +153,7 @@ def assert_chained_function_calls(self, ast):
     self.assertEqual(func_call.value, "double")
     self.assertEqual(len(func_call.arguments), 1)
     self.assertIsInstance(func_call.arguments[0], FunctionCallNode)
-    self.assertEqual(func_call.arguments[0].variable, "getValue")
+    self.assertEqual(func_call.arguments[0].value, "getValue")
 
 
 all_tests = [
@@ -164,7 +164,7 @@ all_tests = [
     ),
     (
         "immutable_declaration",
-        "# 😭 🐷 🐖constant🐖 @ 100 #\n# ... 🐖constant🐖 ... #", # Added @ 100 initializer
+        "# 😭 🐷 🐖constant🐖 @ 100 #\n# ... 🐖constant🐖 ... #", 
         assert_immutable_decl
     ),
     (
