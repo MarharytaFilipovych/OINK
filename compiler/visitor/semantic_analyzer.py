@@ -160,15 +160,9 @@ class SemanticAnalyzer(ASTVisitor):
         expr_type = node.expr_node.accept(self)
         self._check_type_match(expr_type, data_type, node.line)
 
-    # In file: marharytafilipovych/oink/OINK-c1e2d932504857063568810fe41816cc16a70a14/compiler/visitor/semantic_analyzer.py
 
     def visit_return(self, node: ReturnNode):
-        # Check if expr_node is present before calling accept
-        if node.expr_node:
-            returned_type = node.expr_node.accept(self)
-        else:
-            # For a void return (e.g., '# ... #'), the type is VOID.
-            returned_type = DataType.VOID 
+        returned_type = node.expr_node.accept(self) if node.expr_node else DataType.VOID 
             
         if self._expected_return_type is not None:
             expected_str = self._type_to_string(self._expected_return_type)

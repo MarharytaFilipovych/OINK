@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-from typing import Optional
+from typing import Optional, Union
 from ...llvm_specifics.data_type import DataType
+from ...context.function_info import FunctionInfo
 
 
 class FunctionGenerator:
@@ -10,18 +11,29 @@ class FunctionGenerator:
         self.type_converter = type_converter
         self.struct_ops = struct_ops
         self.function_return_types = {}
+        self.function_signatures: dict[str, FunctionInfo] = {}
         self.current_struct_context: Optional[str] = None
         self.in_function = False
 
+    @staticmethod
+    def _type_to_string(type_obj: Union[DataType, str]) -> str:
+        return type_obj.keyword if isinstance(type_obj, DataType) else type_obj
+        
+    def _string_to_type(self, type_str: str) -> Union[DataType, str]:
+        try:
+            return DataType.from_string(type_str)
+        except ValueError:
+            return type_str
+
     def generate_standalone_function(self, node, visitor):
-        self._prepare_function_context(node.variable, node.return_type)
+        self._prepare_function_context(node.variable, node.return_type, node.params)
         func_signature = self._build_function_signature(node)
         self._initialize_function_body(node, visitor, func_signature)
         self._finalize_function()
 
     def generate_member_function(self, struct_name: str, node, visitor):
         mangled_name = f"{struct_name}_{node.variable}"
-        self._prepare_function_context(mangled_name, node.return_type)
+        self._prepare_function_context(mangled_name, node.return_type, node.params, is_member=True, struct_name=struct_name)
 
         func_signature = self._build_member_function_signature(struct_name, node, mangled_name)
         self._setup_this_context(struct_name)
@@ -34,10 +46,19 @@ class FunctionGenerator:
         if self.current_struct_context and self._is_member_function(node.value):
             return self._generate_member_to_member_call(node, visitor)
         
-        args = [self._build_call_argument(arg, visitor) for arg in node.arguments]
         return_type = self.type_converter.get_node_type(node)
         return_llvm_type = self._get_llvm_type(return_type)
         func_name = node.value.replace('&', '_')
+
+        func_info = self.function_signatures.get(func_name)
+        
+        if not func_info:
+            expected_types = [DataType.I32] * len(node.arguments)
+        else:
+            expected_types = [self._string_to_type(t) for t in func_info.param_types]
+        
+        args = [self._build_call_argument(arg, visitor, expected_type)
+                for arg, expected_type in zip(node.arguments, expected_types)]
 
         if return_type == DataType.VOID:
             self.emitter.emit_line(f"  call {return_llvm_type} @{func_name}({', '.join(args)})")
@@ -55,13 +76,19 @@ class FunctionGenerator:
         object_ptr = self.struct_ops.get_object_pointer(node.object_name)
         mangled_name = f"{obj_type}_{node.value}"
 
-        arg_strs = [f"%struct.{obj_type}* {object_ptr}"] + [
-            self._build_call_argument(arg, visitor) for arg in node.arguments]
-
-        result_reg = self.emitter.get_temp_register()
         return_type = self.type_converter.get_node_type(node)
         return_llvm_type = self._get_llvm_type(return_type)
 
+        func_info = self.function_signatures.get(mangled_name)
+        if not func_info:
+            expected_types = [DataType.I32] * len(node.arguments)
+        else:
+            expected_types = [self._string_to_type(t) for t in func_info.param_types[1:]]
+        
+        arg_strs = [f"%struct.{obj_type}* {object_ptr}"] + [
+            self._build_call_argument(arg, visitor, expected_type) 
+            for arg, expected_type in zip(node.arguments, expected_types)]
+        
         if return_type == DataType.VOID:
             self.emitter.emit_line(f"  call {return_llvm_type} @{mangled_name}({', '.join(arg_strs)})")
             return ""
@@ -95,11 +122,18 @@ class FunctionGenerator:
         struct_name = self.current_struct_context
         mangled_name = f"{struct_name}_{node.value}"
         
-        arg_strs = [f"%struct.{struct_name}* %this"] + [
-            self._build_call_argument(arg, visitor) for arg in node.arguments]
-        
         return_type = self.type_converter.get_node_type(node)
         return_llvm_type = self._get_llvm_type(return_type)
+        
+        func_info = self.function_signatures.get(mangled_name)
+        if not func_info:
+            expected_types = [DataType.I32] * len(node.arguments)
+        else:
+            expected_types = [self._string_to_type(t) for t in func_info.param_types[1:]]
+            
+        arg_strs = [f"%struct.{struct_name}* %this"] + [
+            self._build_call_argument(arg, visitor, expected_type) 
+            for arg, expected_type in zip(node.arguments, expected_types)]
         
         if return_type == DataType.VOID:
             self.emitter.emit_line(f"  call {return_llvm_type} @{mangled_name}({', '.join(arg_strs)})")
@@ -129,10 +163,18 @@ class FunctionGenerator:
             f"%struct.{struct_name}* %this, i32 0, i32 {field_index}")
         return field_ptr, field_llvm_type
 
-    def _prepare_function_context(self, func_name: str, return_type):
+    def _prepare_function_context(self, func_name: str, return_type, params, is_member: bool = False, struct_name: Optional[str] = None):
         sanitized_name = func_name.replace('&', '_')
-        type_str = return_type.keyword if isinstance(return_type, DataType) else return_type
+        type_str = self._type_to_string(return_type)
         self.function_return_types[sanitized_name] = type_str
+        
+        param_types = [self._type_to_string(p.param_type) for p in params]
+        
+        if is_member and struct_name:
+            param_types.insert(0, struct_name)
+            
+        self.function_signatures[sanitized_name] = FunctionInfo(param_types, type_str)
+
         self._saved_state = self._save_state()
         self._reset_for_function()
         self.in_function = True
@@ -188,15 +230,21 @@ class FunctionGenerator:
             self.variable_registry.set_variable_type(field_name, field_type)
             self.variable_registry.set_variable_version(field_name, -1)
 
-    def _build_call_argument(self, arg, visitor) -> str:
+    def _build_call_argument(self, arg, visitor, expected_type: Union[DataType, str]) -> str:
         arg_value = arg.accept(visitor)
         arg_type = self.type_converter.get_node_type(arg)
         
-        arg_llvm_type = self._get_llvm_type(arg_type)
-
-        if isinstance(arg_type, DataType) and arg_type == DataType.I16:
-            arg_value = self.struct_ops.widen_value(arg_value, arg_llvm_type, DataType.I32.to_llvm())
-            arg_llvm_type = DataType.I32.to_llvm()
+        expected_llvm_type = self._get_llvm_type(expected_type)
+        
+        if isinstance(arg_type, DataType) and isinstance(expected_type, DataType):
+            arg_llvm_type = arg_type.to_llvm()
+            if arg_type != expected_type:
+                arg_value = self.struct_ops.widen_value(arg_value, arg_llvm_type, expected_llvm_type)
+            arg_llvm_type = expected_llvm_type
+        elif isinstance(arg_type, str) and isinstance(expected_type, str) and arg_type == expected_type:
+            arg_llvm_type = expected_llvm_type
+        else:
+            arg_llvm_type = expected_llvm_type
             
         return f"{arg_llvm_type} {arg_value}"
 

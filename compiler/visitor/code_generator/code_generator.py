@@ -87,7 +87,6 @@ class CodeGenerator(ASTVisitor):
         self.variable_registry.set_variable_type(node.variable, node.data_type)
         value = self._widen_value_if_needed(value, node.expr_node, node.data_type)
         
-        # Allocate memory and store the value
         self.emitter.emit_line(f"  {reg} = alloca {llvm_type}")
         self.emitter.emit_line(f"  store {llvm_type} {value}, {llvm_type}* {reg}")
 
@@ -356,7 +355,6 @@ class CodeGenerator(ASTVisitor):
         self.emitter.emit_line(f"  {temp_val} = load {var_type.to_llvm()}, {var_type.to_llvm()}* {temp_ptr}")
         current_ptr = self.variable_registry.get_current_register(node.variable) 
         self.emitter.emit_line(f"  store {var_type.to_llvm()} {temp_val}, {var_type.to_llvm()}* {current_ptr}")
-        self.variable_registry.get_variable_register(node.variable)
         
     def visit_print(self, node):
         value = node.expr_node.accept(self)
