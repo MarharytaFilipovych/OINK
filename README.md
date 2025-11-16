@@ -19,7 +19,7 @@
 All variables are wrapped in 🐖 pig emoji:
 
 ```piglang
-# 😀 🐷 🐖my_variable🐖 @ 42 #
+# 😀 🐷 🐖my&variable🐖 @ 42 #
 ```
 
 ### 💖 Emotional Operators

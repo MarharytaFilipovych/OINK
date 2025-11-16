@@ -9,20 +9,26 @@ class VariableRegistry:
         self.variable_types: dict[str, Union[DataType, str]] = {}
         self.max_versions: dict[str, int] = {}
 
+    @staticmethod
+    def _sanitize_name(variable: str) -> str:
+        return variable.replace('&', '_')
+
     def get_variable_register(self, variable: str) -> str:
+        sanitized_name = self._sanitize_name(variable)
         if variable not in self.max_versions:
             self.max_versions[variable] = 0
             self.variable_versions[variable] = 0
-            return f"%{variable}"
+            return f"%{sanitized_name}"
 
         self.max_versions[variable] += 1
         self.variable_versions[variable] = self.max_versions[variable]
-        return f"%{variable}.{self.variable_versions[variable]}"
+        return f"%{sanitized_name}.{self.variable_versions[variable]}"
 
     def get_current_register(self, variable: str) -> str:
+        sanitized_name = self._sanitize_name(variable)
         if variable not in self.variable_versions or self.variable_versions[variable] == 0:
-            return f"%{variable}"
-        return f"%{variable}.{self.variable_versions[variable]}"
+            return f"%{sanitized_name}"
+        return f"%{sanitized_name}.{self.variable_versions[variable]}"
 
     def get_variable_type(self, variable: str) -> Optional[Union[DataType, str]]:
         return self.variable_types.get(variable)

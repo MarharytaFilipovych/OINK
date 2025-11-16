@@ -208,16 +208,25 @@ class CodeGenerator(ASTVisitor):
         label_id = self.emitter.get_next_label_id()
         condition_value = node.condition.accept(self)
         then_label = f"if_then_{label_id}"
-        next_label = f"if_next_{label_id}" if node.elif_blocks or node.else_block else f"if_end_{label_id}"
-        self.emitter.emit_line(f"  br i1 {condition_value}, label %{then_label}, label %{next_label}")
-        end_label = self._emit_then_block(node.block, then_label, label_id)
+        end_label = f"if_end_{label_id}"
         
+        elif_start_label = f"if_next_{label_id}"
+        next_label = elif_start_label if node.elif_blocks or node.else_block else end_label
+        
+        self.emitter.emit_line(f"  br i1 {condition_value}, label %{then_label}, label %{next_label}")
+        self._emit_then_block(node.block, then_label, label_id)
+        
+        current_fallthrough_label = next_label 
         if node.elif_blocks:
-            end_label = self._emit_elif_blocks(node.elif_blocks, next_label, label_id, end_label)
-            next_label = f"if_else_{label_id}" if node.else_block else end_label
+            current_fallthrough_label = self._emit_elif_blocks(
+                node.elif_blocks, 
+                elif_start_label, 
+                label_id, 
+                end_label, 
+                node.else_block is not None)
         
         if node.else_block:
-            end_label = self._emit_else_block(node.else_block, next_label, end_label)
+            self._emit_else_block(node.else_block, current_fallthrough_label, end_label)
         
         self.emitter.emit_label(end_label)
 
@@ -232,27 +241,23 @@ class CodeGenerator(ASTVisitor):
             self.emitter.emit_line(f"  br label %{end_label}")
         return end_label
 
-    def _emit_elif_blocks(self, elif_blocks, start_label: str, label_id: int, end_label: str) -> str:
+    def _emit_elif_blocks(self, elif_blocks, start_label: str, label_id: int, end_label: str, has_else: bool) -> str:
         current_label = start_label
         
         for i, elif_block in enumerate(elif_blocks):
             self.emitter.emit_label(current_label)
-            
             condition_value = elif_block.condition.accept(self)
             elif_then_label = f"elif_then_{label_id}_{i}"
-            next_label = (f"elif_next_{label_id}_{i + 1}" if i < len(elif_blocks) - 1 
-                         else f"if_else_{label_id}")
-            
+            is_last_elif = i == len(elif_blocks) - 1
+            next_label = (f"if_else_{label_id}" if has_else else end_label) \
+            if is_last_elif else f"elif_next_{label_id}_{i + 1}"
             self.emitter.emit_line(f"  br i1 {condition_value}, label %{elif_then_label}, label %{next_label}")
-            
             self.emitter.emit_label(elif_then_label)
             elif_block.block.accept(self)
             if not elif_block.block.return_node:
                 self.emitter.emit_line(f"  br label %{end_label}")
-            
             current_label = next_label
-        
-        return end_label
+        return current_label
 
     def _emit_else_block(self, block: CodeBlockNode, label: str, end_label: str) -> str:
         self.emitter.emit_label(label)
@@ -293,7 +298,7 @@ class CodeGenerator(ASTVisitor):
             temp_reg = self.emitter.get_temp_register()
             self.emitter.emit_line(f"  {temp_reg} = xor i1 {operand}, 1")
             return temp_reg
-        raise ValueError(f"We do not support this unary operator: {node.operator}")
+        raise ValueError(f"We do not support this unary operator: {node.operator}!")
 
     def visit_read(self, node):
         var_type = self.variable_registry.get_variable_type(node.variable)
@@ -317,13 +322,14 @@ class CodeGenerator(ASTVisitor):
     def visit_print(self, node):
         value = node.expr_node.accept(self)
         expr_type = self.type_converter.get_node_type(node.expr_node)
-        
-        printf_format = self._get_printf_format(expr_type)
-        value = self._prepare_print_value(value, expr_type)
-        
-        self.emitter.emit_line(f"  call i32 (i8*, ...) @printf(i8* getelementptr inbounds "
-                              f"([{len(printf_format)} x i8], [{len(printf_format)} x i8]* "
-                              f"@.print_fmt_{expr_type.keyword}, i32 0, i32 0), i32 {value})")
+        if expr_type == DataType.BOOL:
+            value = self.struct_ops.widen_value(value, DataType.BOOL.to_llvm(), DataType.I32.to_llvm())
+            print_func_name = "@printValue_i32"
+            llvm_type = DataType.I32.to_llvm()
+        else: 
+            llvm_type = expr_type.to_llvm()
+            print_func_name = f"@printValue_{llvm_type}"
+        self.emitter.emit_line(f"  call void {print_func_name}({llvm_type} {value})")
 
     @staticmethod
     def _get_scanf_format(data_type: DataType) -> str:

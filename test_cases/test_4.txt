@@ -1,4 +1,4 @@
-# 😭 🐷 🐖const_val🐖 @ 10 #
-# 😀 🐷 🐖mut_val🐖 @ 20 #
-# 🐖mut_val🐖 @ 🐖const_val🐖 ❤️ 🐖mut_val🐖 #
+# 😭 🐷 🐖const&val🐖 @ 10 #
+# 😀 🐷 🐖mut&val🐖 @ 20 #
+# 🐖mut&val🐖 @ 🐖const&val🐖 ❤️ 🐖mut&val🐖 #
 # ... 30 ... #

@@ -8,6 +8,6 @@
 # 😀 🐖Inner🐖 🐖i🐖 #
 # 🐖🐖🐖 #
 # ... 0 ... #
-# 😀 🐖Inner🐖 🐖inner_val🐖 @ 🐖Inner🐖 ** 5 ** #
-# 😀 🐖Outer🐖 🐖outer_val🐖 @ 🐖Outer🐖 ** 🐖inner_val🐖 ** #
+# 😀 🐖Inner🐖 🐖inner&val🐖 @ 🐖Inner🐖 ** 5 ** #
+# 😀 🐖Outer🐖 🐖outer&val🐖 @ 🐖Outer🐖 ** 🐖inner&val🐖 ** #
 # ... 5 ... #

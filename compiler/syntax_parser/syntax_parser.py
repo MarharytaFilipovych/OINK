@@ -349,8 +349,13 @@ class SyntaxParser:
     def try_parse_else_block(self) -> Optional[CodeBlockNode]:
         saved_index = self.reader.current_token_index
         token = self.reader.peek()
-        if token and token.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START] and self.peek_token(1) and self.peek_token(1).token_type == TokenType.ELSE:
-            self.reader.eat()
+        if token and token.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START] \
+            and self.peek_token(1) and self.peek_token(1).token_type == TokenType.ELSE:
+            self.reader.skip_line_start()
+            self.reader.expect_token(TokenType.ELSE)
+            if self.reader.peek().token_type not in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_END]:
+                 raise ValueError(f"Else statement (KILL) cannot have a condition at line {self.reader.peek().line}!")
+            self.reader.expect_line_end() 
             block = self.parse_code_block()
             return block
         self.reader.current_token_index = saved_index

@@ -190,12 +190,11 @@ class ExpressionParser:
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
             func_token = self.reader.expect_token(TokenType.VARIABLE)
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
-
-            prev_call = FunctionCallNode(func_token.value, [prev_call], line, None)
+            implicit_arg = prev_call
             self.reader.expect_token(TokenType.BRACKET)
             arguments = self.parse_arguments()
             self.reader.expect_token(TokenType.BRACKET)
-            arguments.insert(0, prev_call)
+            arguments.insert(0, implicit_arg)
             prev_call = FunctionCallNode(func_token.value, arguments, line, None)
         return prev_call
 
