@@ -51,7 +51,6 @@ class ExpressionParser:
                 operator = operator.invert()
             right = self.parse_additive()
             left = BinaryOpNode(left, operator, right)
-
         return left
 
     def parse_additive(self) -> ExprNode:
@@ -131,14 +130,13 @@ class ExpressionParser:
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
 
             if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
-                return self.parse_member_function_call(var_name, member_token.value, var_token.line)
-            else:
-                return MemberAccessNode(var_name, member_token.value, var_token.line)
+                return self.parse_member_function_call(var_name, member_token.value, var_token.line) \
+                if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET \
+                else MemberAccessNode(var_name, member_token.value, var_token.line)
 
-        if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
-            return self.parse_function_call_expr(var_name, var_token.line)
-
-        return IDNode(var_name, var_token.line)
+        return self.parse_function_call_expr(var_name, var_token.line) \
+             if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET \
+                else IDNode(var_name, var_token.line)
 
     def parse_function_call_expr(self, func_name: str = None, line: int = None) -> FunctionCallNode:
         if func_name is None:
@@ -153,21 +151,22 @@ class ExpressionParser:
         self.reader.expect_token(TokenType.BRACKET)
 
         result = FunctionCallNode(func_name, arguments, line, None)
-
         if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS:
             result = self.parse_function_chain(result, line)
-
         return result
 
     def parse_arguments(self) -> list[ExprNode]:
         arguments = []
         if self.reader.peek() and self.reader.peek().token_type != TokenType.BRACKET:
             arguments.append(self.parse_expression())
-
             while self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
                 saved_index = self.reader.current_token_index
                 self.reader.eat()
+
                 if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+                    self.reader.eat()
+                    arguments.append(self.parse_expression())
+                else:
                     self.reader.current_token_index = saved_index
                     break
                 self.reader.eat()
@@ -193,6 +192,11 @@ class ExpressionParser:
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
 
             prev_call = FunctionCallNode(func_token.value, [prev_call], line, None)
+            self.reader.expect_token(TokenType.BRACKET)
+            arguments = self.parse_arguments()
+            self.reader.expect_token(TokenType.BRACKET)
+            arguments.insert(0, prev_call)
+            prev_call = FunctionCallNode(func_token.value, arguments, line, None)
         return prev_call
 
     def parse_struct_init(self, struct_name: str, line: int) -> StructInitNode:
@@ -200,5 +204,3 @@ class ExpressionParser:
         init_exprs = self.parse_arguments()
         self.reader.expect_token(TokenType.BRACKET)
         return StructInitNode(struct_name, init_exprs, line)
-
-

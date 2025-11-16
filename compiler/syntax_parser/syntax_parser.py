@@ -64,8 +64,12 @@ class SyntaxParser:
     def peek_and_check_struct(self) -> bool:
         if not self.reader.peek() or self.reader.peek().token_type != TokenType.SIMPLE_LINE_BORDER:
             return False
-        return self.check_with_save(lambda: self.reader.eat() or (self.reader.peek() and self.reader.peek().token_type == TokenType.STRUCT))
-
+        def check_struct_logic():
+            self.reader.eat() 
+            next_token = self.reader.peek()
+            return next_token and next_token.token_type == TokenType.STRUCT
+        return self.check_with_save(check_struct_logic)
+    
     def peek_and_check_function(self) -> bool:
         if not self.reader.peek() or self.reader.peek().token_type != TokenType.SIMPLE_LINE_BORDER:
             return False
