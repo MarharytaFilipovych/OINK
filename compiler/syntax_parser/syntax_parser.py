@@ -125,6 +125,9 @@ class SyntaxParser:
                 raise ValueError("Struct block must be closed with 🐖🐖🐖!")
 
             if token.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START]:
+                # FIX: Check if the next token is the block delimiter (meaning it's the closing line)
+                if self.reader.peek(1) and self.reader.peek(1).token_type == TokenType.BLOCK_BORDER:
+                    break # Found the closing block line, exit loop
                 if self.__is_member_function_start():
                     member_functions.append(self.parse_member_function_declaration())
                 else:

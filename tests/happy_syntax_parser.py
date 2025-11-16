@@ -3,10 +3,11 @@ import unittest
 import sys
 import os
 
+
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler.node.function_call_node import FunctionCallNode
-from compiler.node.read_node import PrintNode, ReadNode
 from compiler.syntax_parser.syntax_parser import SyntaxParser
 from compiler.lexer.lexer import Lexer
 from compiler.node.program_node import ProgramNode
@@ -18,7 +19,8 @@ from compiler.node.binary_op_node import BinaryOpNode
 from compiler.node.struct_decl_node import StructDeclNode
 from compiler.node.function_decl_node import FunctionDeclNode
 from compiler.llvm_specifics.data_type import DataType
-
+from compiler.node.print_node import PrintNode
+from compiler.node.read_node import ReadNode
 
 def parse_code(source: str) -> ProgramNode:
     lexer = Lexer(source)

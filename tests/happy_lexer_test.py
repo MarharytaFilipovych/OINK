@@ -8,7 +8,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler.lexer.lexer import Lexer
 from compiler.token.token_type import TokenType
-from compiler.node.read_node import PrintNode, ReadNode
 
 def get_lexemes(source: str):
     lexer = Lexer(source)
@@ -168,7 +167,6 @@ def assert_struct_declaration_complete(self, lexemes):
     self.assertEqual(len(block_tokens), 2)
 
 def assert_print_statement(self, lexemes):
-    # This assertion verifies the order and type of tokens produced by the lexer.
     expected_types = [TokenType.SIMPLE_LINE_BORDER, TokenType.PRINT, TokenType.VARIABLE_BORDER, TokenType.VARIABLE, TokenType.VARIABLE_BORDER, TokenType.SIMPLE_LINE_BORDER]
     actual_types = [t.token_type for t in lexemes]
     self.assertTrue(all(t1 == t2 for t1, t2 in zip(expected_types, actual_types)))
@@ -176,7 +174,6 @@ def assert_print_statement(self, lexemes):
     self.assertEqual(lexemes[3].value, "input&var")
 
 def assert_read_statement(self, lexemes):
-    # This assertion only checks for the existence of the core tokens.
     read_token = [t for t in lexemes if t.token_type == TokenType.READ]
     var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
     self.assertEqual(len(read_token), 1)

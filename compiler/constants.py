@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from ..token.token_type import TokenType
+from .token.token_type import TokenType
 
 WHITESPACE = ' \t\r'
 
