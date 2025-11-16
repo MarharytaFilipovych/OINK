@@ -3,6 +3,7 @@ import unittest
 import sys
 import os
 
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler.lexer.lexer import Lexer
@@ -12,36 +13,36 @@ def get_lexemes(source: str):
     lexer = Lexer(source)
     return lexer.tokenize()
 
+
 class TestLexerHappyPath(unittest.TestCase):
+
     test_cases = []
 
     @classmethod
-    def add_test_case(cls, name, source, assertion_func, expect_failure=False):
-        cls.test_cases.append((name, source, assertion_func, expect_failure))
+    def add_test_case(cls, name, source, assertion_func):
+        cls.test_cases.append((name, source, assertion_func))
 
     def test_all_cases(self):
         results = []
-        for name, source, assertion, expect_failure in self.test_cases:
+        for name, source, assertion in self.test_cases:
             try:
-                lexemes = get_lexemes(source)
-                assertion(self, lexemes)
-                if expect_failure:
-                    results.append((name, "FAIL (was expected to fail)"))
-                else:
-                    results.append((name, "PASS"))
+                with self.subTest(name=name):
+                    lexemes = get_lexemes(source)
+                    assertion(self, lexemes)
+                results.append((name, "PASS"))
+            except AssertionError as e:
+                results.append((name, f"FAIL ({e})"))
             except Exception as e:
-                if expect_failure:
-                    results.append((name, "PASS (expected failure)"))
-                else:
-                    results.append((name, f"FAIL ({type(e).__name__}: {e})"))
+                results.append((name, f"ERROR ({type(e).__name__}: {e})"))
 
         print("\nTest Summary:")
         for test_name, status in results:
             print(f"{test_name}: {status}")
 
-        unexpected_failures = [s for _, s in results if s.startswith("FAIL (") and "expected failure" not in s]
-        if unexpected_failures:
-            self.fail(f"{len(unexpected_failures)} tests failed unexpectedly: {unexpected_failures}")
+        failures = [s for _, s in results if s.startswith("FAIL") or s.startswith("ERROR")]
+        if failures:
+            self.fail(f"{len(failures)} tests failed or errored. See summary above.")
+
 
 def assert_simple_declaration(self, lexemes):
     expected_types = [
@@ -99,6 +100,7 @@ def assert_control_flow_keywords(self, lexemes):
     elif_token = [t for t in lexemes if t.token_type == TokenType.ELIF][0]
     else_token = [t for t in lexemes if t.token_type == TokenType.ELSE][0]
     while_token = [t for t in lexemes if t.token_type == TokenType.WHILE][0]
+
     self.assertEqual(if_token.value, "SAVE")
     self.assertEqual(elif_token.value, "HURT")
     self.assertEqual(else_token.value, "KILL")
@@ -123,6 +125,7 @@ def assert_all_data_types(self, lexemes):
     i32_token = [t for t in lexemes if t.token_type == TokenType.I32_TYPE][0]
     i64_token = [t for t in lexemes if t.token_type == TokenType.I64_TYPE][0]
     bool_token = [t for t in lexemes if t.token_type == TokenType.BOOL][0]
+
     self.assertEqual(i16_token.value, "🐽")
     self.assertEqual(i32_token.value, "🐷")
     self.assertEqual(i64_token.value, "🐗")
@@ -193,36 +196,39 @@ def assert_read_statement(self, lexemes):
     self.assertEqual(read_token[0].value, "eat😋")
     self.assertEqual(var_token[0].value, "input&var")
 
+
 all_tests = [
-    ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 42 #\n", assert_simple_declaration, False),
-    ("negative_number", "# 😀 🐷 🐖x🐖 @ -100 #\n", assert_negative_number, False),
-    ("variable_with_ampersand", "# 😀 🐷 🐖my&var🐖 @ 10 #\n", assert_variable_with_ampersand, False),
-    ("all_operators", "# 🐖a🐖 ❤️ 🐖b🐖 💔 🐖c🐖 💞 🐖d🐖 💕 🐖e🐖 #\n", assert_all_operators, False),
-    ("comparison_operators", "# 🐖a🐖 🌸🌸 🐖b🐖 💩🌸 🐖c🐖 > 🐖d🐖 < 🐖e🐖 🌸> 🐖f🐖 🌸< 🐖g🐖 #\n", assert_comparison_operators, False),
-    ("logical_operators", "# 🐖a🐖 hru 🐖b🐖 bruh 🐖c🐖 #\n", assert_logical_operators, False),
-    ("boolean_literals", "# 😀 wow 🐖flag🐖 @ LOVE #\n# 😀 wow 🐖flag2🐖 @ HATE #\n", assert_boolean_literals, False),
-    ("control_flow_keywords", "# SAVE 🐖x🐖 > 5 #\n# HURT 🐖x🐖 🌸🌸 0 #\n# KILL #\n# OINK 🐖x🐖 < 10 #\n", assert_control_flow_keywords, False),
-    ("block_delimiters", "# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n", assert_block_delimiters, False),
-    ("mood_line_borders", "#~ 🐖x🐖 @ 🐖x🐖 ❤️ 5 ~#\n", assert_mood_line_borders, False),
-    ("return_statement", "# ... 🐖x🐖 ... #\n", assert_return_statement, False),
-    ("all_data_types", "# 😀 🐽 🐖a🐖 @ 1 #\n# 😀 🐷 🐖b🐖 @ 2 #\n# 😀 🐗 🐖c🐖 @ 3 #\n# 😀 wow 🐖d🐖 @ LOVE #\n", assert_all_data_types, False),
-    ("brackets", "# 🐖x🐖 @ ** 🐖a🐖 ❤️ 🐖b🐖 ** #\n", assert_brackets, False),
-    ("single_line_comment", "👀 This is a comment\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_single_line_comment, False),
-    ("multiline_comment", "👀👀👀\nThis is a\nmulti-line comment\n👀👀👀\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_multiline_comment, False),
-    ("struct_keyword", "# BOAR 🐖Point🐖 #\n", assert_struct_keyword, False),
-    ("function_keyword", "# 🐷 PIG 🐖add🐖 #\n", assert_function_keyword, False),
-    ("member_function_keyword", "# 🐷 PIGLET 🐖getValue🐖 #\n", assert_member_function_keyword, False),
-    ("struct_with_fields", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n", assert_struct_with_fields, False),
-    ("function_with_params", "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n", assert_function_with_params, False),
-    ("void_return_type", "# 😑 PIG 🐖print🐖 #\n", assert_void_return_type, False),
-    ("member_access_operator", "# 🐖p🐖 _ 🐖x🐖 #\n", assert_member_access_operator, False),
-    ("struct_declaration_complete", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n", assert_struct_declaration_complete, False),
-    ("print_statement", "# print🤮 🐖input&var🐖 #", assert_print_statement, False),
-    ("read_statement", "# 😀 🐷 🐖input&var🐖 #\n# eat😋 🐖input&var🐖 #", assert_read_statement, False)
+    ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 42 #\n", assert_simple_declaration),
+    ("negative_number", "# 😀 🐷 🐖x🐖 @ -100 #\n", assert_negative_number),
+    ("variable_with_ampersand", "# 😀 🐷 🐖my&var🐖 @ 10 #\n", assert_variable_with_ampersand),
+    ("all_operators", "# 🐖a🐖 ❤️ 🐖b🐖 💔 🐖c🐖 💞 🐖d🐖 💕 🐖e🐖 #\n", assert_all_operators),
+    ("comparison_operators", "# 🐖a🐖 🌸🌸 🐖b🐖 💩🌸 🐖c🐖 > 🐖d🐖 < 🐖e🐖 🌸> 🐖f🐖 🌸< 🐖g🐖 #\n", assert_comparison_operators),
+    ("logical_operators", "# 🐖a🐖 hru 🐖b🐖 bruh 🐖c🐖 #\n", assert_logical_operators),
+    ("boolean_literals", "# 😀 wow 🐖flag🐖 @ LOVE #\n# 😀 wow 🐖flag2🐖 @ HATE #\n", assert_boolean_literals),
+    ("control_flow_keywords", "# SAVE 🐖x🐖 > 5 #\n# HURT 🐖x🐖 🌸🌸 0 #\n# KILL #\n# OINK 🐖x🐖 < 10 #\n", assert_control_flow_keywords),
+    ("block_delimiters", "# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n", assert_block_delimiters),
+    ("mood_line_borders", "#~ 🐖x🐖 @ 🐖x🐖 ❤️ 5 ~#\n", assert_mood_line_borders),
+    ("return_statement", "# ... 🐖x🐖 ... #\n", assert_return_statement),
+    ("all_data_types", "# 😀 🐽 🐖a🐖 @ 1 #\n# 😀 🐷 🐖b🐖 @ 2 #\n# 😀 🐗 🐖c🐖 @ 3 #\n# 😀 wow 🐖d🐖 @ LOVE #\n", assert_all_data_types),
+    ("brackets", "# 🐖x🐖 @ ** 🐖a🐖 ❤️ 🐖b🐖 ** #\n", assert_brackets),
+    ("single_line_comment", "👀 This is a comment\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_single_line_comment),
+    ("multiline_comment", "👀👀👀\nThis is a\nmulti-line comment\n👀👀👀\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_multiline_comment),
+    ("struct_keyword", "# BOAR 🐖Point🐖 #\n", assert_struct_keyword),
+    ("function_keyword", "# 🐷 PIG 🐖add🐖 #\n", assert_function_keyword),
+    ("member_function_keyword", "# 🐷 PIGLET 🐖getValue🐖 #\n", assert_member_function_keyword),
+    ("struct_with_fields", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n", assert_struct_with_fields),
+    ("function_with_params", "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n", assert_function_with_params),
+    ("void_return_type", "# 😑 PIG 🐖print🐖 #\n", assert_void_return_type),
+    ("member_access_operator", "# 🐖p🐖 _ 🐖x🐖 #\n", assert_member_access_operator),
+    ("struct_declaration_complete", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n", assert_struct_declaration_complete),
+    ( "print_statement", "# print🤮 🐖input&var🐖 #", assert_print_statement),
+    ( "read_statement","# 😀 🐷 🐖input&var🐖 #\n# eat😋 🐖input&var🐖 #",assert_read_statement)
 ]
 
-for name, source, func, expect_failure in all_tests:
-    TestLexerHappyPath.add_test_case(name, source, func, expect_failure)
+for name, source, func in all_tests:
+    TestLexerHappyPath.add_test_case(name, source, func)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+

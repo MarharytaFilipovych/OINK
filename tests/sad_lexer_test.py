@@ -31,6 +31,7 @@ class TestLexerFailingCases(ExceptionCheckingTestCase):
          ("invalid_variable_start_symbol", "# 😀 🐷 🐖1x🐖 @ 10 #"),
         ("variable_with_dash", "# 😀 🐷 🐖my-var🐖 @ 10 #"),
         ("unknown_operator", "# 😀 🐷 🐖x🐖 @ 10 ✨ 5 #"),
+
     ]
 
     def test_all_failing_cases(self):

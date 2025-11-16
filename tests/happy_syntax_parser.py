@@ -30,8 +30,8 @@ class SyntaxParserHappyTest(unittest.TestCase):
     test_cases = []
 
     @classmethod
-    def add_test_case(cls, name, source, assertion_func, expect_failure=False):
-        cls.test_cases.append((name, source, assertion_func, expect_failure))
+    def add_test_case(cls, name, source, assertion_func):
+        cls.test_cases.append((name, source, assertion_func, False))
 
     def test_all_cases(self):
         results = []
@@ -56,6 +56,7 @@ class SyntaxParserHappyTest(unittest.TestCase):
         unexpected_failures = [s for _, s in results if s.startswith("FAIL (") and "expected failure" not in s]
         if unexpected_failures:
             self.fail(f"{len(unexpected_failures)} tests failed unexpectedly: {unexpected_failures}")
+
 
 def assert_simple_decl_with_init(self, ast):
     self.assertIsInstance(ast, ProgramNode)
@@ -169,27 +170,26 @@ def assert_chained_function_calls(self, ast):
     self.assertEqual(func_call.arguments[0].value, "getValue")
 
 all_tests = [
-    ("simple_declaration_with_initialization", "# 😀 🐷 🐖x🐖 @ 42 #\n# ... 🐖x🐖 ... #", assert_simple_decl_with_init, False),
-    ("immutable_declaration", "# 😭 🐷 🐖constant🐖 @ 100 #\n# ... 🐖constant🐖 ... #", assert_immutable_decl, False),
-    ("simple_assignment", "# 😀 🐷 🐖x🐖 @ 10 #\n# 🐖x🐖 @ 20 #\n# ... 🐖x🐖 ... #", assert_simple_assignment, False),
-    ("if_statement_simple", "# 😀 🐷 🐖x🐖 @ 10 #\n# SAVE 🐖x🐖 > 5 #\n# 🐖🐖🐖 #\n# 🐖x🐖 @ 20 #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 ... #", assert_if_simple, False),
-    ("while_loop", "# 😀 🐷 🐖counter🐖 @ 0 #\n# OINK 🐖counter🐖 < 5 #\n# 🐖🐖🐖 #\n# 🐖counter🐖 @ 🐖counter🐖 ❤️ 1 #\n# 🐖🐖🐖 #\n# ... 🐖counter🐖 ... #", assert_while_loop, False),
-    ("struct_declaration", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_declaration, False),
-    ("struct_with_fields", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_with_fields, False),
-    ("function_declaration", "# 🐷 PIG 🐖add🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_declaration, False),
-    ("function_with_params", "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖a🐖 ❤️ 🐖b🐖 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_with_params, False),
-    ("function_return_type", "# 🐷 PIG 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 42 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_return_type, False),
-    ("struct_with_member_function", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐷 PIGLET 🐖getX🐖 #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 ... #\n# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_with_member_function, False),
-    ("void_function", "# 😑 PIG 🐖print🐖 #\n# 🐖🐖🐖 #\n# ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_void_function, False),
-    ("struct_field_types", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_field_types, False),
-    ("function_with_struct_param", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n# 🐷 PIG 🐖process🐖 ** 🐖Point🐖 🐖p🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖p🐖 _ 🐖x🐖 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_with_struct_param, False),
-    ("struct_member_function_call", "# BOAR 🐖Counter🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖val🐖 #\n# 🐷 PIGLET 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 🐖val🐖 ... #\n# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n# 😀 🐖Counter🐖 🐖c🐖 @ 🐖Counter🐖 ** 5 ** #\n# 😀 🐷 🐖result🐖 @ 🐖c🐖 _ 🐖getValue🐖 ** ** #\n# ... 🐖result🐖 ... #", assert_struct_member_function_call, False),
-    ("chained_function_calls", "# 🐷 PIG 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 10 ... #\n# 🐖🐖🐖 #\n# 🐷 PIG 🐖double🐖 ** 🐷 🐖x🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 💞 2 ... #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖result🐖 @ 🐖getValue🐖 ** ** _ 🐖double🐖 ** ** # \n# ... 🐖result🐖 ... #", assert_chained_function_calls, False),
+    ("simple_declaration_with_initialization", "# 😀 🐷 🐖x🐖 @ 42 #\n# ... 🐖x🐖 ... #", assert_simple_decl_with_init),
+    ("immutable_declaration", "# 😭 🐷 🐖constant🐖 @ 100 #\n# ... 🐖constant🐖 ... #", assert_immutable_decl),
+    ("simple_assignment", "# 😀 🐷 🐖x🐖 @ 10 #\n# 🐖x🐖 @ 20 #\n# ... 🐖x🐖 ... #", assert_simple_assignment),
+    ("if_statement_simple", "# 😀 🐷 🐖x🐖 @ 10 #\n# SAVE 🐖x🐖 > 5 #\n# 🐖🐖🐖 #\n# 🐖x🐖 @ 20 #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 ... #", assert_if_simple),
+    ("while_loop", "# 😀 🐷 🐖counter🐖 @ 0 #\n# OINK 🐖counter🐖 < 5 #\n# 🐖🐖🐖 #\n# 🐖counter🐖 @ 🐖counter🐖 ❤️ 1 #\n# 🐖🐖🐖 #\n# ... 🐖counter🐖 ... #", assert_while_loop),
+    ("struct_declaration", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_declaration),
+    ("struct_with_fields", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_with_fields),
+    ("function_declaration", "# 🐷 PIG 🐖add🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_declaration),
+    ("function_with_params", "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖a🐖 ❤️ 🐖b🐖 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_with_params),
+    ("function_return_type", "# 🐷 PIG 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 42 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_return_type),
+    ("struct_with_member_function", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐷 PIGLET 🐖getX🐖 #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 ... #\n# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_with_member_function),
+    ("void_function", "# 😑 PIG 🐖print🐖 #\n# 🐖🐖🐖 #\n# ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_void_function),
+    ("struct_field_types", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_field_types),
+    ("function_with_struct_param", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n# 🐷 PIG 🐖process🐖 ** 🐖Point🐖 🐖p🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖p🐖 _ 🐖x🐖 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_with_struct_param),
+    ("struct_member_function_call", "# BOAR 🐖Counter🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖val🐖 #\n# 🐷 PIGLET 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 🐖val🐖 ... #\n# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n# 😀 🐖Counter🐖 🐖c🐖 @ 🐖Counter🐖 ** 5 ** #\n# 😀 🐷 🐖result🐖 @ 🐖c🐖 _ 🐖getValue🐖 ** ** #\n# ... 🐖result🐖 ... #", assert_struct_member_function_call),
+    ("chained_function_calls", "# 🐷 PIG 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 10 ... #\n# 🐖🐖🐖 #\n# 🐷 PIG 🐖double🐖 ** 🐷 🐖x🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 💞 2 ... #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖result🐖 @ 🐖getValue🐖 ** ** _ 🐖double🐖 ** ** # \n# ... 🐖result🐖 ... #", assert_chained_function_calls),
 ]
 
-
-for name, source, func, expect_failure in all_tests:
-    SyntaxParserHappyTest.add_test_case(name, source, func, expect_failure)
+for name, source, func in all_tests:
+    SyntaxParserHappyTest.add_test_case(name, source, func)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
