@@ -3,7 +3,7 @@ import os.path
 import sys
 from .lexer.lexer import Lexer
 import argparse
-from compiler.visitor.code_generator.code_generator import CodeGenerator
+from .visitor.code_generator.code_generator import CodeGenerator
 from .visitor.semantic_analyzer import SemanticAnalyzer
 from .syntax_parser.syntax_parser import SyntaxParser
 
@@ -20,7 +20,7 @@ class Compiler:
         args = parser.parse_args()
 
         if not os.path.exists(args.input_file):
-            print(f"File '{args.input_file}' was not found!")
+            print(f"File \"{args.input_file}\" was not found!")
             sys.exit(1)
 
         return args.input_file, args.output_file
@@ -67,7 +67,7 @@ class Compiler:
         try:
             translated_code = self.__compile()
             self.__write_output_file(self.output_file, translated_code)
-            print(f"Successfully compiled '{self.input_file}' to '{self.output_file}'")
+            print(f"Successfully compiled \"{self.input_file}\" to \"{self.output_file}\"")
             sys.exit(0)
 
         except ValueError as e:

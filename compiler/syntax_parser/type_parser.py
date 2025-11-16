@@ -26,7 +26,7 @@ class TypeParser:
             struct_name = struct_token.value
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
             if struct_name not in self.declared_structs:
-                raise ValueError(f"Unknown type '{struct_name}' at line {struct_token.line}!")
+                raise ValueError(f"Unknown type {struct_name} at line {struct_token.line}!")
             return struct_name
 
         if token.token_type.is_data_type():
@@ -52,4 +52,4 @@ class TypeParser:
         elif data_type in [DataType.I16, DataType.I32, DataType.I64]:
             return NumberNode("0")
         else:
-            raise ValueError(f"No default value defined for {data_type}")
+            raise ValueError(f"No default value defined for {data_type.name.lower()}")

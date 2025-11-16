@@ -27,35 +27,28 @@ class ExpressionParser:
 
     def parse_logical_or(self) -> ExprNode:
         left = self.parse_logical_and()
-
         while self.reader.peek() and self.reader.peek().token_type == TokenType.OR:
             self.reader.eat()
             right = self.parse_logical_and()
             left = BinaryOpNode(left, Operator.OR, right)
-
         return left
 
     def parse_logical_and(self) -> ExprNode:
         left = self.parse_comparison()
-
         while self.reader.peek() and self.reader.peek().token_type == TokenType.AND:
             self.reader.eat()
             right = self.parse_comparison()
             left = BinaryOpNode(left, Operator.AND, right)
-
         return left
 
     def parse_comparison(self) -> ExprNode:
         left = self.parse_additive()
-
         token = self.reader.peek()
         if token and token.token_type.if_for_comparision():
             op_token = self.reader.eat()
             operator = Operator.from_string(op_token.value)
-
             if self.reader.in_mood_line:
                 operator = operator.invert()
-
             right = self.parse_additive()
             left = BinaryOpNode(left, operator, right)
 
@@ -63,59 +56,47 @@ class ExpressionParser:
 
     def parse_additive(self) -> ExprNode:
         left = self.parse_multiplicative()
-
         while True:
             token = self.reader.peek()
             if not token or not token.token_type.is_additive_operator():
                 break
-
             op_token = self.reader.eat()
             operator = Operator.from_string(op_token.value)
-
             if self.reader.in_mood_line:
                 operator = operator.invert()
-
             right = self.parse_multiplicative()
             left = BinaryOpNode(left, operator, right)
-
         return left
 
     def parse_multiplicative(self) -> ExprNode:
         left = self.parse_unary()
-
         while True:
             token = self.reader.peek()
             if not token or not token.token_type.is_multiplicative_operator():
                 break
-
             op_token = self.reader.eat()
             operator = Operator.from_string(op_token.value)
-
             if self.reader.in_mood_line:
                 operator = operator.invert()
-
             right = self.parse_unary()
             left = BinaryOpNode(left, operator, right)
-
         return left
 
     def parse_unary(self) -> Union[FactorNode, UnaryOpNode]:
         token = self.reader.peek()
-
         if token and token.token_type == TokenType.NOT:
             self.reader.eat()
             operand = self.parse_unary()
             return UnaryOpNode(NOT, operand)
-
         return self.parse_value()
 
     def parse_value(self) -> Union[FactorNode, ExprNode]:
         token = self.reader.eat()
 
         if not token:
-            raise ValueError(
-                "You should have used either a number, a variable, or a boolean, "
-                "but you decided to abandon your work!")
+            line = self.reader.peek() - 1 if self.reader.peek() > 1 else self.reader.peek()
+            raise ValueError(f"You should have used either a number, a variable, or a boolean, "
+                f"but you decided to abandon your work (line {line}!")
 
         match token.token_type:
             case TokenType.NUMBER:
@@ -132,9 +113,8 @@ class ExpressionParser:
                 self.reader.expect_token(TokenType.BRACKET)
                 return expr
             case _:
-                raise ValueError(
-                    f"You should have used either a number, a variable, or a boolean "
-                    f"at line {token.line}, not {token.value}!")
+                raise ValueError( f"You should have used either a number, a variable, or a boolean "
+                    f"at line {token.line}, not \"{token.value}\" of the type {token.token_type.name.lower()}!")
 
     def parse_variable_or_call(self) -> Union[FactorNode, ExprNode]:
         var_token = self.reader.expect_token(TokenType.VARIABLE)
@@ -192,7 +172,6 @@ class ExpressionParser:
                     break
                 self.reader.eat()
                 arguments.append(self.parse_expression())
-
         return arguments
 
     def parse_member_function_call(self, object_name: str, func_name: str, line: int) -> FunctionCallNode:
@@ -214,14 +193,12 @@ class ExpressionParser:
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
 
             prev_call = FunctionCallNode(func_token.value, [prev_call], line, None)
-
         return prev_call
 
     def parse_struct_init(self, struct_name: str, line: int) -> StructInitNode:
         self.reader.expect_token(TokenType.BRACKET)
         init_exprs = self.parse_arguments()
         self.reader.expect_token(TokenType.BRACKET)
-
         return StructInitNode(struct_name, init_exprs, line)
 
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from pickle import GLOBAL
 from typing import Optional
 from ..constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT
 from ..visitor.ast_visitor import ASTVisitor
@@ -50,8 +51,8 @@ class SemanticAnalyzer(ASTVisitor):
         member_func_names = set()
         for member_function in member_functions:
             if member_function.variable in member_func_names:
-                raise ValueError( f"Duplicate member function '{member_function.variable}' "
-                    f"in struct '{struct_name}' at line {member_function.line}! "
+                raise ValueError(f"Duplicate member function \"{member_function.variable}\" "
+                    f"in struct \"{struct_name}\" at line {member_function.line}! "
                     f"Don't you have enough imagination to create sth new???")
             member_func_names.add(member_function.variable)
             param_types = [self._type_to_string(p.param_type) for p in member_function.params]
@@ -68,15 +69,15 @@ class SemanticAnalyzer(ASTVisitor):
         field_names = set()
         for field in node.fields:
             if field.name in field_names:
-                raise ValueError(f"Duplicate field name '{field.name}' in struct '{node.variable}' "
-                    f"at line {node.line}! GET RID OF IT!" )
+                raise ValueError(f"Duplicate field name \"{field.name}\" in struct \"{node.variable}\" "
+                    f"at line {node.line}! GET RID OF IT!")
             field_names.add(field.name)
 
     def _validate_field_types(self, node: StructDeclNode):
         for field in node.fields:
             if not self._is_valid_type(field.field_type):
-                raise ValueError(f"The type '{field.field_type}' for field '{field.name}' "
-                 f"in struct '{node.variable}' at line {node.line} does not exist!" )
+                raise ValueError(f"The type \"{field.field_type}\" for field \"{field.name}\" "
+                 f"in struct \"{node.variable}\" at line {node.line} does not exist!")
 
     def _is_valid_type(self, type_obj) -> bool:
         if isinstance(type_obj, DataType):
@@ -87,7 +88,7 @@ class SemanticAnalyzer(ASTVisitor):
 
     def visit_struct_initialization(self, node: StructInitNode):
         if not self.context.is_struct_defined(node.value):
-            raise ValueError(f"No such struct type '{node.value}' at line {node.line}!")
+            raise ValueError(f"No such struct type \"{node.value}\" at line {node.line}!")
         struct_fields = self.context.get_struct_definition(node.value)
         self._validate_field_count(node, struct_fields)
         self._validate_field_types_in_init(node, struct_fields)
@@ -96,7 +97,7 @@ class SemanticAnalyzer(ASTVisitor):
     @staticmethod
     def _validate_field_count(node: StructInitNode, struct_fields):
         if len(node.init_expressions) != len(struct_fields):
-            raise ValueError(f"Struct '{node.value}' expects {len(struct_fields)} fields "
+            raise ValueError(f"Struct \"{node.value}\" expects {len(struct_fields)} fields "
                 f"but you typed {len(node.init_expressions)} at line {node.line}!")
 
     def _validate_field_types_in_init(self, node: StructInitNode, struct_fields):
@@ -104,26 +105,26 @@ class SemanticAnalyzer(ASTVisitor):
             expr_type = node.init_expressions[i].accept(self)
             expected_type = field.field_type
             if not self._types_match(expr_type, expected_type):
-                raise ValueError(f"Type mismatch for field '{field.name}' in struct '{node.value}': "
-                    f"expected {expected_type}, but you typed {expr_type} at line {node.line}!")
+                raise ValueError(f"Type mismatch for field \"{field.name}\" in struct \"{node.value}\": "
+                    f"expected \"{expected_type}\", but you typed \"{expr_type}\" at line {node.line}!")
 
     def visit_member_access(self, node: MemberAccessNode):
         self._check_variable_declared(node.value, node.line)
         base_type = self.context.get_variable_type(node.value)
         if not isinstance(base_type, str):
-            raise ValueError(f"Cannot access member '{node.member_name}' on primitive type "
-                f"'{base_type}' at line {node.line}!")
+            raise ValueError(f"Cannot access member \"{node.member_name}\" on primitive type "
+                f"\"{base_type}\" at line {node.line}!")
         struct_fields = self.context.get_struct_definition(base_type)
         field_info = next((f for f in struct_fields if f.name == node.member_name), None)
         if not field_info:
-            raise ValueError(f"Struct '{base_type}' has no field '{node.member_name}' at line {node.line}!" )
+            raise ValueError(f"Struct \"{base_type}\" has no field \"{node.member_name}\" at line {node.line}!")
         return field_info.field_type
 
     def visit_declaration(self, node: DeclNode):
         if isinstance(node.data_type, str):
             self._validate_struct_type_exists(node.data_type, node.line)
         if not self.context.declare_variable(node.variable, node.data_type, node.mutable):
-            raise ValueError(f"Variable '{node.variable}' has already been declared at line {node.line}!!!!!!!!!!")
+            raise ValueError(f"Variable \"{node.variable}\" has already been declared at line {node.line}!!!!!!!!!!")
         self.context.currently_initializing = node.variable
         expr_type = node.expr_node.accept(self)
         self._check_type_match(expr_type, node.data_type, node.line)
@@ -131,30 +132,30 @@ class SemanticAnalyzer(ASTVisitor):
 
     def _validate_struct_type_exists(self, type_name: str, line: int):
         if not self.context.is_struct_defined(type_name):
-            raise ValueError( f"Type '{type_name}' is not defined at line {line}! "
+            raise ValueError(f"Type \"{type_name}\" is not defined at line {line}! "
                 f"Did you forget to declare the struct?")
 
     def _check_variable_declared(self, var_name: str, line: int):
         if not self.context.is_variable_declared(var_name):
-            raise ValueError(f"Variable '{var_name}' not declared at line {line}!")
+            raise ValueError(f"Variable \"{var_name}\" not declared at line {line}!")
 
     def _check_variable_mutable(self, var_name: str, line: int):
         if not self.context.is_variable_mutable(var_name):
-            raise ValueError( f"Sorry, but you cannot assign something new to an immutable variable!!! "
-                f"Remove '{var_name}' from line {line}!" )
+            raise ValueError(f"Sorry, but you cannot assign something new to an immutable variable!!! "
+                f"Remove \"{var_name}\" from line {line}!")
 
     def _check_type_match(self, expr_type, expected_type, line: int):
         if not self._types_match(expr_type, expected_type):
             raise ValueError(f"Types do not match at line {line}: "
-                f"you cannot assign {expr_type} to {expected_type}! Be careful!")
+                f"you cannot assign \"{expr_type}\" to \"{expected_type}\"! Be careful!")
 
     def visit_assign(self, node: AssignNode):
         self._check_variable_declared(node.variable, node.line)
         self._check_variable_mutable(node.variable, node.line)
 
         if isinstance(node.expr_node, IDNode) and node.expr_node.value == node.variable:
-            raise ValueError(f"Self-assignment like '{node.variable} = {node.variable}' "
-                f"is not allowed at line {node.line}!" )
+            raise ValueError(f"Self-assignment like \"{node.variable} = {node.variable}\" "
+                f"is not allowed at line {node.line}!")
         data_type = self.context.get_variable_type(node.variable)
         expr_type = node.expr_node.accept(self)
         self._check_type_match(expr_type, data_type, node.line)
@@ -165,8 +166,8 @@ class SemanticAnalyzer(ASTVisitor):
             expected_str = self._type_to_string(self._expected_return_type)
             returned_str = self._type_to_string(returned_type)
             if not self._types_match(returned_type, self._expected_return_type):
-                raise ValueError(f"Function '{self._function_name}' returns {returned_str} "
-                    f"but declared as {expected_str}!")
+                raise ValueError(f"Function \"{self._function_name}\" returns \"{returned_str}\" "
+                    f"but declared as \"{expected_str}\"!")
         return returned_type
 
     def visit_binary_operation(self, node: BinaryOpNode):
@@ -184,19 +185,19 @@ class SemanticAnalyzer(ASTVisitor):
     @staticmethod
     def _validate_primitive_types(left_type, right_type, operator):
         if not isinstance(left_type, DataType) or not isinstance(right_type, DataType):
-            raise ValueError(f"Cannot use operator '{operator}' on struct types! "
+            raise ValueError(f"Cannot use operator \"{operator}\" on struct types! "
                 f"Operators only work with primitive types (i16, i32, i64, bool).")
 
     @staticmethod
     def _validate_comparison(left_type: DataType, right_type: DataType, operator) -> DataType:
         if (left_type == DataType.BOOL) != (right_type == DataType.BOOL):
-            raise ValueError(f"You cannot compare using {operator} boolean with non-boolean!")
+            raise ValueError(f"You cannot compare using \"{operator}\" boolean with non-boolean!")
         return DataType.BOOL
 
     def _validate_arithmetic(self, left_type: DataType, right_type: DataType,
                              operator, node) -> DataType:
         if left_type == DataType.BOOL or right_type == DataType.BOOL:
-            raise ValueError(f"You cannot play math using {operator} on booleans!!!")
+            raise ValueError(f"You cannot play math using \"{operator}\" on booleans!!!")
         result_type = self._infer_arithmetic_result_type(left_type, right_type)
         node.result_type = result_type
         return result_type
@@ -204,8 +205,8 @@ class SemanticAnalyzer(ASTVisitor):
     @staticmethod
     def _validate_logical(left_type: DataType, right_type: DataType, operator) -> DataType:
         if left_type != DataType.BOOL or right_type != DataType.BOOL:
-            raise ValueError( f"Logical operator {operator} requires boolean operands, "
-                f"but got {left_type} and {right_type}!")
+            raise ValueError(f"Logical operator \"{operator}\" requires boolean operands, "
+                f"but got \"{left_type}\" and \"{right_type}\"!")
         return DataType.BOOL
 
     @staticmethod
@@ -218,7 +219,7 @@ class SemanticAnalyzer(ASTVisitor):
 
     def visit_id(self, node: IDNode):
         if self.context.currently_initializing == node.value:
-            raise ValueError(f"Self-assignment like '{node.value} = {node.value}' "
+            raise ValueError(f"Self-assignment like \"{node.value} = {node.value}\" "
                 f"is not allowed at line {node.line}!")
         self._check_variable_declared(node.value, node.line)
         return self.context.get_variable_type(node.value)
@@ -237,8 +238,8 @@ class SemanticAnalyzer(ASTVisitor):
     def visit_if_statement(self, node: IfNode):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
-            raise ValueError( f"If condition must be of type bool, but you placed {condition_type} "
-                f"at line {node.line}! How could you????????" )
+            raise ValueError(f"If condition must be of type bool, but you placed \"{condition_type}\" "
+                f"at line {node.line}! How could you????????")
         node.block.accept(self)
         [elif_block.accept(self) for elif_block in node.elif_blocks]
         if node.else_block:
@@ -247,14 +248,14 @@ class SemanticAnalyzer(ASTVisitor):
     def visit_elif_statement(self, node: ElifNode):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
-            raise ValueError(f"Elif condition must be of type bool, but you placed {condition_type} "
+            raise ValueError(f"Elif condition must be of type bool, but you placed \"{condition_type}\" "
                 f"at line {node.line}!")
         node.block.accept(self)
 
     def visit_while_loop(self, node: WhileNode):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
-            raise ValueError(f"While condition must be of type bool, but you placed {condition_type} "
+            raise ValueError(f"While condition must be of type bool, but you placed \"{condition_type}\" "
                 f"at line {node.line}!")
         node.block.accept(self)
 
@@ -270,21 +271,21 @@ class SemanticAnalyzer(ASTVisitor):
         if node.operator == NOT:
             if operand_type != DataType.BOOL:
                 raise ValueError(f"The NOT operator (💩) can only be applied to boolean values, dummy, "
-                    f"but you applied it to {operand_type}! Do you think it is okay?")
+                    f"but you applied it to \"{operand_type}\"! Do you think it is okay?")
             return DataType.BOOL
-        raise ValueError(f"Unknown unary operator: {node.operator}")
+        raise ValueError(f"Unknown unary operator: \"{node.operator}\"")
 
     def _register_function(self, node: FunctionDeclNode):
         param_types = [self._type_to_string(p.param_type) for p in node.params]
         return_type = self._type_to_string(node.return_type)
-        self.context.define_function("global", node.variable, param_types, return_type)
+        self.context.define_function(GLOBAL, node.variable, param_types, return_type)
 
     def visit_function_declaration(self, node: FunctionDeclNode):
         self.context.enter_scope()
         self._declare_function_parameters(node)
 
         if node.return_type != DataType.VOID and not node.body.return_node:
-            raise ValueError(f"Function '{node.variable}' must have a return statement!")
+            raise ValueError(f"Function \"{node.variable}\" must have a return statement!")
 
         self._expected_return_type = node.return_type
         self._function_name = node.variable
@@ -298,12 +299,12 @@ class SemanticAnalyzer(ASTVisitor):
     def _declare_function_parameters(self, node: FunctionDeclNode):
         for param in node.params:
             if not self.context.declare_variable(param.name, param.param_type, mutable=False):
-                raise ValueError(f"Duplicate parameter '{param.name}' in function '{node.variable}'!")
+                raise ValueError(f"Duplicate parameter \"{param.name}\" in function \"{node.variable}\"!")
 
     def visit_function_call(self, node: FunctionCallNode):
         function_scope = self._identify_function_scope(node.object_name)
         if not self.context.is_function_defined(function_scope, node.value):
-            raise ValueError(f"Function '{node.value}' not defined at line {node.line}!")
+            raise ValueError(f"Function \"{node.value}\" not defined at line {node.line}!")
         func_info = self.context.get_function_info(function_scope, node.value)
         self._validate_argument_count(node, func_info)
         self._validate_argument_types(node, func_info)
@@ -319,7 +320,7 @@ class SemanticAnalyzer(ASTVisitor):
     @staticmethod
     def _validate_argument_count(node: FunctionCallNode, func_info):
         if len(node.arguments) != len(func_info.param_types):
-            raise ValueError(f"Function '{node.value}' expects {len(func_info.param_types)} arguments "
+            raise ValueError(f"Function \"{node.value}\" expects {len(func_info.param_types)} arguments "
                 f"but got {len(node.arguments)} at line {node.line}!")
 
     def _validate_argument_types(self, node: FunctionCallNode, func_info):
@@ -327,8 +328,9 @@ class SemanticAnalyzer(ASTVisitor):
             arg_type = arg.accept(self)
             expected_type = self._string_to_type(expected_type_str)
             if not self._types_match(arg_type, expected_type):
-                raise ValueError(f"Argument {i + 1} to function '{node.value}' has type {self._type_to_string(arg_type)} "
-                    f"but expected {expected_type_str} at line {node.line}!")
+                raise ValueError(f"Argument {i + 1} to function \"{node.value}\" has type "
+                    f"\"{self._type_to_string(arg_type)}\" but expected \"{expected_type_str}\" "
+                    f"at line {node.line}!")
 
     def _types_match(self, expr_type, expected_type) -> bool:
         if isinstance(expected_type, DataType) and isinstance(expr_type, DataType):
@@ -349,10 +351,10 @@ class SemanticAnalyzer(ASTVisitor):
 
     def _identify_function_scope(self, object_name: Optional[str]) -> str:
         if not object_name:
-            return self._current_struct_context if self._current_struct_context else "global"
+            return self._current_struct_context if self._current_struct_context else GLOBAL
 
         var_type = self.context.get_variable_type(object_name)
-        return var_type if isinstance(var_type, str) else "global"
+        return var_type if isinstance(var_type, str) else GLOBAL
 
     def _analyze_member_function(self, struct_name: str, node: FunctionDeclNode):
         self.context.enter_scope()
@@ -365,7 +367,7 @@ class SemanticAnalyzer(ASTVisitor):
         self._declare_function_parameters(node)
 
         if node.return_type != DataType.VOID and not node.body.return_node:
-            raise ValueError(f"Member function '{node.variable}' in struct '{struct_name}' "
+            raise ValueError(f"Member function \"{node.variable}\" in struct \"{struct_name}\" "
                 f"must have a return statement!")
 
         self._expected_return_type = node.return_type
@@ -384,7 +386,7 @@ class SemanticAnalyzer(ASTVisitor):
 
         var_type = self.context.get_variable_type(node.variable)
         if not isinstance(var_type, DataType) or var_type == DataType.BOOL:
-            raise ValueError(f"Cannot read into variable '{node.variable}' at line {node.line}! "
+            raise ValueError(f"Cannot read into variable \"{node.variable}\" at line {node.line}! "
                 f"Read only supports numeric types (i16, i32, i64).")
 
     def visit_print(self, node: PrintNode):

@@ -122,7 +122,7 @@ class StructOperations:
         for i, (name, field_type, fdata) in enumerate(fields):
             if name == field_name:
                 return i, field_type, fdata
-        raise ValueError(f"Field {field_name} not found")
+        raise ValueError(f"Field \"{field_name}\" not found!")
 
     def copy_struct_fields(self, struct_name: str, src_ptr: str, dst_ptr: str):
         fields = self.struct_definitions[struct_name]

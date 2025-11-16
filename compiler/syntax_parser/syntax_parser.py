@@ -70,7 +70,7 @@ class SyntaxParser:
         if not self.reader.peek() or self.reader.peek().token_type != TokenType.SIMPLE_LINE_BORDER:
             return False
 
-        def check_fn():
+        def check_function():
             self.reader.eat()
             next_token = self.reader.peek()
             if next_token and next_token.token_type.is_data_type():
@@ -78,7 +78,7 @@ class SyntaxParser:
                 return self.reader.peek() and self.reader.peek().token_type == TokenType.FUNCTION
             return False
 
-        return self.check_with_save(check_fn)
+        return self.check_with_save(check_function)
 
     def parse_struct_declaration(self) -> StructDeclNode:
         self.reader.define_line_type(self.reader.peek())
@@ -89,7 +89,7 @@ class SyntaxParser:
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
         self.reader.expect_line_end()
         if struct_name in self.declared_structs:
-            raise ValueError(f"Struct '{struct_name}' already declared at line {name_token.line}!")
+            raise ValueError(f"Struct {struct_name} was already declared at line {name_token.line}!")
         self.declared_structs.add(struct_name)
         self.reader.define_line_type(self.reader.peek())
         self.reader.expect_token(TokenType.BLOCK_BORDER)
@@ -115,7 +115,6 @@ class SyntaxParser:
                     self.reader.current_token_index = saved_index
                     break
                 if next_token and next_token.token_type.is_data_type():
-                    saved_index2 = self.reader.current_token_index
                     self.reader.eat()
                     if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_FUNCTION:
                         self.reader.current_token_index = saved_index
@@ -156,7 +155,7 @@ class SyntaxParser:
         body = self.parse_code_block()
         if return_type != DataType.VOID and body.return_node is None:
             kind = "Member function" if is_member else "Function"
-            raise ValueError(f"{kind} '{func_name}' with return type must have a return statement at line {func_name_token.line}!")
+            raise ValueError(f"{kind} \"{func_name}\" with return type must have a return statement at line {func_name_token.line}!")
         return FunctionDeclNode(func_name, params, return_type, body, func_name_token.line)
 
     def parse_function_declaration(self) -> FunctionDeclNode:
@@ -218,7 +217,7 @@ class SyntaxParser:
             case _:
                 raise ValueError(f"You should have either declared a variable, assigned this cutie to sth, "
                                  f"or used control flow at line {token.line}, but you decided to use "
-                                 f"this token: {token.token_type}")
+                                 f"this token \"{token.value}\" of the type \"{token.token_type.name.lower()}\"")
         if not consumes_own_line_end:
             self.reader.expect_line_end()
         return stmt
@@ -309,7 +308,8 @@ class SyntaxParser:
     def check_program_end(self):
         if self.reader.peek() and self.reader.peek().token_type != TokenType.THE_END:
             raise ValueError(f"I did not want you to place this awful content "
-                             f"after the return statement at line {self.reader.peek().line}: {self.reader.peek().value}!")
+                             f"after the return statement at line {self.reader.peek().line}: "
+                             f"\"{self.reader.peek().value}\" of the type {self.reader.peek().token_type.name.lower()}!")
 
     def parse_condition_block(self) -> tuple:
         if not self.reader.peek() or self.reader.peek().token_type in [TokenType.MOOD_LINE_BORDER_END, TokenType.SIMPLE_LINE_BORDER]:
