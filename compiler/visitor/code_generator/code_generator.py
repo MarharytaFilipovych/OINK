@@ -320,25 +320,44 @@ class CodeGenerator(ASTVisitor):
             return temp_reg
         raise ValueError(f"We do not support this unary operator: {node.operator}!")
 
+    @staticmethod
+    def _get_scanf_format_len(data_type: DataType) -> int:
+        if data_type == DataType.I16:
+            return 4 
+        if data_type == DataType.I32:
+            return 3 
+        if data_type == DataType.I64:
+            return 5
+        return 0
+
     def visit_read(self, node):
         var_type = self.variable_registry.get_variable_type(node.variable)
-        scanf_format = self._get_scanf_format(var_type)
+        scanf_format_len = self._get_scanf_format_len(var_type)
         
-        self.variable_registry.get_current_register(node.variable)
-        temp_ptr = self.emitter.get_temp_register()
+        temp_ptr = self.emitter.get_temp_register() 
         
+        llvm_type_name = var_type.to_llvm().replace('%', '')
+        if llvm_type_name == 'i16':
+            format_string_name = "@read_i16_format"
+        elif llvm_type_name == 'i32':
+            format_string_name = "@read_i32_format"
+        elif llvm_type_name == 'i64':
+            format_string_name = "@read_i64_format"
+        else:
+            raise ValueError(f"Unsupported read type: {llvm_type_name}")
+
         self.emitter.emit_line(f"  {temp_ptr} = alloca {var_type.to_llvm()}")
         self.emitter.emit_line(f"  call i32 (i8*, ...) @scanf(i8* getelementptr inbounds "
-                              f"([{len(scanf_format)} x i8], [{len(scanf_format)} x i8]* "
-                              f"@.read_fmt_{var_type.keyword}, i32 0, i32 0), "
+                              f"([{scanf_format_len} x i8], [{scanf_format_len} x i8]* "
+                              f"{format_string_name}, i32 0, i32 0), "
                               f"{var_type.to_llvm()}* {temp_ptr})")
         
         temp_val = self.emitter.get_temp_register()
         self.emitter.emit_line(f"  {temp_val} = load {var_type.to_llvm()}, {var_type.to_llvm()}* {temp_ptr}")
+        current_ptr = self.variable_registry.get_current_register(node.variable) 
+        self.emitter.emit_line(f"  store {var_type.to_llvm()} {temp_val}, {var_type.to_llvm()}* {current_ptr}")
+        self.variable_registry.get_variable_register(node.variable)
         
-        new_reg = self.variable_registry.get_variable_register(node.variable)
-        self.emitter.emit_line(f"  {new_reg} = add {var_type.to_llvm()} 0, {temp_val}")
-
     def visit_print(self, node):
         value = node.expr_node.accept(self)
         expr_type = self.type_converter.get_node_type(node.expr_node)

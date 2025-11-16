@@ -65,3 +65,5 @@ class VariableRegistry:
         self.variable_versions = {}
         self.variable_types = {}
         self.max_versions = {}
+
+    

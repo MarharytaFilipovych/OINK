@@ -35,13 +35,17 @@ class FunctionGenerator:
             return self._generate_member_to_member_call(node, visitor)
         
         args = [self._build_call_argument(arg, visitor) for arg in node.arguments]
-        result_reg = self.emitter.get_temp_register()
         return_type = self.type_converter.get_node_type(node)
-
         return_llvm_type = self._get_llvm_type(return_type)
         func_name = node.value.replace('&', '_')
-        self.emitter.emit_line(f"  {result_reg} = call {return_llvm_type} @{func_name}({', '.join(args)})")
-        return result_reg
+
+        if return_type == DataType.VOID:
+            self.emitter.emit_line(f"  call {return_llvm_type} @{func_name}({', '.join(args)})")
+            return ""
+        else:
+            result_reg = self.emitter.get_temp_register()
+            self.emitter.emit_line(f"  {result_reg} = call {return_llvm_type} @{func_name}({', '.join(args)})")
+            return result_reg
 
     def generate_member_function_call(self, node, visitor) -> str:
         obj_type = self.variable_registry.get_variable_type(node.object_name)
@@ -58,8 +62,13 @@ class FunctionGenerator:
         return_type = self.type_converter.get_node_type(node)
         return_llvm_type = self._get_llvm_type(return_type)
 
-        self.emitter.emit_line(f"  {result_reg} = call {return_llvm_type} @{mangled_name}({', '.join(arg_strs)})")
-        return result_reg
+        if return_type == DataType.VOID:
+            self.emitter.emit_line(f"  call {return_llvm_type} @{mangled_name}({', '.join(arg_strs)})")
+            return ""
+        else:
+            result_reg = self.emitter.get_temp_register()
+            self.emitter.emit_line(f"  {result_reg} = call {return_llvm_type} @{mangled_name}({', '.join(arg_strs)})")
+            return result_reg
 
     def load_field_from_this(self, field_name: str) -> str:
         field_ptr, field_llvm_type = self._get_this_field_pointer(field_name)
@@ -89,12 +98,16 @@ class FunctionGenerator:
         arg_strs = [f"%struct.{struct_name}* %this"] + [
             self._build_call_argument(arg, visitor) for arg in node.arguments]
         
-        result_reg = self.emitter.get_temp_register()
         return_type = self.type_converter.get_node_type(node)
         return_llvm_type = self._get_llvm_type(return_type)
         
-        self.emitter.emit_line(f"  {result_reg} = call {return_llvm_type} @{mangled_name}({', '.join(arg_strs)})")
-        return result_reg
+        if return_type == DataType.VOID:
+            self.emitter.emit_line(f"  call {return_llvm_type} @{mangled_name}({', '.join(arg_strs)})")
+            return ""
+        else:
+            result_reg = self.emitter.get_temp_register()
+            self.emitter.emit_line(f"  {result_reg} = call {return_llvm_type} @{mangled_name}({', '.join(arg_strs)})")
+            return result_reg
 
     @staticmethod
     def _get_llvm_type(data_type) -> str:
@@ -178,13 +191,14 @@ class FunctionGenerator:
     def _build_call_argument(self, arg, visitor) -> str:
         arg_value = arg.accept(visitor)
         arg_type = self.type_converter.get_node_type(arg)
+        
+        arg_llvm_type = self._get_llvm_type(arg_type)
+
         if isinstance(arg_type, DataType) and arg_type == DataType.I16:
-            arg_value = self.struct_ops.widen_value(arg_value, "i16", "i32")
-            arg_llvm_type = "i32"
-        else:
-            arg_llvm_type = self._get_llvm_type(arg_type)
-    
-        return f"{arg_llvm_type} {arg_value}"   
+            arg_value = self.struct_ops.widen_value(arg_value, arg_llvm_type, DataType.I32.to_llvm())
+            arg_llvm_type = DataType.I32.to_llvm()
+            
+        return f"{arg_llvm_type} {arg_value}"
 
     def _save_state(self) -> dict:
         return {
