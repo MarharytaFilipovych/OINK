@@ -150,6 +150,7 @@ class FunctionGenerator:
         try:
             return DataType.from_string(data_type).to_llvm()
         except (ValueError, AttributeError):
+            # The logic for checking primitive string types is now handled by type_converter.get_llvm_type.
             return f"%struct.{data_type}*" if isinstance(data_type, str) else "i32"
 
     def _get_this_field_pointer(self, field_name: str) -> tuple[str, str]:

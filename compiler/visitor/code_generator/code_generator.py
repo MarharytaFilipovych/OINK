@@ -200,8 +200,10 @@ class CodeGenerator(ASTVisitor):
                 else self.struct_ops._convert_type_if_needed(value, expr_type, target_type.keyword)
 
     def _get_llvm_type_string(self, return_type) -> str:
-        return self.type_converter.get_llvm_type(return_type) if isinstance(return_type, str) \
-            else return_type.to_llvm()
+        # FIX: Explicitly resolve DataType objects to their primitive LLVM type
+        if isinstance(return_type, DataType):
+            return return_type.to_llvm()
+        return self.type_converter.get_llvm_type(return_type)
 
     def visit_id(self, node):
         if self.variable_registry.is_field_access_from_this(node.value):

@@ -150,6 +150,35 @@ class SemanticAnalyzer(ASTVisitor):
                 f"you cannot assign \"{expr_type}\" to \"{expected_type}\"! Be careful!")
 
     def visit_assign(self, node: AssignNode):
+        if '_' in node.variable and self.context.is_variable_declared(node.variable.split('_')[0]):
+            # This handles assignment to a struct member: 🐖p🐖 _ 🐖x🐖 @ 25, parsed as AssignNode("p_x", ...)
+            object_name, member_name = node.variable.split('_', 1)
+            
+            self._check_variable_declared(object_name, node.line)
+            
+            base_type = self.context.get_variable_type(object_name)
+            if not isinstance(base_type, str):
+                raise ValueError(f"Cannot assign member \"{member_name}\" on primitive type \"{base_type}\" at line {node.line}!")
+
+            struct_fields = self.context.get_struct_definition(base_type)
+            field_info = next((f for f in struct_fields if f.name == member_name), None)
+
+            if not field_info:
+                raise ValueError(f"Struct \"{base_type}\" has no field \"{member_name}\" at line {node.line}!")
+
+            if not self.context.is_variable_mutable(object_name):
+                 raise ValueError(f"Cannot assign to a field of an immutable struct variable \"{object_name}\" at line {node.line}!")
+
+            if not field_info.mutable:
+                 raise ValueError(f"Cannot assign to immutable field \"{member_name}\" in struct \"{base_type}\" at line {node.line}!")
+
+            data_type = field_info.field_type
+            expr_type = node.expr_node.accept(self)
+            self._check_type_match(expr_type, data_type, node.line)
+            
+            return
+
+        # Original logic for non-member assignment
         self._check_variable_declared(node.variable, node.line)
         self._check_variable_mutable(node.variable, node.line)
 
@@ -205,9 +234,20 @@ class SemanticAnalyzer(ASTVisitor):
 
     @staticmethod
     def _validate_logical(left_type: DataType, right_type: DataType, operator) -> DataType:
+        numeric_types = {DataType.I16, DataType.I32, DataType.I64}
+        
+        can_be_left_operand = left_type == DataType.BOOL or left_type in numeric_types
+        can_be_right_operand = right_type == DataType.BOOL or right_type in numeric_types
+
+        # FIX for Test 42: Allow implicit coercion of numeric types to boolean for logical operations
+        if can_be_left_operand and can_be_right_operand:
+            return DataType.BOOL
+        
         if left_type != DataType.BOOL or right_type != DataType.BOOL:
-            raise ValueError(f"Logical operator \"{operator}\" requires boolean operands, "
-                f"but got \"{left_type}\" and \"{right_type}\"!")
+             # This check remains for non-numeric/non-boolean types like Struct or Void
+             raise ValueError(f"Logical operator \"{operator}\" requires boolean operands, "
+                 f"but got \"{left_type}\" and \"{right_type}\"!")
+        
         return DataType.BOOL
 
     @staticmethod

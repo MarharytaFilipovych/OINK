@@ -34,6 +34,11 @@ class TypeConverter:
     def get_llvm_type(self, type_obj) -> str:
         if isinstance(type_obj, DataType):
             return type_obj.to_llvm()
+        
+        # FIX: Check for primitive LLVM type strings and return them directly (Test 39)
+        if isinstance(type_obj, str) and type_obj in ['i16', 'i32', 'i64', 'i1', 'void']:
+            return type_obj
+            
         if isinstance(type_obj, str):
             try:
                 return DataType.from_string(type_obj).to_llvm()

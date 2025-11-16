@@ -143,6 +143,11 @@ class ExpressionParser:
             if token_after_bracket and token_after_bracket.token_type == TokenType.RETURN:
                 return IDNode(var_name, var_token.line)
             
+            # NEW: If the token after the bracket is a line terminator ('#' or '~#'), 
+            # it means this ID is the last part of the overall statement's expression (e.g., struct init argument).
+            if token_after_bracket and token_after_bracket.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_END]:
+                return IDNode(var_name, var_token.line)
+
             # If the next token is BRACKET, it's a zero-argument function call (ID ** **).
             if token_after_bracket and token_after_bracket.token_type == TokenType.BRACKET:
                 return self.parse_function_call_expr(var_name, var_token.line)
