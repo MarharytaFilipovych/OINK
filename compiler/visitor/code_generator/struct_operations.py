@@ -138,5 +138,9 @@ class StructOperations:
         self.emitter.emit_line(f"  {val_reg} = load {llvm_type}, {llvm_type}* {ptr}")
         return val_reg
 
+    def load_field_value(self, object_type, struct_ptr: str, field_name: str) -> str:
+        value_reg, _ = self.access_field(field_name, object_type, struct_ptr, is_final=True)
+        return value_reg
+
     def get_object_pointer(self, object_name: str) -> str:
         return self.variable_registry.get_current_register(object_name)

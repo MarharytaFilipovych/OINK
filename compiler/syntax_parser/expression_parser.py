@@ -130,12 +130,12 @@ class ExpressionParser:
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
 
             if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
-                return self.parse_member_function_call(var_name, member_token.value, var_token.line) \
-                if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET \
-                else MemberAccessNode(var_name, member_token.value, var_token.line)
+                return self.parse_member_function_call(var_name, member_token.value, var_token.line)
+            else:
+                return MemberAccessNode(var_name, member_token.value, var_token.line)
 
         return self.parse_function_call_expr(var_name, var_token.line) \
-             if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET \
+            if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET \
                 else IDNode(var_name, var_token.line)
 
     def parse_function_call_expr(self, func_name: str = None, line: int = None) -> FunctionCallNode:
