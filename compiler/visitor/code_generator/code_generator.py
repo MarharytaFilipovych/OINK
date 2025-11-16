@@ -110,13 +110,19 @@ class CodeGenerator(ASTVisitor):
     def _emit_assignment_code(self, node, var_type):
         llvm_type = var_type.to_llvm()
         value = node.expr_node.accept(self)
-        reg = self.variable_registry.get_current_register(node.variable)  # Get EXISTING register
+        reg = self.variable_registry.get_current_register(node.variable) 
         value = self._widen_value_if_needed(value, node.expr_node, var_type)
-        
-        # Store to the allocated memory
         self.emitter.emit_line(f"  store {llvm_type} {value}, {llvm_type}* {reg}")
 
     def visit_return(self, node):
+        if node.expr_node is None:
+            if self.func_gen.in_function:
+                self.emitter.emit_line("  ret void")
+            else:
+                self.emitter.emit_line("  call void @printResult(i32 0)")
+                self.emitter.emit_line("  ret i32 0")
+            return
+        
         value = node.expr_node.accept(self)
         return_type = self.type_converter.get_node_type(node.expr_node)
         self._generate_function_return(value, return_type) if self.func_gen.in_function \

@@ -21,7 +21,7 @@ def _get_binary_op_type(node: BinaryOpNode) -> DataType:
 def _parse_return_type(type_str: str) -> Union[DataType, str]:
     try:
         return DataType.from_string(type_str)
-    except ValueError:
+    except (ValueError, AttributeError):
         return type_str
 
 
@@ -32,7 +32,7 @@ def get_llvm_type(type_obj) -> str:
         try:
             return DataType.from_string(type_obj).to_llvm()
         except ValueError:
-            return f"%struct.{type_obj}"
+            return f"%struct.{type_obj}*"
     return "i32"
 
 
@@ -90,10 +90,13 @@ class TypeConverter:
         if node.object_name:
             obj_type = self.variable_registry.get_variable_type(node.object_name)
             if isinstance(obj_type, str):
-                mangled_name = f"{obj_type}_{node.value}"
-                return _parse_return_type(self.function_return_types.get(mangled_name, "i32"))
+                mangled_name = f"{obj_type}_{node.value}".replace('&', '_')
+                type_str = self.function_return_types.get(mangled_name, "i32")
+                return _parse_return_type(type_str)
         
-        return _parse_return_type(self.function_return_types.get(node.value, "i32"))
+        func_name = node.value.replace('&', '_')
+        type_str = self.function_return_types.get(func_name, "i32")
+        return _parse_return_type(type_str)
 
     def infer_operand_type(self, left_node, right_node) -> str:
         left_type = self.get_node_type(left_node)
