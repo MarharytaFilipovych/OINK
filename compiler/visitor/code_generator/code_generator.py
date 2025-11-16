@@ -96,8 +96,46 @@ class CodeGenerator(ASTVisitor):
             self.func_gen.store_field_to_this(node.variable, expr_value)
             return
 
+        # NEW LOGIC START: Handle member assignment outside of a member function, 
+        # identified by the mangled name 'object_name_member_name' in the parser
+        if '_' in node.variable and node.variable.count('_') == 1:
+            object_name, member_name = node.variable.split('_')
+            object_type = self.variable_registry.get_variable_type(object_name)
+
+            if isinstance(object_type, str): # Check if the object is a struct type
+                self._handle_struct_field_assignment(object_name, member_name, object_type, node)
+                return
+        # NEW LOGIC END
+        
         var_type = self._get_assignable_variable_type(node)
         self._emit_assignment_code(node, var_type)
+        
+    # NEW HELPER START: Handles assignment to a field of a struct instance (e.g., p.x = 25)
+    def _handle_struct_field_assignment(self, object_name: str, member_name: str, struct_name: str, node):
+        
+        # 1. Get pointer to the struct instance (must already be declared)
+        object_ptr = self.variable_registry.get_current_register(object_name)
+        
+        # 2. Get the pointer to the specific field
+        fields = self.struct_ops.struct_definitions[struct_name]
+        # Use existing helper to find field info
+        field_index, field_llvm_type, field_data_type_str = self.struct_ops._find_field(fields, member_name)
+            
+        field_ptr = self.struct_ops.get_struct_field_ptr(struct_name, object_ptr, field_index)
+
+        # 3. Evaluate the expression
+        expr_value = node.expr_node.accept(self)
+        expr_type = self.type_converter.get_node_type(node.expr_node)
+        
+        # 4. Perform type conversion if needed and store the result
+        if isinstance(expr_type, str):
+            # This handles assignment/copy of another struct instance to a struct field
+            self.struct_ops.copy_struct_fields(field_data_type_str, expr_value, field_ptr)
+        else:
+            # Primitive field assignment (with widening/truncating if necessary)
+            expr_value = self.struct_ops._convert_type_if_needed(expr_value, expr_type, field_data_type_str)
+            self.emitter.emit_line(f"  store {field_llvm_type} {expr_value}, {field_llvm_type}* {field_ptr}")
+    # NEW HELPER END
 
     def _get_assignable_variable_type(self, node):
         var_type = self.variable_registry.get_variable_type(node.variable)
@@ -200,10 +238,8 @@ class CodeGenerator(ASTVisitor):
                 else self.struct_ops._convert_type_if_needed(value, expr_type, target_type.keyword)
 
     def _get_llvm_type_string(self, return_type) -> str:
-        # FIX: Explicitly resolve DataType objects to their primitive LLVM type
-        if isinstance(return_type, DataType):
-            return return_type.to_llvm()
-        return self.type_converter.get_llvm_type(return_type)
+        return self.type_converter.get_llvm_type(return_type) if isinstance(return_type, str) \
+            else return_type.to_llvm()
 
     def visit_id(self, node):
         if self.variable_registry.is_field_access_from_this(node.value):

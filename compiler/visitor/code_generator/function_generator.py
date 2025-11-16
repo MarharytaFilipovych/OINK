@@ -148,11 +148,13 @@ class FunctionGenerator:
         if isinstance(data_type, DataType):
             return data_type.to_llvm()
         try:
+            # FIX for test_39: If the string is an LLVM primitive type, return it directly.
+            if isinstance(data_type, str) and data_type in ["i16", "i32", "i64", "i1", "void"]:
+                return data_type
             return DataType.from_string(data_type).to_llvm()
         except (ValueError, AttributeError):
-            # The logic for checking primitive string types is now handled by type_converter.get_llvm_type.
             return f"%struct.{data_type}*" if isinstance(data_type, str) else "i32"
-
+        
     def _get_this_field_pointer(self, field_name: str) -> tuple[str, str]:
         struct_name = self.current_struct_context
         fields = self.struct_ops.struct_definitions[struct_name]

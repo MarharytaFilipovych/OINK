@@ -238,16 +238,13 @@ class SemanticAnalyzer(ASTVisitor):
         
         can_be_left_operand = left_type == DataType.BOOL or left_type in numeric_types
         can_be_right_operand = right_type == DataType.BOOL or right_type in numeric_types
-
-        # FIX for Test 42: Allow implicit coercion of numeric types to boolean for logical operations
         if can_be_left_operand and can_be_right_operand:
             return DataType.BOOL
         
         if left_type != DataType.BOOL or right_type != DataType.BOOL:
-             # This check remains for non-numeric/non-boolean types like Struct or Void
              raise ValueError(f"Logical operator \"{operator}\" requires boolean operands, "
                  f"but got \"{left_type}\" and \"{right_type}\"!")
-        
+    
         return DataType.BOOL
 
     @staticmethod
