@@ -9,19 +9,16 @@ from compiler.syntax_parser.syntax_parser import SyntaxParser
 from compiler.lexer.lexer import Lexer
 from compiler.node.program_node import ProgramNode
 
-
 def parse_code(source: str) -> ProgramNode:
     lexer = Lexer(source)
     tokens = lexer.tokenize()
     parser = SyntaxParser(tokens)
     return parser.parse_program()
 
-
 class ExceptionCheckingTestCase(unittest.TestCase):
     def tearDown(self):
         if hasattr(self, "context") and getattr(self.context, "exception", None):
-            self.assertTrue(self.context.exception, "Expected exception missing!")
-
+            self.assertTrue(self.context.exception)
 
 class SyntaxParserSadTest(ExceptionCheckingTestCase):
 
@@ -119,52 +116,42 @@ class SyntaxParserSadTest(ExceptionCheckingTestCase):
 # 🐖🐖🐖 #
 # ... 0 ... #"""),
         ("function_param_without_type",
-         """# 🐷 PIG 🐖add🐖 ** 🐖a🐖 ** #
-# 🐖🐖🐖 #
-# ... 🐖a🐖 ... #
-# 🐖🐖🐖 #
-# ... 0 ... #"""),
-        ("mismatched_function_brackets",
-         """# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 #
-# 🐖🐖🐖 #
-# ... 🐖a🐖 ... #
-# 🐖🐖🐖 #
-# ... 0 ... #"""),
-("struct_field_without_type",
-         """# BOAR 🐖Point🐖 #
-# 🐖🐖🐖 #
-# 😀 🐖x🐖 #
-# 🐖🐖🐖 #
-# ... 0 ... #"""),
-        ("function_param_without_type",
          """# 🐷 PIG 🐖test🐖 ** 🐖x🐖 ** #
 # 🐖🐖🐖 #
 # ... 0 ... #
 # 🐖🐖🐖 #
 # ... 0 ... #"""),
-        ("member_function_without_return",
-         """# BOAR 🐖Point🐖 #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖x🐖 #
-# 🐷 PIGLET 🐖getX🐖 #
-# 🐖🐖🐖 #
-# 🐖🐖🐖 #
-# 🐖🐖🐖 #
-# ... 0 ... #"""),
-        ("read_without_variable",
-         """# eat😋 #
-# ... 0 ... #"""),
-        ("print_without_expression",
-         """# print🤮 #
-# ... 0 ... #""")
+ ("mood_line_without_end", "#~ 🐖x🐖 @ 10 ❤️ 5 #"),  
+    ("if_without_block", "# SAVE 🐖x🐖 > 0 #"),  
+    ("elif_without_if_block", "# HURT 🐖x🐖 > 0 #\n# 🐖🐖🐖 #"),  
+    ("else_without_if_block", "# KILL #\n# 🐖🐖🐖 #"),  
+    ("function_without_body", "# 🐷 PIG 🐖doSomething🐖 ** 🐷 🐖x🐖 ** #"),  
+    ("struct_with_duplicate_field", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #"),  
+    ("function_call_without_arguments", "# 😀 🐷 🐖res🐖 @ 🐖add🐖 ** ** #"),  
+    ("function_call_with_wrong_chain", "# 😀 🐷 🐖res🐖 @ 🐖get🐖 _ #"),  
+    ("variable_shadowing_in_scope", "# 😀 🐷 🐖x🐖 @ 1 #\n# 😀 🐷 🐖x🐖 @ 2 #"),  
+    ("reassign_constant", "# 😭 🐷 🐖c🐖 @ 5 #\n# 🐖c🐖 @ 10 #"),  
+    ("struct_member_access_invalid", "# 😀 🐷 🐖res🐖 @ 🐖p🐖 _ 🐖nonExistent🐖 #"),  
+    ("mismatched_function_param_types", "# 🐷 PIG 🐖add🐖 ** 🐽 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖a🐖 ❤️ 🐖b🐖 ... #\n# 🐖🐖🐖 #"),
     ]
 
     def test_all_failing_cases(self):
+        results = []
         for name, source in self.failing_cases:
-            with self.subTest(name=name):
-                with self.assertRaises(ValueError) as self.context:
+            try:
+                with self.assertRaises(ValueError):
                     parse_code(source)
+                results.append((name, "PASS"))
+            except Exception as e:
+                results.append((name, f"FAIL ({type(e).__name__}: {e})"))
 
+        print("\nSyntax Parser Sad Test Summary:")
+        for test_name, status in results:
+            print(f"{test_name}: {status}")
+
+        failures = [s for _, s in results if s.startswith("FAIL")]
+        if failures:
+            self.fail(f"{len(failures)} tests did not raise expected exceptions: {failures}")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
