@@ -1,6 +1,6 @@
 # 😀 🐷 🐖x🐖 @ 10 #
-#~ SAVE 🐖x🐖 🌸🌸 10 ~# # The expression (x 🌸🌸 10) evaluates to LOVE. The Mood Line inverts the operator 🌸🌸 to 💩🌸. So it is SAVE (x 💩🌸 10) which is SAVE (HATE). Then the IF is evaluated.
-# The grammar says expression operators are inverted. The IF condition is treated as an expression.
-# x 🌸🌸 10 -> x 💩🌸 10 which is HATE. SAVE HATE means it doesn't run.
-# Let's ensure the conditional logic is covered.
-write_test test_25.txt #
+#~ SAVE 🐖x🐖 🌸🌸 10 ~# 
+# 🐖🐖🐖 #
+# 🐖x🐖 @ 20 #
+# 🐖🐖🐖 #
+# ... 10 ... #

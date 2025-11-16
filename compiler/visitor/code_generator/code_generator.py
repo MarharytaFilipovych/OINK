@@ -86,7 +86,10 @@ class CodeGenerator(ASTVisitor):
         reg = self.variable_registry.get_variable_register(node.variable)
         self.variable_registry.set_variable_type(node.variable, node.data_type)
         value = self._widen_value_if_needed(value, node.expr_node, node.data_type)
-        self.emitter.emit_line(f"  {reg} = add {llvm_type} 0, {value}")
+        
+        # Allocate memory and store the value
+        self.emitter.emit_line(f"  {reg} = alloca {llvm_type}")
+        self.emitter.emit_line(f"  store {llvm_type} {value}, {llvm_type}* {reg}")
 
     def visit_assign(self, node):
         if self.variable_registry.is_field_access_from_this(node.variable):
@@ -107,9 +110,11 @@ class CodeGenerator(ASTVisitor):
     def _emit_assignment_code(self, node, var_type):
         llvm_type = var_type.to_llvm()
         value = node.expr_node.accept(self)
-        reg = self.variable_registry.get_variable_register(node.variable)
+        reg = self.variable_registry.get_current_register(node.variable)  # Get EXISTING register
         value = self._widen_value_if_needed(value, node.expr_node, var_type)
-        self.emitter.emit_line(f"  {reg} = add {llvm_type} 0, {value}")
+        
+        # Store to the allocated memory
+        self.emitter.emit_line(f"  store {llvm_type} {value}, {llvm_type}* {reg}")
 
     def visit_return(self, node):
         value = node.expr_node.accept(self)
@@ -194,9 +199,17 @@ class CodeGenerator(ASTVisitor):
             else return_type.to_llvm()
 
     def visit_id(self, node):
-        return self.func_gen.load_field_from_this(node.value) \
-            if self.variable_registry.is_field_access_from_this(node.value) \
-            else self.variable_registry.get_current_register(node.value)
+        if self.variable_registry.is_field_access_from_this(node.value):
+            return self.func_gen.load_field_from_this(node.value)
+        else:
+            reg = self.variable_registry.get_current_register(node.value)
+            var_type = self.variable_registry.get_variable_type(node.value)
+            if isinstance(var_type, DataType):
+                llvm_type = var_type.to_llvm()
+                temp_reg = self.emitter.get_temp_register()
+                self.emitter.emit_line(f"  {temp_reg} = load {llvm_type}, {llvm_type}* {reg}")
+                return temp_reg
+            return reg
 
     def visit_number(self, node):
         return node.value
@@ -275,7 +288,8 @@ class CodeGenerator(ASTVisitor):
         self.emitter.emit_line(f"  br label %{cond_label}")
         self.emitter.emit_label(cond_label)
         
-        condition_value = node.condition.accept(self)
+        condition_value = node.condition.accept(self) 
+        
         self.emitter.emit_line(f"  br i1 {condition_value}, label %{body_label}, label %{end_label}")
         
         self.emitter.emit_label(body_label)

@@ -159,18 +159,21 @@ class ExpressionParser:
         arguments = []
         if self.reader.peek() and self.reader.peek().token_type != TokenType.BRACKET:
             arguments.append(self.parse_expression())
-            while self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+            
+            while True:
                 saved_index = self.reader.current_token_index
-                self.reader.eat()
-
+                
+                if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+                    self.reader.eat()
+                else:
+                    break
+                
                 if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
                     self.reader.eat()
                     arguments.append(self.parse_expression())
                 else:
                     self.reader.current_token_index = saved_index
                     break
-                self.reader.eat()
-                arguments.append(self.parse_expression())
         return arguments
 
     def parse_member_function_call(self, object_name: str, func_name: str, line: int) -> FunctionCallNode:
