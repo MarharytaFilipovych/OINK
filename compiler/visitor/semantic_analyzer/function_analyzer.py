@@ -14,9 +14,9 @@ class FunctionAnalyzer:
         self.context = context
         self.semantic_analyzer = semantic_analyzer
 
-    def _register_function(self, node: FunctionDeclNode):
-        param_types = [self.semantic_analyzer._type_to_string(p.param_type) for p in node.params]
-        return_type = self.semantic_analyzer._type_to_string(node.return_type)
+    def register_function(self, node: FunctionDeclNode):
+        param_types = [self.semantic_analyzer.type_to_string(p.param_type) for p in node.params]
+        return_type = self.semantic_analyzer.type_to_string(node.return_type)
         self.context.define_function(GLOBAL, node.variable, param_types, return_type)
 
     def visit_function_declaration(self, node: FunctionDeclNode):
@@ -44,7 +44,7 @@ class FunctionAnalyzer:
         function_scope = self._identify_function_scope(node.object_name)
         
         if not self.context.is_function_defined(function_scope, node.value):
-            if self.semantic_analyzer._current_struct_context and function_scope != GLOBAL:
+            if self.semantic_analyzer.current_struct_context and function_scope != GLOBAL:
                 function_scope = GLOBAL
             
             if not self.context.is_function_defined(function_scope, node.value):
@@ -53,7 +53,7 @@ class FunctionAnalyzer:
         func_info = self.context.get_function_info(function_scope, node.value)
         self._validate_argument_count(node, func_info)
         self._validate_argument_types(node, func_info)
-        return self.semantic_analyzer._string_to_type(func_info.return_type)
+        return self.semantic_analyzer.string_to_type(func_info.return_type)
 
     @staticmethod
     def _validate_argument_count(node: FunctionCallNode, func_info):
@@ -64,15 +64,15 @@ class FunctionAnalyzer:
     def _validate_argument_types(self, node: FunctionCallNode, func_info):
         for i, (arg, expected_type_str) in enumerate(zip(node.arguments, func_info.param_types)):
             arg_type = arg.accept(self.semantic_analyzer)
-            expected_type = self.semantic_analyzer._string_to_type(expected_type_str)
-            if not self.semantic_analyzer._types_match(arg_type, expected_type):
+            expected_type = self.semantic_analyzer.string_to_type(expected_type_str)
+            if not self.semantic_analyzer.types_match(arg_type, expected_type):
                 raise ValueError(f"Argument {i + 1} to function \"{node.value}\" has type "
-                    f"\"{self.semantic_analyzer._type_to_string(arg_type)}\" but expected \"{expected_type_str}\" "
+                    f"\"{self.semantic_analyzer.type_to_string(arg_type)}\" but expected \"{expected_type_str}\" "
                     f"at line {node.line}!")
 
     def _identify_function_scope(self, object_name: Optional[str]) -> str:
         if not object_name:
-            return self.semantic_analyzer._current_struct_context if self.semantic_analyzer._current_struct_context else GLOBAL
+            return self.semantic_analyzer.current_struct_context if self.semantic_analyzer.current_struct_context else GLOBAL
 
         var_type = self.context.get_variable_type(object_name)
         return var_type if isinstance(var_type, str) else GLOBAL

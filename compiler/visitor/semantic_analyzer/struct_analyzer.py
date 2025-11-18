@@ -29,8 +29,8 @@ class StructAnalyzer:
                     f"in struct \"{struct_name}\" at line {member_function.line}! "
                     f"Don't you have enough imagination to create sth new???")
             member_func_names.add(member_function.variable)
-            param_types = [self.semantic_analyzer._type_to_string(p.param_type) for p in member_function.params]
-            return_type = self.semantic_analyzer._type_to_string(member_function.return_type)
+            param_types = [self.semantic_analyzer.type_to_string(p.param_type) for p in member_function.params]
+            return_type = self.semantic_analyzer.type_to_string(member_function.return_type)
             self.context.define_function(struct_name, member_function.variable,
                                          param_types, return_type)
 
@@ -74,12 +74,12 @@ class StructAnalyzer:
         for i, field in enumerate(struct_fields):
             expr_type = node.init_expressions[i].accept(self.semantic_analyzer)
             expected_type = field.field_type
-            if not self.semantic_analyzer._types_match(expr_type, expected_type):
+            if not self.semantic_analyzer.types_match(expr_type, expected_type):
                 raise ValueError(f"Type mismatch for field \"{field.name}\" in struct \"{node.value}\": "
                     f"expected \"{expected_type}\", but you typed \"{expr_type}\" at line {node.line}!")
 
     def visit_member_access(self, node: MemberAccessNode):
-        self.semantic_analyzer._check_variable_declared(node.value, node.line)
+        self.semantic_analyzer.check_variable_declared(node.value, node.line)
         base_type = self.context.get_variable_type(node.value)
         if not isinstance(base_type, str):
             raise ValueError(f"Cannot access member \"{node.member_name}\" on primitive type "
@@ -92,7 +92,7 @@ class StructAnalyzer:
 
     def _analyze_member_function(self, struct_name: str, node):
         self.context.enter_scope()
-        self.semantic_analyzer._current_struct_context = struct_name
+        self.semantic_analyzer.current_struct_context = struct_name
 
         struct_fields = self.context.get_struct_definition(struct_name)
         for field in struct_fields:
@@ -111,7 +111,7 @@ class StructAnalyzer:
 
         self.semantic_analyzer._expected_return_type = None
         self.semantic_analyzer._function_name = None
-        self.semantic_analyzer._current_struct_context = None
+        self.semantic_analyzer.current_struct_context = None
         self.context.exit_scope()
 
     def _declare_function_parameters(self, node):

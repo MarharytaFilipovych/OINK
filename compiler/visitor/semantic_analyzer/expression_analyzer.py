@@ -64,7 +64,8 @@ class ExpressionAnalyzer:
             return DataType.I32
         return DataType.I16
 
-    def visit_number(self, node: NumberNode) -> DataType:
+    @staticmethod
+    def visit_number(node: NumberNode) -> DataType:
         value = int(node.value)
         if I16_MIN <= value <= I16_MAX:
             return DataType.I16
@@ -72,7 +73,8 @@ class ExpressionAnalyzer:
             return DataType.I32
         return DataType.I64
 
-    def visit_boolean(self, node: BooleanNode) -> DataType:
+    @staticmethod
+    def visit_boolean(node: BooleanNode) -> DataType:
         return DataType.BOOL
 
     def visit_unary_operation(self, node: UnaryOpNode) -> DataType:

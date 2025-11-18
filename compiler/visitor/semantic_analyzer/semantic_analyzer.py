@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-from pickle import GLOBAL
 from typing import Optional
-from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT, UNDERLINE
 from ...node.print_node import PrintNode
 from ...visitor.ast_visitor import ASTVisitor
 from ...context.context import Context
@@ -36,7 +34,7 @@ class SemanticAnalyzer(ASTVisitor):
         self.context = Context()
         self._expected_return_type: Optional[DataType] = None
         self._function_name: Optional[str] = None
-        self._current_struct_context: Optional[str] = None
+        self.current_struct_context: Optional[str] = None
         
         self.struct_analyzer = StructAnalyzer(self.context, self)
         self.function_analyzer = FunctionAnalyzer(self.context, self)
@@ -72,9 +70,9 @@ class SemanticAnalyzer(ASTVisitor):
         returned_type = node.expr_node.accept(self) if node.expr_node else DataType.VOID 
             
         if self._expected_return_type is not None:
-            expected_str = self._type_to_string(self._expected_return_type)
-            returned_str = self._type_to_string(returned_type)
-            if not self._types_match(returned_type, self._expected_return_type):
+            expected_str = self.type_to_string(self._expected_return_type)
+            returned_str = self.type_to_string(returned_type)
+            if not self.types_match(returned_type, self._expected_return_type):
                 raise ValueError(f"Function \"{self._function_name}\" returns \"{returned_str}\" "
                     f"but declared as \"{expected_str}\"!")
         return returned_type
@@ -123,7 +121,7 @@ class SemanticAnalyzer(ASTVisitor):
         self.context.exit_scope()
 
     def _register_function(self, node: FunctionDeclNode):
-        self.function_analyzer._register_function(node)
+        self.function_analyzer.register_function(node)
 
     def visit_function_declaration(self, node: FunctionDeclNode):
         self.function_analyzer.visit_function_declaration(node)
@@ -132,8 +130,8 @@ class SemanticAnalyzer(ASTVisitor):
         return self.function_analyzer.visit_function_call(node)
 
     def visit_read(self, node: ReadNode):
-        self._check_variable_declared(node.variable, node.line)
-        self._check_variable_mutable(node.variable, node.line)
+        self.check_variable_declared(node.variable, node.line)
+        self.check_variable_mutable(node.variable, node.line)
 
         var_type = self.context.get_variable_type(node.variable)
         if not isinstance(var_type, DataType) or var_type == DataType.BOOL:
@@ -147,21 +145,21 @@ class SemanticAnalyzer(ASTVisitor):
                 f"Only primitive types can be printed.")
 
     # Utility methods used by sub-analyzers
-    def _check_variable_declared(self, var_name: str, line: int):
+    def check_variable_declared(self, var_name: str, line: int):
         if not self.context.is_variable_declared(var_name):
             raise ValueError(f"Variable \"{var_name}\" not declared at line {line}!")
 
-    def _check_variable_mutable(self, var_name: str, line: int):
+    def check_variable_mutable(self, var_name: str, line: int):
         if not self.context.is_variable_mutable(var_name):
             raise ValueError(f"Sorry, but you cannot assign something new to an immutable variable!!! "
                 f"Remove \"{var_name}\" from line {line}!")
 
-    def _check_type_match(self, expr_type, expected_type, line: int):
-        if not self._types_match(expr_type, expected_type):
+    def check_type_match(self, expr_type, expected_type, line: int):
+        if not self.types_match(expr_type, expected_type):
             raise ValueError(f"Types do not match at line {line}: "
                 f"you cannot assign \"{expr_type}\" to \"{expected_type}\"! Be careful!")
 
-    def _types_match(self, expr_type, expected_type) -> bool:
+    def types_match(self, expr_type, expected_type) -> bool:
         if isinstance(expected_type, DataType) and isinstance(expr_type, DataType):
             return self._is_type_compatible(expr_type, expected_type)
         if isinstance(expected_type, str) and isinstance(expr_type, str):
@@ -181,11 +179,11 @@ class SemanticAnalyzer(ASTVisitor):
         return False
 
     @staticmethod
-    def _type_to_string(type_obj) -> str:
+    def type_to_string(type_obj) -> str:
         return type_obj.keyword if isinstance(type_obj, DataType) else type_obj
 
     @staticmethod
-    def _string_to_type(type_str: str):
+    def string_to_type(type_str: str):
         try:
             return DataType.from_string(type_str)
         except ValueError:

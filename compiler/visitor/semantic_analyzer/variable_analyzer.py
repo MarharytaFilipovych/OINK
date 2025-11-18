@@ -27,7 +27,7 @@ class VariableAnalyzer:
 
         self.context.currently_initializing = node.variable
         expr_type = node.expr_node.accept(self.semantic_analyzer)
-        self.semantic_analyzer._check_type_match(expr_type, node.data_type, node.line)
+        self.semantic_analyzer.check_type_match(expr_type, node.data_type, node.line)
         self.context.currently_initializing = None
 
     def _validate_struct_type_exists(self, type_name: str, line: int):
@@ -44,7 +44,7 @@ class VariableAnalyzer:
     def __handle_struct_assignment(self, node: AssignNode):
         object_name, member_name = node.variable.split(UNDERLINE, 1)
 
-        self.semantic_analyzer._check_variable_declared(object_name, node.line)
+        self.semantic_analyzer.check_variable_declared(object_name, node.line)
 
         base_type = self.context.get_variable_type(object_name)
         self.__check_struct_type(base_type, member_name, node.line)
@@ -56,7 +56,7 @@ class VariableAnalyzer:
 
         data_type = field_info.field_type
         expr_type = node.expr_node.accept(self.semantic_analyzer)
-        self.semantic_analyzer._check_type_match(expr_type, data_type, node.line)
+        self.semantic_analyzer.check_type_match(expr_type, data_type, node.line)
 
     @staticmethod
     def __check_struct_type(base_type, member_name, line):
@@ -79,8 +79,8 @@ class VariableAnalyzer:
             raise ValueError(f"Cannot assign to immutable field \"{field_info.name}\" at line {line}!")
 
     def __handle_simple_assignment(self, node: AssignNode):
-        self.semantic_analyzer._check_variable_declared(node.variable, node.line)
-        self.semantic_analyzer._check_variable_mutable(node.variable, node.line)
+        self.semantic_analyzer.check_variable_declared(node.variable, node.line)
+        self.semantic_analyzer.check_variable_mutable(node.variable, node.line)
 
         if isinstance(node.expr_node, IDNode) and node.expr_node.value == node.variable:
             raise ValueError(f"Self-assignment like \"{node.variable} = {node.variable}\" "
@@ -88,11 +88,11 @@ class VariableAnalyzer:
 
         data_type = self.context.get_variable_type(node.variable)
         expr_type = node.expr_node.accept(self.semantic_analyzer)
-        self.semantic_analyzer._check_type_match(expr_type, data_type, node.line)
+        self.semantic_analyzer.check_type_match(expr_type, data_type, node.line)
 
     def visit_id(self, node: IDNode):
         if self.context.currently_initializing == node.value:
             raise ValueError(f"Self-assignment like \"{node.value} = {node.value}\" "
                 f"is not allowed at line {node.line}!")
-        self.semantic_analyzer._check_variable_declared(node.value, node.line)
+        self.semantic_analyzer.check_variable_declared(node.value, node.line)
         return self.context.get_variable_type(node.value)
