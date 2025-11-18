@@ -10,3 +10,5 @@ AI links:
 * https://claude.ai/share/3b8f1f99-4279-4ac8-8e71-4e7290b39d84
 * https://claude.ai/share/11a957ec-f4c9-4c26-a605-fba2bbfa057f
 * https://chatgpt.com/share/691a29df-4bc0-8011-bd81-f69ed09fa834
+* https://claude.ai/share/f6168baf-9a54-46b3-8c23-77954b36ec8b
+* https://claude.ai/share/d13d5be5-30f4-4cd1-8866-2883a64047ad
