@@ -2,9 +2,9 @@ AI links:
 * https://claude.ai/share/35627d24-6e04-42aa-9926-3e916067a8be
 * https://claude.ai/share/edbbcdc9-2b88-4302-8ff6-85bec50075cf
 * https://chatgpt.com/share/6918c1d8-61bc-8011-81ad-31c36fa44281
+* https://claude.ai/share/f9ceeee6-c096-4bd9-bba0-25e5ee0313e1
 * https://claude.ai/share/6321b9d8-0350-45e6-acb1-2da80588f38b
-* https://www.notion.so/GEMINI-CHAT-2ac6dd39bc3a80e2af3cdbb87063982b?source=copy_link
-* https://www.notion.so/SOME-GEMINI-CHATS-2ad6dd39bc3a80ab8358f27b275365b8?source=copy_link
+* https://www.notion.so/GEMINI-CHATS-2ad6dd39bc3a80ab8358f27b275365b8?source=copy_link
 * https://claude.ai/share/bc56724e-0689-4def-a839-9008bd6e88b9
 * https://claude.ai/share/a1cbfc29-0e5f-43e6-b859-f0b3f3278ddc
 * https://claude.ai/share/3b8f1f99-4279-4ac8-8e71-4e7290b39d84
@@ -12,3 +12,6 @@ AI links:
 * https://chatgpt.com/share/691a29df-4bc0-8011-bd81-f69ed09fa834
 * https://claude.ai/share/f6168baf-9a54-46b3-8c23-77954b36ec8b
 * https://claude.ai/share/d13d5be5-30f4-4cd1-8866-2883a64047ad
+
+NOTE: I am not sure about the correct order of the links I placed here (maybe they are a little bit mixed up).
+Different Gemini chats are copied and gathered all together in the notion, because I used the version of the Gemini where, unfortunately, you are not allowed to provide links to chats (that is why i copied everything and tried to organized in a meaningful way).

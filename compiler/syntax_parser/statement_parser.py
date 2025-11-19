@@ -14,7 +14,6 @@ from ..node.if_node import IfNode
 from ..node.elif_node import ElifNode
 from ..node.while_node import WhileNode
 from ..node.code_block_node import CodeBlockNode
-from ..token.token_class import Token
 from ..token.token_type import TokenType
 from .token_reader import TokenReader
 from .type_parser import TypeParser

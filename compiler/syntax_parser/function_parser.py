@@ -2,7 +2,6 @@
 
 from ..llvm_specifics.data_type import DataType
 from ..node.function_decl_node import FunctionDeclNode, FunctionParam
-from ..node.code_block_node import CodeBlockNode
 from ..token.token_type import TokenType
 from .token_reader import TokenReader
 from .type_parser import TypeParser

@@ -459,6 +459,10 @@ All function arguments are type-checked at compile time.
 ### Member access validation
 Structure member access is validated to ensure fields and methods exist.
 
+### Self-assignment
+Self-assignment is explicitly forbidden in the OINK programming language. 
+An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause a compilation error.
+
 ---
 
 ## 🎨 Style Guide
