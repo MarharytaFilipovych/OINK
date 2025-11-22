@@ -144,7 +144,6 @@ class SemanticAnalyzer(ASTVisitor):
             raise ValueError(f"Cannot print struct type at line {node.line}! "
                 f"Only primitive types can be printed.")
 
-    # Utility methods used by sub-analyzers
     def check_variable_declared(self, var_name: str, line: int):
         if not self.context.is_variable_declared(var_name):
             raise ValueError(f"Variable \"{var_name}\" not declared at line {line}!")
@@ -190,7 +189,6 @@ class SemanticAnalyzer(ASTVisitor):
             return type_str
 
     def visit_lambda(self, node):
-        """Semantic analysis for lambda"""
         for param in node.params:
             if isinstance(param.param_type, str):
                 if not self.context.is_struct_defined(param.param_type):
@@ -206,4 +204,4 @@ class SemanticAnalyzer(ASTVisitor):
         
         self.context.exit_scope()
         
-        return f"lambda_{id(node)}"
+        return body_type

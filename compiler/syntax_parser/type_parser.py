@@ -6,7 +6,7 @@ from ..node.factor_node import FactorNode
 from ..node.number_node import NumberNode
 from ..node.bool_node import BooleanNode
 from ..token.token_type import TokenType
-from ..constants import  FALSE
+from ..constants import FALSE
 
 
 class TypeParser:
@@ -49,7 +49,9 @@ class TypeParser:
         raise ValueError(f"Expected type declaration at line {token.line}!")
 
     @staticmethod
-    def get_default_for_type(data_type: DataType) -> FactorNode:
+    def get_default_for_type(data_type: Union[DataType, str]) -> FactorNode:
+        if isinstance(data_type, str):
+            raise ValueError(f"Cannot provide default value for type {data_type}")
         if data_type == DataType.BOOL:
             return BooleanNode(FALSE)
         elif data_type in [DataType.I16, DataType.I32, DataType.I64]:

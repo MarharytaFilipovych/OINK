@@ -245,19 +245,22 @@ class CodeGenerator(ASTVisitor):
     def visit_id(self, node):
         if self.variable_registry.is_field_access_from_this(node.value):
             return self.func_gen.load_field_from_this(node.value)
-        else:
-            reg = self.variable_registry.get_current_register(node.value)
-            var_type = self.variable_registry.get_variable_type(node.value)
-            if var_type == "lambda":
-                if hasattr(self.variable_registry, 'lambda_functions'):
-                    return self.variable_registry.lambda_functions.get(node.value, f"@{node.value}")
+        
+        var_type = self.variable_registry.get_variable_type(node.value)
+        
+        if var_type == "lambda":
+            if hasattr(self.variable_registry, 'lambda_functions'):
+                return self.variable_registry.lambda_functions.get(node.value, f"@{node.value}")
             return f"@{node.value}"
-            if isinstance(var_type, DataType):
-                llvm_type = var_type.to_llvm()
-                temp_reg = self.emitter.get_temp_register()
-                self.emitter.emit_line(f"  {temp_reg} = load {llvm_type}, {llvm_type}* {reg}")
-                return temp_reg
-            return reg
+        
+        if isinstance(var_type, DataType):
+            reg = self.variable_registry.get_current_register(node.value)
+            llvm_type = var_type.to_llvm()
+            temp_reg = self.emitter.get_temp_register()
+            self.emitter.emit_line(f"  {temp_reg} = load {llvm_type}, {llvm_type}* {reg}")
+            return temp_reg
+        
+        return self.variable_registry.get_current_register(node.value)
 
     def visit_number(self, node):
         return node.value
@@ -416,52 +419,11 @@ class CodeGenerator(ASTVisitor):
             print_func_name = f"@printValue_{llvm_type}"
         self.emitter.emit_line(f"  call void {print_func_name}({llvm_type} {value})")
 
-    @staticmethod
-    def _get_scanf_format(data_type: DataType) -> str:
-        formats = {
-            DataType.I16: "%hd\\00",
-            DataType.I32: "%d\\00",
-            DataType.I64: "%lld\\00"
-        }
-        return formats.get(data_type, "%d\\00")
-
-    @staticmethod
-    def _get_printf_format(data_type: DataType) -> str:
-        formats = {
-            DataType.I16: "%d\\n\\00",
-            DataType.I32: "%d\\n\\00",
-            DataType.I64: "%lld\\n\\00",
-            DataType.BOOL: "%d\\n\\00"
-        }
-        return formats.get(data_type, "%d\\n\\00")
-
-    def _prepare_print_value(self, value: str, expr_type: DataType) -> str:
-        if expr_type in (DataType.I32, DataType.I64):
-            return value
-        
-        cast_reg = self.emitter.get_temp_register()
-        if expr_type == DataType.BOOL:
-            self.emitter.emit_line(f"  {cast_reg} = zext i1 {value} to i32")
-        elif expr_type == DataType.I16:
-            self.emitter.emit_line(f"  {cast_reg} = sext i16 {value} to i32")
-        
-        return cast_reg
-
     def visit_lambda(self, node):
         if node.lambda_id is None:
             node.lambda_id = self.emitter.get_next_label_id()
 
         lambda_name = f"lambda_{node.lambda_id}"
-
-        body_type = self.type_converter.get_node_type(node.body)
-        return_llvm_type = self._get_llvm_type_string(body_type)
-
-        param_strs = []
-        for param in node.params:
-            llvm_type = self.type_converter.get_llvm_type(param.param_type) \
-                if isinstance(param.param_type, str) \
-                else param.param_type.to_llvm()
-            param_strs.append(f"{llvm_type} %{param.name}")
 
         saved_state = {
             "emitter": self.emitter.copy_state(),
@@ -473,6 +435,18 @@ class CodeGenerator(ASTVisitor):
 
         for param in node.params:
             self.variable_registry.set_variable_type(param.name, param.param_type)
+
+        body_type = self.type_converter.get_node_type(node.body)
+        return_llvm_type = self._get_llvm_type_string(body_type)
+
+        param_strs = []
+        for param in node.params:
+            llvm_type = self.type_converter.get_llvm_type(param.param_type) \
+                if isinstance(param.param_type, str) \
+                else param.param_type.to_llvm()
+            param_strs.append(f"{llvm_type} %{param.name}")
+
+        for param in node.params:
             self.variable_registry.max_versions[param.name] = 0
             self.variable_registry.variable_versions[param.name] = 0
             param_reg = self.variable_registry.get_variable_register(param.name)

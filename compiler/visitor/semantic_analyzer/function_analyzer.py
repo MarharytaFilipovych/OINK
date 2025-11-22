@@ -41,6 +41,11 @@ class FunctionAnalyzer:
                 raise ValueError(f"Duplicate parameter \"{param.name}\" in function \"{node.variable}\"!")
 
     def visit_function_call(self, node: FunctionCallNode):
+        if self.context.is_variable_declared(node.value):
+            var_type = self.context.get_variable_type(node.value)
+            if var_type == "lambda":
+                return self._validate_lambda_call(node)
+        
         function_scope = self._identify_function_scope(node.object_name)
         
         if not self.context.is_function_defined(function_scope, node.value):
@@ -54,6 +59,11 @@ class FunctionAnalyzer:
         self._validate_argument_count(node, func_info)
         self._validate_argument_types(node, func_info)
         return self.semantic_analyzer.string_to_type(func_info.return_type)
+
+    def _validate_lambda_call(self, node: FunctionCallNode):
+        for arg in node.arguments:
+            arg.accept(self.semantic_analyzer)
+        return DataType.I32
 
     @staticmethod
     def _validate_argument_count(node: FunctionCallNode, func_info):

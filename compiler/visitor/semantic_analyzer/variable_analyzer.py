@@ -15,7 +15,7 @@ class VariableAnalyzer:
         self.semantic_analyzer = semantic_analyzer
 
     def visit_declaration(self, node: DeclNode):
-        if isinstance(node.data_type, str):
+        if isinstance(node.data_type, str) and node.data_type != "lambda":
             self._validate_struct_type_exists(node.data_type, node.line)
 
         if self.context.is_variable_declared(node.variable):
@@ -27,7 +27,10 @@ class VariableAnalyzer:
 
         self.context.currently_initializing = node.variable
         expr_type = node.expr_node.accept(self.semantic_analyzer)
-        self.semantic_analyzer.check_type_match(expr_type, node.data_type, node.line)
+        
+        if node.data_type != "lambda":
+            self.semantic_analyzer.check_type_match(expr_type, node.data_type, node.line)
+        
         self.context.currently_initializing = None
 
     def _validate_struct_type_exists(self, type_name: str, line: int):
