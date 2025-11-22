@@ -196,6 +196,68 @@ def assert_read_statement(self, lexemes):
     self.assertEqual(read_token[0].value, "eat😋")
     self.assertEqual(var_token[0].value, "input&var")
 
+def assert_lambda_type_declaration(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 1)
+    self.assertEqual(lambda_tokens[0].value, "🥩")
+
+def assert_simple_lambda_expression(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
+    self.assertTrue(len(bracket_tokens) >= 2)
+
+def assert_lambda_with_multiple_params(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    var_tokens = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
+    self.assertTrue(len(var_tokens) >= 2)
+
+def assert_lambda_with_no_params(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
+    self.assertTrue(len(bracket_tokens) >= 2)
+
+def assert_lambda_with_operators(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    operator_tokens = [t for t in lexemes if t.token_type in [
+        TokenType.PLUS, TokenType.MULTIPLY
+    ]]
+    self.assertTrue(len(operator_tokens) >= 1)
+
+def assert_lambda_with_comparison(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    comparison_tokens = [t for t in lexemes if t.token_type == TokenType.GREATER]
+    self.assertEqual(len(comparison_tokens), 1)
+
+def assert_lambda_with_logical_operators(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    and_tokens = [t for t in lexemes if t.token_type == TokenType.AND]
+    self.assertTrue(len(and_tokens) >= 1)
+
+def assert_lambda_with_unary_operator(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    not_tokens = [t for t in lexemes if t.token_type == TokenType.NOT]
+    self.assertEqual(len(not_tokens), 1)
+
+def assert_nested_lambda_boundaries(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
+    self.assertTrue(len(bracket_tokens) >= 4)
+
+def assert_lambda_with_different_types(self, lexemes):
+    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
+    self.assertEqual(len(lambda_tokens), 4)
+    i16_tokens = [t for t in lexemes if t.token_type == TokenType.I16_TYPE]
+    i32_tokens = [t for t in lexemes if t.token_type == TokenType.I32_TYPE]
+    self.assertTrue(len(i16_tokens) + len(i32_tokens) >= 2)
+
 
 all_tests = [
     ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 42 #\n", assert_simple_declaration),
@@ -222,7 +284,17 @@ all_tests = [
     ("member_access_operator", "# 🐖p🐖 _ 🐖x🐖 #\n", assert_member_access_operator),
     ("struct_declaration_complete", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n", assert_struct_declaration_complete),
     ( "print_statement", "# print🤮 🐖input&var🐖 #", assert_print_statement),
-    ( "read_statement","# 😀 🐷 🐖input&var🐖 #\n# eat😋 🐖input&var🐖 #",assert_read_statement)
+    ( "read_statement","# 😀 🐷 🐖input&var🐖 #\n# eat😋 🐖input&var🐖 #",assert_read_statement),
+    ("lambda_type_keyword", "# 😀 🥩 🐖f🐖 #\n", assert_lambda_type_declaration),
+    ("simple_lambda_one_param", "# 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #\n", assert_simple_lambda_expression),
+    ("lambda_multiple_params", "# 😀 🥩 🐖add🐖 @ 🥩 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #\n", assert_lambda_with_multiple_params),
+    ("lambda_no_params", "# 😀 🥩 🐖const🐖 @ 🥩 ** ** 🥩 42 🥩 #\n", assert_lambda_with_no_params),
+    ("lambda_with_arithmetic", "# 😀 🥩 🐖calc🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 2 ❤️ 1 🥩 #\n", assert_lambda_with_operators),
+    ("lambda_with_comparison", "# 😀 🥩 🐖check🐖 @ 🥩 ** 🐷 🐖n🐖 ** 🥩 🐖n🐖 > 0 🥩 #\n", assert_lambda_with_comparison),
+    ("lambda_with_logical_and", "# 😀 🥩 🐖validate🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 > 0 hru 🐖x🐖 < 100 🥩 #\n", assert_lambda_with_logical_operators),
+    ("lambda_with_not_operator", "# 😀 🥩 🐖negate🐖 @ 🥩 ** wow 🐖b🐖 ** 🥩 💩 🐖b🐖 🥩 #\n", assert_lambda_with_unary_operator),
+    ("lambda_with_nested_expression", "# 😀 🥩 🐖complex🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 ** 🐖x🐖 💞 2 ** ❤️ 1 🥩 #\n", assert_nested_lambda_boundaries),
+    ("lambda_with_mixed_types", "# 😀 🥩 🐖mix🐖 @ 🥩 ** 🐽 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #\n", assert_lambda_with_different_types),
 ]
 
 for name, source, func in all_tests:
@@ -231,4 +303,3 @@ for name, source, func in all_tests:
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-

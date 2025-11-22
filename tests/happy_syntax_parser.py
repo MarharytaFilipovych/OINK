@@ -19,6 +19,9 @@ from compiler.node.function_decl_node import FunctionDeclNode
 from compiler.llvm_specifics.data_type import DataType
 from compiler.node.print_node import PrintNode
 from compiler.node.read_node import ReadNode
+from compiler.node.lambda_node import LambdaNode
+from compiler.node.unary_op_node import UnaryOpNode
+from compiler.node.number_node import NumberNode
 
 def parse_code(source: str) -> ProgramNode:
     lexer = Lexer(source)
@@ -169,6 +172,72 @@ def assert_chained_function_calls(self, ast):
     self.assertIsInstance(func_call.arguments[0], FunctionCallNode)
     self.assertEqual(func_call.arguments[0].value, "getValue")
 
+def assert_simple_lambda_structure(self, ast):
+    decl = ast.statement_nodes[0]
+    self.assertIsInstance(decl, DeclNode)
+    lambda_node = decl.expr_node
+    self.assertIsInstance(lambda_node, LambdaNode)
+    self.assertEqual(len(lambda_node.params), 1)
+    self.assertEqual(lambda_node.params[0].name, "x")
+    self.assertEqual(lambda_node.params[0].param_type, DataType.I32)
+
+def assert_lambda_with_multiple_params(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertIsInstance(lambda_node, LambdaNode)
+    self.assertEqual(len(lambda_node.params), 2)
+    self.assertEqual(lambda_node.params[0].name, "a")
+    self.assertEqual(lambda_node.params[1].name, "b")
+
+def assert_lambda_with_no_params(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertIsInstance(lambda_node, LambdaNode)
+    self.assertEqual(len(lambda_node.params), 0)
+
+def assert_lambda_body_is_binary_op(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertIsInstance(lambda_node.body, BinaryOpNode)
+
+def assert_lambda_body_is_comparison(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertIsInstance(lambda_node.body, BinaryOpNode)
+    self.assertTrue(lambda_node.body.operator.is_for_comparison())
+
+def assert_lambda_body_is_unary(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertIsInstance(lambda_node.body, UnaryOpNode)
+
+def assert_lambda_body_is_number(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertIsInstance(lambda_node.body, NumberNode)
+
+def assert_lambda_with_i16_param(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertEqual(lambda_node.params[0].param_type, DataType.I16)
+
+def assert_lambda_with_bool_param(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertEqual(lambda_node.params[0].param_type, DataType.BOOL)
+
+def assert_lambda_with_mixed_types(self, ast):
+    decl = ast.statement_nodes[0]
+    lambda_node = decl.expr_node
+    self.assertEqual(len(lambda_node.params), 2)
+    self.assertEqual(lambda_node.params[0].param_type, DataType.I16)
+    self.assertEqual(lambda_node.params[1].param_type, DataType.I32)
+
+def assert_lambda_call_in_return(self, ast):
+    decl = ast.statement_nodes[0]
+    self.assertIsInstance(decl, DeclNode)
+    self.assertEqual(decl.data_type, "lambda")
+
 all_tests = [
     ("simple_declaration_with_initialization", "# 😀 🐷 🐖x🐖 @ 42 #\n# ... 🐖x🐖 ... #", assert_simple_decl_with_init),
     ("immutable_declaration", "# 😭 🐷 🐖constant🐖 @ 100 #\n# ... 🐖constant🐖 ... #", assert_immutable_decl),
@@ -186,6 +255,17 @@ all_tests = [
     ("function_with_struct_param", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n# 🐷 PIG 🐖process🐖 ** 🐖Point🐖 🐖p🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖p🐖 _ 🐖x🐖 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_with_struct_param),
     ("struct_member_function_call", "# BOAR 🐖Counter🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖val🐖 #\n# 🐷 PIGLET 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 🐖val🐖 ... #\n# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n# 😀 🐖Counter🐖 🐖c🐖 @ 🐖Counter🐖 ** 5 ** #\n# 😀 🐷 🐖result🐖 @ 🐖c🐖 _ 🐖getValue🐖 ** ** #\n# ... 🐖result🐖 ... #", assert_struct_member_function_call),
     ("chained_function_calls", "# 🐷 PIG 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 10 ... #\n# 🐖🐖🐖 #\n# 🐷 PIG 🐖double🐖 ** 🐷 🐖x🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 💞 2 ... #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖result🐖 @ 🐖getValue🐖 ** ** _ 🐖double🐖 ** ** # \n# ... 🐖result🐖 ... #", assert_chained_function_calls),
+    ("simple_lambda_one_param", "# 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #\n# ... 0 ... #", assert_simple_lambda_structure),
+    ("lambda_two_params", "# 😀 🥩 🐖add🐖 @ 🥩 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #\n# ... 0 ... #", assert_lambda_with_multiple_params),
+    ("lambda_no_params", "# 😀 🥩 🐖const🐖 @ 🥩 ** ** 🥩 42 🥩 #\n# ... 0 ... #", assert_lambda_with_no_params),
+    ("lambda_with_arithmetic_body", "# 😀 🥩 🐖calc🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 2 ❤️ 1 🥩 #\n# ... 0 ... #", assert_lambda_body_is_binary_op),
+    ("lambda_with_comparison_body", "# 😀 🥩 🐖check🐖 @ 🥩 ** 🐷 🐖n🐖 ** 🥩 🐖n🐖 > 0 🥩 #\n# ... 0 ... #", assert_lambda_body_is_comparison),
+    ("lambda_with_not_body", "# 😀 🥩 🐖negate🐖 @ 🥩 ** wow 🐖b🐖 ** 🥩 💩 🐖b🐖 🥩 #\n# ... 0 ... #", assert_lambda_body_is_unary),
+    ("lambda_constant_body", "# 😀 🥩 🐖getConst🐖 @ 🥩 ** ** 🥩 100 🥩 #\n# ... 0 ... #", assert_lambda_body_is_number),
+    ("lambda_with_i16_type", "# 😀 🥩 🐖small🐖 @ 🥩 ** 🐽 🐖n🐖 ** 🥩 🐖n🐖 ❤️ 1 🥩 #\n# ... 0 ... #", assert_lambda_with_i16_param),
+    ("lambda_with_bool_type", "# 😀 🥩 🐖toggle🐖 @ 🥩 ** wow 🐖flag🐖 ** 🥩 💩 🐖flag🐖 🥩 #\n# ... 0 ... #", assert_lambda_with_bool_param),
+    ("lambda_with_mixed_param_types", "# 😀 🥩 🐖combine🐖 @ 🥩 ** 🐽 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #\n# ... 0 ... #", assert_lambda_with_mixed_types),
+    ("lambda_called_in_return", "# 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #\n# ... 🐖square🐖 ** 5 ** ... #", assert_lambda_call_in_return),
 ]
 
 for name, source, func in all_tests:

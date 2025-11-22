@@ -31,6 +31,14 @@ class TestLexerFailingCases(ExceptionCheckingTestCase):
          ("invalid_variable_start_symbol", "# 😀 🐷 🐖1x🐖 @ 10 #"),
         ("variable_with_dash", "# 😀 🐷 🐖my-var🐖 @ 10 #"),
         ("unknown_operator", "# 😀 🐷 🐖x🐖 @ 10 ✨ 5 #"),
+        ("lambda_with_invalid_emoji_mix", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🎉 #\n"),
+        ("lambda_with_special_char_in_body", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 $ 1 🥩 #\n"),
+        ("lambda_with_invalid_operator", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 + 1 🥩 #\n"),
+        ("lambda_with_decimal_number", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 1.5 🥩 #\n"),
+        ("lambda_with_invalid_param_name", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖123x🐖 ** 🥩 🐖x🐖 🥩 #\n"),
+        ("lambda_with_dash_in_var", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖my-var🐖 ** 🥩 🐖my-var🐖 🥩 #\n"),
+        ("lambda_with_invalid_bracket", "# 😀 🥩 🐖f🐖 @ 🥩 ( 🐷 🐖x🐖 ) 🥩 🐖x🐖 🥩 #\n"),
+        ("lambda_body_with_unknown_emoji", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🌟 1 🥩 #\n"),
 
     ]
 

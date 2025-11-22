@@ -133,6 +133,21 @@ class SyntaxParserSadTest(ExceptionCheckingTestCase):
     ("reassign_constant", "# 😭 🐷 🐖c🐖 @ 5 #\n# 🐖c🐖 @ 10 #"),  
     ("struct_member_access_invalid", "# 😀 🐷 🐖res🐖 @ 🐖p🐖 _ 🐖nonExistent🐖 #"),  
     ("mismatched_function_param_types", "# 🐷 PIG 🐖add🐖 ** 🐽 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖a🐖 ❤️ 🐖b🐖 ... #\n# 🐖🐖🐖 #"),
+    ("lambda_missing_meat_start", "# 😀 🥩 🐖f🐖 @ ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
+    ("lambda_missing_meat_middle", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🐖x🐖 🥩 #\n# ... 0 ... #"),
+    ("lambda_missing_meat_end", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 #\n# ... 0 ... #"),
+    ("lambda_missing_param_type", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐖x🐖 ** 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
+    ("lambda_missing_param_name", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 ** 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
+    ("lambda_missing_param_brackets", "# 😀 🥩 🐖f🐖 @ 🥩 🐷 🐖x🐖 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
+    ("lambda_with_statement_in_body", "# 😀 🥩 🐖f🐖 @ 🥩 ** ** 🥩 # SAVE 1 # 🥩 #\n# ... 0 ... #"),
+    ("lambda_without_body", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🥩 #\n# ... 0 ... #"),
+    ("lambda_param_missing_border", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 x ** 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
+    ("lambda_type_as_param", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🥩 🐖g🐖 ** 🥩 1 🥩 #\n# ... 1 ... #"),
+    ("lambda_uninitialized_declaration", "# 😀 🥩 🐖f🐖 #\n# ... 1 ... #"),
+    ("lambda_missing_variable_border", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 x 🥩 #\n# ... 0 ... #"),
+    ("lambda_extra_meat_emoji", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🥩 🥩 #\n# ... 0 ... #"),
+    ("lambda_wrong_bracket_type", "# 😀 🥩 🐖f🐖 @ 🥩 ( 🐷 🐖x🐖 ) 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
+    ("lambda_with_unclosed_param_bracket", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
     ]
 
     def test_all_failing_cases(self):
