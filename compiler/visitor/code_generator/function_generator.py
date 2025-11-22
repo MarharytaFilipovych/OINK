@@ -46,6 +46,28 @@ class FunctionGenerator:
         self._finalize_function()
 
     def generate_regular_function_call(self, node, visitor) -> str:
+        if hasattr(self.variable_registry, 'lambda_functions') and \
+           node.value in self.variable_registry.lambda_functions:
+            lambda_func_name = self.variable_registry.lambda_functions[node.value].strip('@')
+            
+            return_type = self.type_converter.get_node_type(node)
+            return_llvm_type = self._get_llvm_type(return_type)
+            
+            args = []
+            for arg in node.arguments:
+                arg_value = arg.accept(visitor)
+                arg_type = self.type_converter.get_node_type(arg)
+                arg_llvm_type = self._get_llvm_type(arg_type)
+                args.append(f"{arg_llvm_type} {arg_value}")
+            
+            if return_type == DataType.VOID:
+                self.emitter.emit_line(f"  call {return_llvm_type} @{lambda_func_name}({', '.join(args)})")
+                return ""
+            else:
+                result_reg = self.emitter.get_temp_register()
+                self.emitter.emit_line(f"  {result_reg} = call {return_llvm_type} @{lambda_func_name}({', '.join(args)})")
+                return result_reg
+        
         if self.current_struct_context and self._is_member_function(node.value):
             return self._generate_member_to_member_call(node, visitor)
         
