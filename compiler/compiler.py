@@ -6,6 +6,7 @@ import argparse
 from .visitor.code_generator.code_generator import CodeGenerator
 from .visitor.semantic_analyzer.semantic_analyzer import SemanticAnalyzer
 from .syntax_parser.syntax_parser import SyntaxParser
+from .optimizer.optimizer import Optimizer
 
 
 class Compiler:
@@ -51,23 +52,33 @@ class Compiler:
         ast.accept(semantic_analyzer)
 
     @staticmethod
+    def __optimize(ast):
+        optimizer = Optimizer()
+        return optimizer.optimize(ast)
+
+    @staticmethod
     def __generate_code(ast) -> str:
         code_generator = CodeGenerator()
         return ast.accept(code_generator)
 
-    def __compile(self) -> str:
+    def __compile(self) -> tuple[str, dict]:
         source_code = self.__read_source_file(self.input_file)
         tokens = self.__get_tokens(source_code)
         ast = self.__get_ast(tokens)
         self.__analyze_semantics(ast)
+        opt_stats = self.__optimize(ast)
         llvm_ir = self.__generate_code(ast)
-        return llvm_ir
+        return llvm_ir, opt_stats
 
     def run_program(self):
         try:
-            translated_code = self.__compile()
+            translated_code, stats = self.__compile()
             self.__write_output_file(self.output_file, translated_code)
             print(f"Successfully compiled \"{self.input_file}\" to \"{self.output_file}\"")
+            print(f"Optimization stats:")
+            print(f"  - Variables removed: {stats['variables_removed']}")
+            print(f"  - Functions inlined: {stats['functions_inlined']}")
+            print(f"  - Functions removed: {stats['functions_removed']}")
             sys.exit(0)
 
         except ValueError as e:
