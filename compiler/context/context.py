@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import Optional
+from typing import Optional, Union
 from .function_table import FunctionTable
 from ..context.function_info import FunctionInfo
 from ..llvm_specifics.data_type import DataType
@@ -14,6 +14,7 @@ class Context:
         self.struct_definitions: dict[str, list[StructField]] = {}
         self.functions: FunctionTable = FunctionTable()
         self.lambda_return_types: dict[str, DataType] = {}
+        self.lambda_signatures: dict[str, list[Union[DataType, str]]] = {}
 
     def enter_scope(self):
         self.scopes.append({})
@@ -72,3 +73,9 @@ class Context:
 
     def get_lambda_return_type(self, name: str) -> Optional[DataType]:
         return self.lambda_return_types.get(name)
+
+    def set_lambda_signature(self, name: str, param_types: list[Union[DataType, str]]):
+        self.lambda_signatures[name] = param_types
+
+    def get_lambda_signature(self, name: str) -> Optional[list[Union[DataType, str]]]:
+        return self.lambda_signatures.get(name)

@@ -61,8 +61,25 @@ class FunctionAnalyzer:
         return self.semantic_analyzer.string_to_type(func_info.return_type)
 
     def _validate_lambda_call(self, node: FunctionCallNode):
-        for arg in node.arguments:
-            arg.accept(self.semantic_analyzer)
+        signature = self.context.get_lambda_signature(node.value)
+        
+        if signature is not None:
+            if len(node.arguments) != len(signature):
+                raise ValueError(f"Lambda \"{node.value}\" expects {len(signature)} arguments "
+                                 f"but got {len(node.arguments)} at line {node.line}!")
+
+            for i, (arg, expected_type) in enumerate(zip(node.arguments, signature)):
+                arg_type = arg.accept(self.semantic_analyzer)
+                if not self.semantic_analyzer.types_match(arg_type, expected_type):
+                     raise ValueError(f"Argument {i + 1} to lambda \"{node.value}\" has type "
+                                     f"\"{self.semantic_analyzer.type_to_string(arg_type)}\" "
+                                     f"but expected \"{self.semantic_analyzer.type_to_string(expected_type)}\" "
+                                     f"at line {node.line}!")
+        else:
+            # Fallback if signature is missing
+            for arg in node.arguments:
+                arg.accept(self.semantic_analyzer)
+                
         return self.context.get_lambda_return_type(node.value) or DataType.I32
 
     @staticmethod

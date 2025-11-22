@@ -34,13 +34,17 @@ class VariableAnalyzer:
                  raise ValueError(f"Cannot assign type \"{expr_type}\" to a lambda variable at line {node.line}! Use a lambda expression.")
             
             return_type = DataType.I32 # Default
+            param_types = []
             
             if isinstance(node.expr_node, LambdaNode):
                 return_type = node.expr_node.inferred_return_type 
+                param_types = [p.param_type for p in node.expr_node.params]
             elif isinstance(node.expr_node, IDNode):
                 return_type = self.context.get_lambda_return_type(node.expr_node.value)
+                param_types = self.context.get_lambda_signature(node.expr_node.value) or []
                 
             self.context.set_lambda_return_type(node.variable, return_type)
+            self.context.set_lambda_signature(node.variable, param_types)
         else:
             self.semantic_analyzer.check_type_match(expr_type, node.data_type, node.line)
         
@@ -110,9 +114,14 @@ class VariableAnalyzer:
                  raise ValueError(f"Cannot assign type \"{expr_type}\" to a lambda variable at line {node.line}!")
              if isinstance(node.expr_node, LambdaNode):
                 self.context.set_lambda_return_type(node.variable, node.expr_node.inferred_return_type)
+                param_types = [p.param_type for p in node.expr_node.params]
+                self.context.set_lambda_signature(node.variable, param_types)
              elif isinstance(node.expr_node, IDNode):
                 ret_type = self.context.get_lambda_return_type(node.expr_node.value)
                 self.context.set_lambda_return_type(node.variable, ret_type)
+                sig = self.context.get_lambda_signature(node.expr_node.value)
+                if sig:
+                    self.context.set_lambda_signature(node.variable, sig)
         else:
             self.semantic_analyzer.check_type_match(expr_type, data_type, node.line)
 

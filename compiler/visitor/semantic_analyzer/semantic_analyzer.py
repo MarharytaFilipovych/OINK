@@ -174,8 +174,6 @@ class SemanticAnalyzer(ASTVisitor):
             return True
         if source_type == DataType.I32 and target_type == DataType.I64:
             return True
-        if source_type == DataType.BOOL and target_type in (DataType.I16, DataType.I32, DataType.I64):
-            return True
         return False
 
     @staticmethod
