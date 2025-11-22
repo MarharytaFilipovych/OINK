@@ -68,8 +68,18 @@ class CodeGenerator(ASTVisitor):
                 if node.object_name else self.func_gen.generate_regular_function_call(node, self))
 
     def visit_declaration(self, node):
-        self._declare_struct_variable(node) if isinstance(node.data_type, str)\
-            else self._declare_primitive_variable(node)
+        if node.data_type == "lambda":
+            lambda_func_ref = node.expr_node.accept(self) 
+            self.variable_registry.set_variable_type(node.variable, "lambda")
+            if not hasattr(self.variable_registry, 'lambda_functions'):
+                self.variable_registry.lambda_functions = {}
+            self.variable_registry.lambda_functions[node.variable] = lambda_func_ref
+            return
+        
+        if isinstance(node.data_type, str):
+            self._declare_struct_variable(node)
+        else:
+            self._declare_primitive_variable(node)
 
     def _declare_struct_variable(self, node):
         struct_value = node.expr_node.accept(self)
@@ -238,6 +248,10 @@ class CodeGenerator(ASTVisitor):
         else:
             reg = self.variable_registry.get_current_register(node.value)
             var_type = self.variable_registry.get_variable_type(node.value)
+            if var_type == "lambda":
+                if hasattr(self.variable_registry, 'lambda_functions'):
+                    return self.variable_registry.lambda_functions.get(node.value, f"@{node.value}")
+            return f"@{node.value}"
             if isinstance(var_type, DataType):
                 llvm_type = var_type.to_llvm()
                 temp_reg = self.emitter.get_temp_register()

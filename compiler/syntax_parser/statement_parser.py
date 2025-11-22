@@ -137,6 +137,9 @@ class StatementParser:
             self.reader.eat()
             init_expr = self.expr_parser.parse_expression()
         else:
+            # Lambda types cannot have defaults, must be initialized
+            if var_type == "lambda":
+                raise ValueError(f"Lambda type variables must be initialized at line {token_variable.line}!")
             if isinstance(var_type, str):
                 raise ValueError(f"Struct type variables must be initialized at line {token_variable.line}!")
             init_expr = TypeParser.get_default_for_type(var_type)

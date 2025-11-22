@@ -19,6 +19,10 @@ class TypeParser:
         if not token:
             raise ValueError("Expected a type but got nothing!")
 
+        if token.token_type == TokenType.LAMBDA:
+            self.reader.eat()
+            return "lambda"
+
         if token.token_type == TokenType.VARIABLE_BORDER:
             self.reader.eat()
             struct_token = self.reader.expect_token(TokenType.VARIABLE)

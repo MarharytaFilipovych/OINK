@@ -181,8 +181,12 @@ class ExpressionParser:
         self.reader.expect_token(TokenType.BRACKET)
 
         result = FunctionCallNode(func_name, arguments, line, None)
+        
+        # Don't chain for lambdas since they return values, not objects
         if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS:
+            # Only chain if not a lambda call (lambdas don't have members)
             result = self.parse_function_chain(result, line)
+        
         return result
 
     def parse_arguments(self) -> list[ExprNode]:
