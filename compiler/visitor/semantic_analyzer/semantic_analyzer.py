@@ -35,6 +35,7 @@ class SemanticAnalyzer(ASTVisitor):
         self._expected_return_type: Optional[DataType] = None
         self._function_name: Optional[str] = None
         self.current_struct_context: Optional[str] = None
+        self.inside_lambda = False
         
         self.struct_analyzer = StructAnalyzer(self.context, self)
         self.function_analyzer = FunctionAnalyzer(self.context, self)
@@ -200,8 +201,13 @@ class SemanticAnalyzer(ASTVisitor):
             if not self.context.declare_variable(param.name, param.param_type, mutable=False):
                 raise ValueError(f"Duplicate parameter \"{param.name}\" in lambda at line {node.line}!")
         
-        body_type = node.body.accept(self)
+        was_inside_lambda = self.inside_lambda
+        self.inside_lambda = True
         
+        body_type = node.body.accept(self)
+        node.inferred_return_type = body_type 
+        
+        self.inside_lambda = was_inside_lambda
         self.context.exit_scope()
         
-        return body_type
+        return "lambda"

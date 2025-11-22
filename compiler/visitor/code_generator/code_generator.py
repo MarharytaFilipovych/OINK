@@ -73,6 +73,10 @@ class CodeGenerator(ASTVisitor):
             self.variable_registry.set_variable_type(node.variable, "lambda")
             self.variable_registry.lambda_functions[node.variable] = lambda_func_ref
             self.variable_registry.lambda_signatures[node.variable] = [p.param_type for p in node.expr_node.params]
+            if hasattr(node.expr_node, 'inferred_return_type'):
+                self.variable_registry.lambda_return_types[node.variable] = node.expr_node.inferred_return_type
+            else:
+                self.variable_registry.lambda_return_types[node.variable] = DataType.I32
             return
         
         if isinstance(node.data_type, str):
@@ -436,6 +440,7 @@ class CodeGenerator(ASTVisitor):
             self.variable_registry.set_variable_type(param.name, param.param_type)
 
         body_type = self.type_converter.get_node_type(node.body)
+        node.inferred_return_type = body_type
         return_llvm_type = self._get_llvm_type_string(body_type)
 
         param_strs = []

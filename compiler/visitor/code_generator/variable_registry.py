@@ -11,6 +11,7 @@ class VariableRegistry:
         self.max_versions: dict[str, int] = {}
         self.lambda_functions: dict[str, str] = {}
         self.lambda_signatures: dict[str, list] = {}
+        self.lambda_return_types: dict[str, Union[DataType, str]] = {}
 
     @staticmethod
     def _sanitize_name(variable: str) -> str:

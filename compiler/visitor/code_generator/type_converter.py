@@ -99,6 +99,10 @@ class TypeConverter:
             return field_info[2]
 
     def _get_function_return_type(self, node: FunctionCallNode) -> Union[DataType, str]:
+        if hasattr(self.variable_registry, 'lambda_return_types') and \
+           node.value in self.variable_registry.lambda_return_types:
+            return self.variable_registry.lambda_return_types[node.value]
+
         if node.object_name:
             obj_type = self.variable_registry.get_variable_type(node.object_name)
             if isinstance(obj_type, str):

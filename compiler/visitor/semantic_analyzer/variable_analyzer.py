@@ -4,6 +4,8 @@ from ...constants import UNDERLINE
 from ...node.decl_node import DeclNode
 from ...node.assign_node import AssignNode
 from ...node.id_node import IDNode
+from ...node.lambda_node import LambdaNode
+from ...llvm_specifics.data_type import DataType
 
 if TYPE_CHECKING:
     from .semantic_analyzer import SemanticAnalyzer
@@ -28,7 +30,17 @@ class VariableAnalyzer:
         expr_type = node.expr_node.accept(self.semantic_analyzer)
         
         if node.data_type == "lambda":
-            self.context.set_lambda_return_type(node.variable, expr_type)
+            if expr_type != "lambda":
+                 raise ValueError(f"Cannot assign type \"{expr_type}\" to a lambda variable at line {node.line}! Use a lambda expression.")
+            
+            return_type = DataType.I32 # Default
+            
+            if isinstance(node.expr_node, LambdaNode):
+                return_type = node.expr_node.inferred_return_type 
+            elif isinstance(node.expr_node, IDNode):
+                return_type = self.context.get_lambda_return_type(node.expr_node.value)
+                
+            self.context.set_lambda_return_type(node.variable, return_type)
         else:
             self.semantic_analyzer.check_type_match(expr_type, node.data_type, node.line)
         
@@ -92,11 +104,28 @@ class VariableAnalyzer:
 
         data_type = self.context.get_variable_type(node.variable)
         expr_type = node.expr_node.accept(self.semantic_analyzer)
-        self.semantic_analyzer.check_type_match(expr_type, data_type, node.line)
+        
+        if data_type == "lambda":
+             if expr_type != "lambda":
+                 raise ValueError(f"Cannot assign type \"{expr_type}\" to a lambda variable at line {node.line}!")
+             if isinstance(node.expr_node, LambdaNode):
+                self.context.set_lambda_return_type(node.variable, node.expr_node.inferred_return_type)
+             elif isinstance(node.expr_node, IDNode):
+                ret_type = self.context.get_lambda_return_type(node.expr_node.value)
+                self.context.set_lambda_return_type(node.variable, ret_type)
+        else:
+            self.semantic_analyzer.check_type_match(expr_type, data_type, node.line)
 
     def visit_id(self, node: IDNode):
         if self.context.currently_initializing == node.value:
             raise ValueError(f"Self-assignment like \"{node.value} = {node.value}\" "
                 f"is not allowed at line {node.line}!")
+        
+        if self.semantic_analyzer.inside_lambda:
+            if not self.context.is_declared_in_current_scope(node.value):
+                raise ValueError(f"Variable \"{node.value}\" is not defined in the lambda scope at line {node.line}! "
+                                 f"Lambdas cannot capture outer variables (no closures allowed).")
+
         self.semantic_analyzer.check_variable_declared(node.value, node.line)
-        return self.context.get_variable_type(node.value)
+        var_type = self.context.get_variable_type(node.value)
+        return "lambda" if var_type == "lambda" else var_type
