@@ -21,14 +21,15 @@ class VariableAnalyzer:
         if self.context.is_variable_declared(node.variable):
             raise ValueError(f"Variable \"{node.variable}\" has already been declared at line {node.line}!!!!!!!!!!")
         
-        
         if not self.context.declare_variable(node.variable, node.data_type, node.mutable):
              raise ValueError(f"Variable \"{node.variable}\" has already been declared at line {node.line}!!!!!!!!!!")
 
         self.context.currently_initializing = node.variable
         expr_type = node.expr_node.accept(self.semantic_analyzer)
         
-        if node.data_type != "lambda":
+        if node.data_type == "lambda":
+            self.context.set_lambda_return_type(node.variable, expr_type)
+        else:
             self.semantic_analyzer.check_type_match(expr_type, node.data_type, node.line)
         
         self.context.currently_initializing = None

@@ -13,6 +13,7 @@ class Context:
         self.currently_initializing: Optional[str] = None
         self.struct_definitions: dict[str, list[StructField]] = {}
         self.functions: FunctionTable = FunctionTable()
+        self.lambda_return_types: dict[str, DataType] = {}
 
     def enter_scope(self):
         self.scopes.append({})
@@ -65,3 +66,9 @@ class Context:
 
     def get_function_info(self, scope: str, name: str) -> FunctionInfo:
         return self.functions.get_function_info(scope, name)
+
+    def set_lambda_return_type(self, name: str, return_type: DataType):
+        self.lambda_return_types[name] = return_type
+
+    def get_lambda_return_type(self, name: str) -> Optional[DataType]:
+        return self.lambda_return_types.get(name)

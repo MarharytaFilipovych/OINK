@@ -71,9 +71,8 @@ class CodeGenerator(ASTVisitor):
         if node.data_type == "lambda":
             lambda_func_ref = node.expr_node.accept(self) 
             self.variable_registry.set_variable_type(node.variable, "lambda")
-            if not hasattr(self.variable_registry, 'lambda_functions'):
-                self.variable_registry.lambda_functions = {}
             self.variable_registry.lambda_functions[node.variable] = lambda_func_ref
+            self.variable_registry.lambda_signatures[node.variable] = [p.param_type for p in node.expr_node.params]
             return
         
         if isinstance(node.data_type, str):

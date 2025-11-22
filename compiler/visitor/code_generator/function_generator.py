@@ -53,12 +53,22 @@ class FunctionGenerator:
             return_type = self.type_converter.get_node_type(node)
             return_llvm_type = self._get_llvm_type(return_type)
             
+            signatures = self.variable_registry.lambda_signatures.get(node.value, [])
+            
             args = []
-            for arg in node.arguments:
+            for i, arg in enumerate(node.arguments):
                 arg_value = arg.accept(visitor)
+                
+                expected_type = signatures[i] if i < len(signatures) else DataType.I32
+                expected_llvm_type = self._get_llvm_type(expected_type)
+                
                 arg_type = self.type_converter.get_node_type(arg)
                 arg_llvm_type = self._get_llvm_type(arg_type)
-                args.append(f"{arg_llvm_type} {arg_value}")
+                
+                if arg_llvm_type != expected_llvm_type:
+                    arg_value = self.struct_ops.widen_value(arg_value, arg_llvm_type, expected_llvm_type)
+                
+                args.append(f"{expected_llvm_type} {arg_value}")
             
             if return_type == DataType.VOID:
                 self.emitter.emit_line(f"  call {return_llvm_type} @{lambda_func_name}({', '.join(args)})")

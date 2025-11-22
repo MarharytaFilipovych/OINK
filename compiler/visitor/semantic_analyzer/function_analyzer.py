@@ -63,7 +63,7 @@ class FunctionAnalyzer:
     def _validate_lambda_call(self, node: FunctionCallNode):
         for arg in node.arguments:
             arg.accept(self.semantic_analyzer)
-        return DataType.I32
+        return self.context.get_lambda_return_type(node.value) or DataType.I32
 
     @staticmethod
     def _validate_argument_count(node: FunctionCallNode, func_info):
