@@ -182,16 +182,34 @@ class ExpressionParser:
 
         result = FunctionCallNode(func_name, arguments, line, None)
         
-        # Don't chain for lambdas since they return values, not objects
         if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS:
-            # Only chain if not a lambda call (lambdas don't have members)
             result = self.parse_function_chain(result, line)
         
         return result
 
     def parse_arguments(self) -> list[ExprNode]:
         arguments = []
-        if self.reader.peek() and self.reader.peek().token_type != TokenType.BRACKET:
+        should_parse_arg = False
+        token = self.reader.peek()
+        
+        if token:
+            if token.token_type != TokenType.BRACKET:
+                should_parse_arg = True
+            else:
+                # Ambiguity check: Is this BRACKET closing the call or starting a group?
+                # We peek at the *next* token. If it starts an expression, this bracket starts a group.
+                next_token = self.reader.peek(1)
+                if next_token and next_token.token_type in [
+                    TokenType.NUMBER, 
+                    TokenType.VARIABLE_BORDER, 
+                    TokenType.TRUE, 
+                    TokenType.FALSE, 
+                    TokenType.NOT, 
+                    TokenType.LAMBDA
+                ]:
+                    should_parse_arg = True
+
+        if should_parse_arg:
             arguments.append(self.parse_expression())
             
             while True:
