@@ -409,7 +409,7 @@ NEWLINE ::= "\n" | "\r\n"
 # 😀 🐷 🐖squared🐖 @ 🐖square🐖 ** 🐖val🐖 ** #
 # 😀 🐷 🐖cubed🐖 @ 🐖cube🐖 ** 🐖val🐖 ** #
 
-# ... 🐖squared🐖 ❤️ 🐖cubed🐖 ... #  # Returns 25 + 125 = 150
+# ... 🐖squared🐖 ❤️ 🐖cubed🐖 ... #
 ```
 
 ### Lambda Example: Mathematical Operations
@@ -421,7 +421,7 @@ NEWLINE ::= "\n" | "\r\n"
 # 😀 🐷 🐖sum🐖 @ 🐖add🐖 ** 10 ** ** 20 ** #
 # 😀 🐷 🐖product🐖 @ 🐖multiply🐖 ** 🐖sum🐖 ** ** 2 ** #
 
-# ... 🐖product🐖 ... #  # Returns (10 + 20) * 2 = 60
+# ... 🐖product🐖 ... #
 ```
 
 ### Function Example: Factorial Calculator
