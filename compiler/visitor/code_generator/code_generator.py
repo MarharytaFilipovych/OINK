@@ -432,3 +432,51 @@ class CodeGenerator(ASTVisitor):
             self.emitter.emit_line(f"  {cast_reg} = sext i16 {value} to i32")
         
         return cast_reg
+
+    def visit_lambda(self, node):
+        if node.lambda_id is None:
+            node.lambda_id = self.emitter.get_next_label_id()
+
+        lambda_name = f"lambda_{node.lambda_id}"
+
+        body_type = self.type_converter.get_node_type(node.body)
+        return_llvm_type = self._get_llvm_type_string(body_type)
+
+        param_strs = []
+        for param in node.params:
+            llvm_type = self.type_converter.get_llvm_type(param.param_type) \
+                if isinstance(param.param_type, str) \
+                else param.param_type.to_llvm()
+            param_strs.append(f"{llvm_type} %{param.name}")
+
+        saved_state = {
+            "emitter": self.emitter.copy_state(),
+            "variable_registry": self.variable_registry.copy_state()
+        }
+
+        self.emitter.reset_for_function()
+        self.variable_registry.reset()
+
+        for param in node.params:
+            self.variable_registry.set_variable_type(param.name, param.param_type)
+            self.variable_registry.max_versions[param.name] = 0
+            self.variable_registry.variable_versions[param.name] = 0
+            param_reg = self.variable_registry.get_variable_register(param.name)
+            param_llvm_type = self.type_converter.get_llvm_type(param.param_type) \
+                if isinstance(param.param_type, str) \
+                else param.param_type.to_llvm()
+            self.emitter.emit_line(f"  {param_reg} = alloca {param_llvm_type}")
+            self.emitter.emit_line(f"  store {param_llvm_type} %{param.name}, {param_llvm_type}* {param_reg}")
+
+        body_value = node.body.accept(self)
+
+        self.emitter.emit_line(f"  ret {return_llvm_type} {body_value}")
+
+        lambda_signature = f"define {return_llvm_type} @{lambda_name}({', '.join(param_strs)}) {{"
+        lambda_definition = [lambda_signature] + self.emitter.translated_lines + ["}", ""]
+        self.emitter.add_function_definition(lambda_definition)
+
+        self.emitter.restore_state(saved_state["emitter"])
+        self.variable_registry.restore_state(saved_state["variable_registry"])
+
+        return f"@{lambda_name}"

@@ -15,6 +15,8 @@ from ..node.member_access_node import MemberAccessNode
 from ..llvm_specifics.operator import Operator
 from ..token.token_type import TokenType
 from .token_reader import TokenReader
+from ..llvm_specifics.data_type import DataType
+from ..node.lambda_node import LambdaNode, LambdaParam
 
 
 class ExpressionParser:
@@ -90,6 +92,11 @@ class ExpressionParser:
         return self.parse_value()
 
     def parse_value(self) -> Union[FactorNode, ExprNode]:
+        token = self.reader.peek()
+
+        if token and token.token_type == TokenType.LAMBDA:
+            return self.parse_lambda()
+
         token = self.reader.eat()
 
         if not token:
@@ -229,3 +236,51 @@ class ExpressionParser:
         init_exprs = self.parse_arguments()
         self.reader.expect_token(TokenType.BRACKET)
         return StructInitNode(struct_name, init_exprs, line)
+
+    def parse_lambda(self):
+        lambda_token = self.reader.expect_token(TokenType.LAMBDA)
+        self.reader.expect_token(TokenType.BRACKET)
+        params = []
+        if self.reader.peek() and self.reader.peek().token_type != TokenType.BRACKET:
+            params.append(self.parse_lambda_param())
+            while True:
+                saved_index = self.reader.current_token_index
+                if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+                    self.reader.eat()
+                else:
+                    break
+                if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+                    self.reader.eat()
+                    params.append(self.parse_lambda_param())
+                else:
+                    self.reader.current_token_index = saved_index
+                    break
+        self.reader.expect_token(TokenType.BRACKET)
+        self.reader.expect_token(TokenType.LAMBDA)
+        body = self.parse_expression()
+        self.reader.expect_token(TokenType.LAMBDA)
+        return LambdaNode(params, body, lambda_token.line)
+
+    def parse_lambda_param(self):
+        token = self.reader.peek()
+        if not token or not (token.token_type.is_data_type() or token.token_type == TokenType.VARIABLE_BORDER):
+            raise ValueError(f"Expected type in lambda parameter at line {token.line if token else 'unknown'}!")
+
+        if token.token_type == TokenType.VARIABLE_BORDER:
+            self.reader.eat()
+            type_token = self.reader.expect_token(TokenType.VARIABLE)
+            param_type = type_token.value
+            self.reader.expect_token(TokenType.VARIABLE_BORDER)
+        else:
+            type_token = self.reader.eat()
+            param_type = {
+                TokenType.I16_TYPE: DataType.I16,
+                TokenType.I32_TYPE: DataType.I32,
+                TokenType.I64_TYPE: DataType.I64,
+                TokenType.BOOL: DataType.BOOL
+            }.get(type_token.token_type, DataType.I32)
+
+        self.reader.expect_token(TokenType.VARIABLE_BORDER)
+        name_token = self.reader.expect_token(TokenType.VARIABLE)
+        self.reader.expect_token(TokenType.VARIABLE_BORDER)
+        return LambdaParam(param_type, name_token.value)

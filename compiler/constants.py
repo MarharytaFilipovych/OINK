@@ -55,6 +55,7 @@ EMOJI_TOKENS = {
     '🌸<': TokenType.LESS_EQUAL,
     '🐖🐖🐖': TokenType.BLOCK_BORDER,
     '👀👀👀': TokenType.MULTILINE_COMMENT,
+    '🥩': TokenType.LAMBDA
 }
 
 MULTILINE_COMMENT = '👀👀👀'

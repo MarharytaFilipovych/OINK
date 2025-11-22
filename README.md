@@ -7,6 +7,7 @@
 **OINK** is a unique programming language that combines:
 - **Emoji-based operators** for visual expressiveness
 - **Pig-themed syntax** with 🐖 variable wrapping and 🐖🐖🐖 blocks, and funny piggy numeric data types (🐽, 🐷, 🐗)
+- **Lambda expressions** with 🥩 meat emoji for anonymous functions
 - **Mood Lines** - innovative inverted logic execution
 - **Strict line structure** for clean, readable code
 - **Type-safe arithmetic** with overflow checking
@@ -14,6 +15,33 @@
 - **Built-in I/O operations** for input and output
 
 ## ✨ Key Features
+
+### 🥩 Lambda Expressions (NEW!)
+Create anonymous functions inline using the meat emoji:
+
+```piglang
+# 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #
+# 😀 🐷 🐖result🐖 @ 🐖square🐖 ** 5 ** #
+# ... 25 ... #
+```
+
+**Lambda Syntax:**
+- Start and end with `🥩` (meat emoji)
+- Parameters: `** type 🐖param🐖 **` (same as regular functions)
+- Body: Single expression between `🥩` markers
+- Format: `🥩 ** params ** 🥩 expression 🥩`
+
+**Lambda Examples:**
+```piglang
+# Simple lambda with one parameter
+# 😀 🥩 🐖double🐖 @ 🥩 ** 🐷 🐖n🐖 ** 🥩 🐖n🐖 💞 2 🥩 #
+
+# Lambda with multiple parameters
+# 😀 🥩 🐖add🐖 @ 🥩 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #
+
+# Lambda with boolean result
+# 😀 🥩 🐖is&positive🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 > 0 🥩 #
+```
 
 ### 🐖 Pig-Wrapped Variables
 All variables are wrapped in 🐖 pig emoji:
@@ -93,6 +121,41 @@ Structures are declared using the `BOAR` keyword and can contain both fields and
 | `🐗` | 64-bit integer (i64) | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 | 0      |
 | `wow` | Boolean             | `LOVE` (true) or `HATE` (false)                 | `HATE`         |
 | `😑` | Void                | No return value (for functions only)             | N/A            |
+| `🥩` | Lambda              | Anonymous function                               | N/A            |
+
+### Lambda Expressions
+
+Lambdas are anonymous functions that can be stored in variables and called like regular functions.
+
+**Syntax:**
+```
+🥩 ** type 🐖param1🐖 ** ** type 🐖param2🐖 ** ... 🥩 expression 🥩
+```
+
+**Features:**
+- Single expression body (no statements)
+- Type-checked parameters
+- Can capture outer scope (limited to parameters)
+- Stored in lambda type variables (🥩)
+
+**Usage:**
+```piglang
+# Declare lambda
+# 😀 🥩 🐖increment🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 ❤️ 1 🥩 #
+
+# Call lambda
+# 😀 🐷 🐖value🐖 @ 10 #
+# 😀 🐷 🐖result🐖 @ 🐖increment🐖 ** 🐖value🐖 ** #
+# ... 11 ... #
+```
+
+**Complex Lambda Example:**
+```piglang
+# Lambda that operates on other values
+# 😀 🥩 🐖compute🐖 @ 🥩 ** 🐷 🐖x🐖 ** ** 🐷 🐖y🐖 ** 🥩 ** 🐖x🐖 💞 🐖x🐖 ** ❤️ ** 🐖y🐖 💞 🐖y🐖 ** 🥩 #
+# 😀 🐷 🐖sum&of&squares🐖 @ 🐖compute🐖 ** 3 ** ** 4 ** #
+# ... 25 ... #
+```
 
 ### Mutability
 
@@ -249,10 +312,10 @@ struct_body ::= field_decl* member_function_decl*
 field_decl ::= "#" mutability type "🐖" ID "🐖" "#" NEWLINE
 
 Member function declaration within structure:
-member_function_decl ::= "#" return_type "PIGLET" "🐖" ID "🐖" param_list "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* return_statement? "#" "🐖🐖🐖" "#" NEWLINE  <-- UPDATED
+member_function_decl ::= "#" return_type "PIGLET" "🐖" ID "🐖" param_list "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* return_statement? "#" "🐖🐖🐖" "#" NEWLINE
 
 Function declaration: return type, PIG keyword, name, parameters, and body:
-function_decl ::= "#" return_type "PIG" "🐖" ID "🐖" param_list "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* return_statement? "#" "🐖🐖🐖" "#" NEWLINE  <-- UPDATED
+function_decl ::= "#" return_type "PIG" "🐖" ID "🐖" param_list "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* return_statement? "#" "🐖🐖🐖" "#" NEWLINE
 
 param_list ::= [ "**" type "🐖" ID "🐖" "**" ]*
 return_type ::= type | "😑"
@@ -278,9 +341,13 @@ struct_init ::= "😀" "🐖" ID "🐖" "🐖" ID "🐖" "@" "🐖" ID "🐖" "*
 expr_list ::= expr { "**" "**" expr }*
 
 Declaration: mutability, type, identifier wrapped in 🐖, and initializer expression. Variables are immutable by default unless 😀 is present:
-decl ::= mutability type "🐖" ID "🐖" [ "@" ( expr | struct_init ) ]
+decl ::= mutability type "🐖" ID "🐖" [ "@" ( expr | struct_init | lambda ) ]
 mutability ::= "😀" | "😭"
-type ::= "🐽" | "🐷" | "🐗" | "wow" | ID
+type ::= "🐽" | "🐷" | "🐗" | "wow" | "🥩" | ID
+
+Lambda expression: anonymous function with parameters and body:
+lambda ::= "🥩" "**" lambda_params "**" "🥩" expr "🥩"
+lambda_params ::= [ type "🐖" ID "🐖" { "**" "**" type "🐖" ID "🐖" }* ]
 
 Assignment: identifier wrapped in 🐖, assignment operator, expression or member access:
 assign ::= "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* "@" expr
@@ -319,8 +386,8 @@ multiplicative_expr ::= unary_expr { ("💞" | "💕") unary_expr }*
 Unary expression: handles logical NOT operator:
 unary_expr ::= [ "💩" ] factor
 
-Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), function calls, member access, or parenthesized sub-expressions for grouping and overriding precedence:
-factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "**" expr "**" | boolean | function_call
+Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), function calls, member access, lambda expressions, or parenthesized sub-expressions for grouping and overriding precedence:
+factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "**" expr "**" | boolean | function_call | lambda
 boolean ::= "LOVE" | "HATE"
 ID ::= LETTER { LETTER | "&" }*
 NUMBER ::= [ "-" ] DIGIT { DIGIT }*
@@ -331,6 +398,31 @@ NEWLINE ::= "\n" | "\r\n"
 ---
 
 ## 📝 Example Programs
+
+### Lambda Example: Function as First-Class Value
+
+```piglang
+# 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #
+# 😀 🥩 🐖cube🐖 @ 🥩 ** 🐷 🐖n🐖 ** 🥩 🐖n🐖 💞 🐖n🐖 💞 🐖n🐖 🥩 #
+
+# 😀 🐷 🐖val🐖 @ 5 #
+# 😀 🐷 🐖squared🐖 @ 🐖square🐖 ** 🐖val🐖 ** #
+# 😀 🐷 🐖cubed🐖 @ 🐖cube🐖 ** 🐖val🐖 ** #
+
+# ... 🐖squared🐖 ❤️ 🐖cubed🐖 ... #  # Returns 25 + 125 = 150
+```
+
+### Lambda Example: Mathematical Operations
+
+```piglang
+# 😀 🥩 🐖add🐖 @ 🥩 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #
+# 😀 🥩 🐖multiply🐖 @ 🥩 ** 🐷 🐖x🐖 ** ** 🐷 🐖y🐖 ** 🥩 🐖x🐖 💞 🐖y🐖 🥩 #
+
+# 😀 🐷 🐖sum🐖 @ 🐖add🐖 ** 10 ** ** 20 ** #
+# 😀 🐷 🐖product🐖 @ 🐖multiply🐖 ** 🐖sum🐖 ** ** 2 ** #
+
+# ... 🐖product🐖 ... #  # Returns (10 + 20) * 2 = 60
+```
 
 ### Function Example: Factorial Calculator
 
@@ -391,51 +483,6 @@ NEWLINE ::= "\n" | "\r\n"
 # ... 🐖sum🐖 ... #
 ```
 
-### Complex Example: Counter Structure with Chaining
-
-```piglang
-# BOAR 🐖Counter🐖 #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖value🐖 #
-# 😑 PIGLET 🐖increment🐖 #
-# 🐖🐖🐖 #
-# 🐖value🐖 @ 🐖value🐖 ❤️ 1 #
-# ... #
-# 🐖🐖🐖 #
-# 🐷 PIGLET 🐖getValue🐖 #
-# 🐖🐖🐖 #
-# ... 🐖value🐖 ... #
-# 🐖🐖🐖 #
-# 🐖🐖🐖 #
-
-# 😀 🐖Counter🐖 🐖counter🐖 @ 🐖Counter🐖 ** 0 ** #
-# 🐖counter🐖 _ 🐖increment🐖 #
-# 🐖counter🐖 _ 🐖increment🐖 #
-# 😀 🐷 🐖count🐖 @ 🐖counter🐖 _ 🐖getValue🐖 #
-
-# ... 🐖count🐖 ... #
-```
-
-### Function Chaining Example
-
-```piglang
-# 🐷 PIG 🐖double🐖 ** 🐷 🐖x🐖 ** #
-# 🐖🐖🐖 #
-# ... 🐖x🐖 💞 2 ... #
-# 🐖🐖🐖 #
-
-# 🐷 PIG 🐖addTen🐖 ** 🐷 🐖x🐖 ** #
-# 🐖🐖🐖 #
-# ... 🐖x🐖 ❤️ 10 ... #
-# 🐖🐖🐖 #
-
-# 😀 🐷 🐖value🐖 @ 5 #
-# 😀 🐷 🐖result🐖 @ 🐖double🐖 ** 🐖value🐖 ** _ 🐖addTen🐖 #
-👀 result = (5 * 2) + 10 = 20
-
-# ... 🐖result🐖 ... #
-```
-
 ---
 
 ## 🔒 Safety Features
@@ -455,6 +502,9 @@ Variables cannot be redeclared in any scope.
 
 ### Function parameter type checking
 All function arguments are type-checked at compile time.
+
+### Lambda type safety
+Lambda parameters and return types are checked during compilation.
 
 ### Member access validation
 Structure member access is validated to ensure fields and methods exist.
@@ -476,6 +526,11 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Use descriptive names: `🐖counter🐖`, `🐖total&sum🐖`
 - Only letters and `&` in variable names can be used
 - Always wrap your variable name in `🐖`
+
+### Lambda Naming
+- Use verb-based or descriptive names: `🐖transform🐖`, `🐖filter🐖`
+- Lambda variables use `🥩` type marker
+- Always wrap lambda names in `🐖`
 
 ### Function Naming
 - Use verb-based names: `🐖calculate🐖`, `🐖getValue🐖`
@@ -503,8 +558,14 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 **Why pig emojis?**  
 *Answer*: BECAUSE I DECIDED TO CHOOSE PIGS AS A SOURCE OF INSPIRATION
 
+**What's the meat emoji (🥩) for?**  
+*Answer*: It represents lambda expressions - meaty, compact functions! Just like how meat is a concentrated source of nutrition, lambdas are concentrated functions.
+
 **What's the purpose of Mood Lines?**  
 *Answer*: Mood Lines provide a unique way to write inverse logic without explicit negation operators, making certain patterns more concise.
+
+**Can lambdas have multiple statements?**  
+*Answer*: No! Lambdas in OINK can only have a single expression as their body. Use regular functions with `PIG` for multi-statement logic.
 
 **Can I nest conditionals?**  
 *Answer*: Yes! You can nest any control structures, but do not forget about placing them within 🐖🐖🐖 blocks.
@@ -536,6 +597,9 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 **Why `_` for member access?**
 *Answer*: The underscore represents a pig's tail! It's a simple, clear character that fits our pig theme and makes chaining operations easy to read.
 
+**Can lambdas access outer scope variables?**
+*Answer*: Currently, lambdas can only access their parameters. Future versions may support closure.
+
 ---
 
 ## 🎉 HAVE FUN CODING (OR NOT), MY LOVELY FRIENDS!
@@ -545,6 +609,7 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Enclose blocks with 🐖🐖🐖
 - Use `LOVE` and `HATE` for booleans
 - Try *Mood Lines* for inverted logic
+- Use `🥩` for lambda expressions - meaty functions!
 - Every program must return something!
 - No variable shadowing allowed!
 - Use `hru` for AND and `bruh` for OR
@@ -554,7 +619,7 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Chain function calls with `_`
 - Read with `eat😋`, print with `print🤮`
 
-Happy *OINK* coding! 🐷✨
+Happy *OINK* coding! 🐷🥩✨
 
 ---
 
@@ -584,7 +649,7 @@ NOW YOU CAN WRITE YOUR OWN MASTERPIECE WITH OINK LANGUAGE. HOW?
 2) Locate it somewhere but keep in mind the location!
 3) Go to the folder where **compiler.py** file resides.
 4) Ensure that you are in the same location as the **compiler.py**.
-5) Run this command, speciing the path to your OINK code file location:
+5) Run this command, specifying the path to your OINK code file location:
 
 ```bash
     python3 -m compiler <YOUR_CODE_LOCATION> ./llm/<YOUR_DESIRED_FILE_NAME>.ll

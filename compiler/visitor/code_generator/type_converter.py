@@ -2,6 +2,7 @@
 from typing import Union
 from ...llvm_specifics.data_type import DataType
 from ...node.id_node import IDNode
+from ...node.lambda_node import LambdaNode
 from ...node.number_node import NumberNode
 from ...node.bool_node import BooleanNode
 from ...node.binary_op_node import BinaryOpNode
@@ -70,6 +71,8 @@ class TypeConverter:
             return self._get_member_access_type(node)
         if isinstance(node, FunctionCallNode):
             return self._get_function_return_type(node)
+        if isinstance(node, LambdaNode):
+            return f"lambda_{id(node)}"
         return DataType.I32
 
     @staticmethod

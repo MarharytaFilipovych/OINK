@@ -11,6 +11,7 @@ from ..node.function_decl_node import FunctionDeclNode
 from ..node.id_node import IDNode
 from ..node.if_node import IfNode
 from ..node.elif_node import ElifNode
+from ..node.lambda_node import LambdaNode
 from ..node.print_node import PrintNode
 from ..node.read_node import ReadNode
 from ..node.member_access_node import MemberAccessNode
@@ -102,4 +103,8 @@ class ASTVisitor(ABC):
 
     @abstractmethod
     def visit_struct_initialization(self, node: StructInitNode):
+        pass
+
+    @abstractmethod
+    def visit_lambda(self, node: LambdaNode):
         pass

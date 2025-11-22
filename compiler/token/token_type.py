@@ -66,6 +66,8 @@ class TokenType(Enum):
     COMMENT = auto()           # 👀 (single line)
     MULTILINE_COMMENT = auto() # 👀👀👀
 
+    LAMBDA = auto()  # 🥩
+
     def if_for_comparision(self) -> bool:
         return self in {TokenType.EQUALS, TokenType.NOT_EQUALS, TokenType.GREATER,
                         TokenType.LESS, TokenType.GREATER_EQUAL, TokenType.LESS_EQUAL}

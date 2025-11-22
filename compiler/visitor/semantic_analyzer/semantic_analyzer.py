@@ -188,3 +188,17 @@ class SemanticAnalyzer(ASTVisitor):
             return DataType.from_string(type_str)
         except ValueError:
             return type_str
+
+    def visit_lambda(self, node):
+        for param in node.params:
+            if isinstance(param.param_type, str):
+                if not self.context.is_struct_defined(param.param_type):
+                    raise ValueError(
+                        f"Type \"{param.param_type}\" is not defined for lambda parameter at line {node.line}!")
+        self.context.enter_scope()
+        for param in node.params:
+            if not self.context.declare_variable(param.name, param.param_type, mutable=False):
+                raise ValueError(f"Duplicate parameter \"{param.name}\" in lambda at line {node.line}!")
+        node.body.accept(self)
+        self.context.exit_scope()
+        return f"lambda_{id(node)}"
