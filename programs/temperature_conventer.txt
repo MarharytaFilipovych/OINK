@@ -1,0 +1,97 @@
+👀 Temperature Converter - Real Program Example for Task 3 👀
+👀 This program demonstrates all required features WITHOUT strings 👀
+👀 Features:
+   - User input with clear workflow
+   - Functions for conversion logic  
+   - Structures to organize temperature data
+   - Lambda functions (custom feature)
+   - Clear numeric output
+👀
+
+👀 Structure to hold temperature in different scales 👀
+# BOAR 🐖Temperature🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖celsius🐖 #
+# 😀 🐷 🐖fahrenheit🐖 #
+# 😀 🐷 🐖kelvin🐖 #
+# 🐷 PIGLET 🐖getCelsius🐖 #
+# 🐖🐖🐖 #
+# ... 🐖celsius🐖 ... #
+# 🐖🐖🐖 #
+# 🐷 PIGLET 🐖getFahrenheit🐖 #
+# 🐖🐖🐖 #
+# ... 🐖fahrenheit🐖 ... #
+# 🐖🐖🐖 #
+# 🐷 PIGLET 🐖getKelvin🐖 #
+# 🐖🐖🐖 #
+# ... 🐖kelvin🐖 ... #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+
+👀 Function to convert Celsius to Fahrenheit 👀
+# 🐷 PIG 🐖celsiusToFahrenheit🐖 ** 🐷 🐖c🐖 ** #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖temp🐖 @ ** 🐖c🐖 💞 9 ** 💕 5 #
+# ... 🐖temp🐖 ❤️ 32 ... #
+# 🐖🐖🐖 #
+
+👀 Function to convert Celsius to Kelvin 👀
+# 🐷 PIG 🐖celsiusToKelvin🐖 ** 🐷 🐖c🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖c🐖 ❤️ 273 ... #
+# 🐖🐖🐖 #
+
+👀 Lambda for adding offset - demonstrates custom feature 👀
+# 😀 🥩 🐖addOffset🐖 @ 🥩 ** 🐷 🐖temp🐖 ** ** 🐷 🐖offset🐖 ** 🥩 🐖temp🐖 ❤️ 🐖offset🐖 🥩 #
+
+👀 Lambda for scaling temperature 👀
+# 😀 🥩 🐖scale🐖 @ 🥩 ** 🐷 🐖value🐖 ** ** 🐷 🐖factor🐖 ** 🥩 🐖value🐖 💞 🐖factor🐖 🥩 #
+
+👀 Print header (using code 1000 as identifier) 👀
+# print🤮 1000 #
+
+👀 Get temperature input from user 👀
+👀 Print prompt code 2000 means "Enter temperature in Celsius:" 👀
+# print🤮 2000 #
+
+# 😀 🐷 🐖celsius&input🐖 #
+# eat😋 🐖celsius&input🐖 #
+
+👀 Calculate Fahrenheit and Kelvin 👀
+# 😀 🐷 🐖fahrenheit&result🐖 @ 🐖celsiusToFahrenheit🐖 ** 🐖celsius&input🐖 ** #
+# 😀 🐷 🐖kelvin&result🐖 @ 🐖celsiusToKelvin🐖 ** 🐖celsius&input🐖 ** #
+
+👀 Use lambda to add safety offset (for demo purposes) 👀
+# 😀 🐷 🐖adjusted&kelvin🐖 @ 🐖addOffset🐖 ** 🐖kelvin&result🐖 ** ** 0 ** #
+
+👀 Create temperature structure with all values 👀
+# 😀 🐖Temperature🐖 🐖temp&data🐖 @ 🐖Temperature🐖 ** 🐖celsius&input🐖 ** ** 🐖fahrenheit&result🐖 ** ** 🐖adjusted&kelvin🐖 ** #
+
+👀 Print separator (code 3000) 👀
+# print🤮 3000 #
+
+👀 Output results 👀
+👀 Code 4000 means "Celsius:" 👀
+# print🤮 4000 #
+# print🤮 🐖temp&data🐖 _ 🐖getCelsius🐖 #
+
+👀 Code 5000 means "Fahrenheit:" 👀
+# print🤮 5000 #
+# print🤮 🐖temp&data🐖 _ 🐖getFahrenheit🐖 #
+
+👀 Code 6000 means "Kelvin:" 👀
+# print🤮 6000 #
+# print🤮 🐖temp&data🐖 _ 🐖getKelvin🐖 #
+
+👀 Use lambda for scaling demo - scale by 10 for display 👀
+# 😀 🐷 🐖scaled&celsius🐖 @ 🐖scale🐖 ** 🐖celsius&input🐖 ** ** 10 ** #
+
+👀 Code 7000 means "Scaled value (x10):" 👀
+# print🤮 7000 #
+# print🤮 🐖scaled&celsius🐖 #
+
+👀 Print footer (code 8000) 👀
+# print🤮 8000 #
+
+👀 Return success 👀
+... 0 ...

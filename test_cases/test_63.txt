@@ -1,0 +1,3 @@
+# print🤮 🥓Welcome to OINK Language!🥓 #
+# print🤮 🥓This is a string test🥓 #
+# ... 0 ... #

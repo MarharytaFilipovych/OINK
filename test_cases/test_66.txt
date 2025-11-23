@@ -1,0 +1,10 @@
+# print🤮 🥓First number:🥓 #
+# 😀 🐷 🐖a🐖 #
+# eat😋 🐖a🐖 #
+# print🤮 🥓Second number:🥓 #
+# 😀 🐷 🐖b🐖 #
+# eat😋 🐖b🐖 #
+# 😀 🐷 🐖sum🐖 @ 🐖a🐖 ❤️ 🐖b🐖 #
+# print🤮 🥓Result:🥓 #
+# print🤮 🐖sum🐖 #
+# ... 🐖sum🐖 ... #

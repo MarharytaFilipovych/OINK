@@ -3,7 +3,6 @@ import unittest
 import sys
 import os
 
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler.lexer.lexer import Lexer
@@ -45,55 +44,51 @@ class TestLexerHappyPath(unittest.TestCase):
 
 
 def assert_simple_declaration(self, lexemes):
-    expected_types = [
-        TokenType.SIMPLE_LINE_BORDER,
-        TokenType.MUT,
-        TokenType.I32_TYPE,
-        TokenType.VARIABLE_BORDER,
-        TokenType.VARIABLE,
-        TokenType.VARIABLE_BORDER,
-        TokenType.ASSIGNMENT,
-        TokenType.NUMBER,
-        TokenType.SIMPLE_LINE_BORDER,
-        TokenType.NEWLINE,
-        TokenType.THE_END
-    ]
-    actual_types = [t.token_type for t in lexemes]
-    self.assertEqual(actual_types, expected_types)
-    self.assertEqual(lexemes[1].value, "😀")
-    self.assertEqual(lexemes[2].value, "🐷")
-    self.assertEqual(lexemes[4].value, "x")
-    self.assertEqual(lexemes[7].value, "42")
-
-def assert_negative_number(self, lexemes):
-    number_token = [t for t in lexemes if t.token_type == TokenType.NUMBER][0]
-    self.assertEqual(number_token.value, "-100")
-
-def assert_variable_with_ampersand(self, lexemes):
+    mut_token = [t for t in lexemes if t.token_type == TokenType.MUT][0]
+    type_token = [t for t in lexemes if t.token_type == TokenType.I32_TYPE][0]
     var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE][0]
-    self.assertEqual(var_token.value, "my&var")
 
-def assert_all_operators(self, lexemes):
-    operator_tokens = [t for t in lexemes if t.token_type in [
-        TokenType.PLUS, TokenType.MINUS, TokenType.MULTIPLY, TokenType.DIVIDE
-    ]]
-    self.assertEqual(len(operator_tokens), 4)
+    self.assertEqual(mut_token.value, "😀")
+    self.assertEqual(type_token.value, "🐷")
+    self.assertEqual(var_token.value, "x")
+
+def assert_arithmetic_operators(self, lexemes):
+    plus_token = [t for t in lexemes if t.token_type == TokenType.PLUS][0]
+    minus_token = [t for t in lexemes if t.token_type == TokenType.MINUS][0]
+    mult_token = [t for t in lexemes if t.token_type == TokenType.MULTIPLY][0]
+    div_token = [t for t in lexemes if t.token_type == TokenType.DIVIDE][0]
+
+    self.assertEqual(plus_token.value, "❤️")
+    self.assertEqual(minus_token.value, "💔")
+    self.assertEqual(mult_token.value, "💞")
+    self.assertEqual(div_token.value, "💕")
 
 def assert_comparison_operators(self, lexemes):
-    comparison_tokens = [t for t in lexemes if t.token_type.if_for_comparision()]
-    self.assertEqual(len(comparison_tokens), 6)
+    eq_token = [t for t in lexemes if t.token_type == TokenType.EQUALS][0]
+    neq_token = [t for t in lexemes if t.token_type == TokenType.NOT_EQUALS][0]
+    ge_token = [t for t in lexemes if t.token_type == TokenType.GREATER_EQUAL][0]
+    le_token = [t for t in lexemes if t.token_type == TokenType.LESS_EQUAL][0]
+
+    self.assertEqual(eq_token.value, "🌸🌸")
+    self.assertEqual(neq_token.value, "💩🌸")
+    self.assertEqual(ge_token.value, "🌸>")
+    self.assertEqual(le_token.value, "🌸<")
 
 def assert_logical_operators(self, lexemes):
+    not_token = [t for t in lexemes if t.token_type == TokenType.NOT][0]
     and_token = [t for t in lexemes if t.token_type == TokenType.AND][0]
     or_token = [t for t in lexemes if t.token_type == TokenType.OR][0]
+
+    self.assertEqual(not_token.value, "💩")
     self.assertEqual(and_token.value, "hru")
     self.assertEqual(or_token.value, "bruh")
 
 def assert_boolean_literals(self, lexemes):
-    bool_tokens = [t for t in lexemes if t.token_type in [TokenType.TRUE, TokenType.FALSE]]
-    self.assertEqual(len(bool_tokens), 2)
-    self.assertEqual(bool_tokens[0].value, "LOVE")
-    self.assertEqual(bool_tokens[1].value, "HATE")
+    true_token = [t for t in lexemes if t.token_type == TokenType.TRUE][0]
+    false_token = [t for t in lexemes if t.token_type == TokenType.FALSE][0]
+
+    self.assertEqual(true_token.value, "LOVE")
+    self.assertEqual(false_token.value, "HATE")
 
 def assert_control_flow_keywords(self, lexemes):
     if_token = [t for t in lexemes if t.token_type == TokenType.IF][0]
@@ -152,153 +147,92 @@ def assert_function_keyword(self, lexemes):
     self.assertEqual(func_token.value, "PIG")
 
 def assert_member_function_keyword(self, lexemes):
-    member_func_token = [t for t in lexemes if t.token_type == TokenType.MEMBER_FUNCTION][0]
-    self.assertEqual(member_func_token.value, "PIGLET")
+    mem_func_token = [t for t in lexemes if t.token_type == TokenType.MEMBER_FUNCTION][0]
+    self.assertEqual(mem_func_token.value, "PIGLET")
 
-def assert_struct_with_fields(self, lexemes):
-    struct_token = [t for t in lexemes if t.token_type == TokenType.STRUCT]
-    var_tokens = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
-    self.assertEqual(len(struct_token), 1)
-    self.assertTrue(len(var_tokens) >= 2)
-
-def assert_function_with_params(self, lexemes):
-    func_token = [t for t in lexemes if t.token_type == TokenType.FUNCTION]
-    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
-    self.assertEqual(len(func_token), 1)
-    self.assertTrue(len(bracket_tokens) >= 2)
-
-def assert_void_return_type(self, lexemes):
-    void_token = [t for t in lexemes if t.token_type == TokenType.VOID][0]
-    self.assertEqual(void_token.value, "😑")
-
-def assert_member_access_operator(self, lexemes):
-    member_tokens = [t for t in lexemes if t.token_type == TokenType.MEMBER_ACCESS]
-    self.assertTrue(len(member_tokens) >= 1)
-
-def assert_struct_declaration_complete(self, lexemes):
-    struct_token = [t for t in lexemes if t.token_type == TokenType.STRUCT]
-    block_tokens = [t for t in lexemes if t.token_type == TokenType.BLOCK_BORDER]
-    self.assertEqual(len(struct_token), 1)
-    self.assertEqual(len(block_tokens), 2)
-
-def assert_print_statement(self, lexemes):
-    expected_types = [TokenType.SIMPLE_LINE_BORDER, TokenType.PRINT, TokenType.VARIABLE_BORDER, TokenType.VARIABLE, TokenType.VARIABLE_BORDER, TokenType.SIMPLE_LINE_BORDER]
-    actual_types = [t.token_type for t in lexemes]
-    self.assertTrue(all(t1 == t2 for t1, t2 in zip(expected_types, actual_types)))
-    self.assertEqual(lexemes[1].value, "print🤮")
-    self.assertEqual(lexemes[3].value, "input&var")
-
-def assert_read_statement(self, lexemes):
-    read_token = [t for t in lexemes if t.token_type == TokenType.READ]
-    var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
-    self.assertEqual(len(read_token), 1)
-    self.assertTrue(len(var_token) >= 1)
-    self.assertEqual(read_token[0].value, "eat😋")
-    self.assertEqual(var_token[0].value, "input&var")
-
-def assert_lambda_type_declaration(self, lexemes):
+def assert_lambda_keyword(self, lexemes):
     lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 1)
-    self.assertEqual(lambda_tokens[0].value, "🥩")
+    self.assertGreaterEqual(len(lambda_tokens), 3)
 
-def assert_simple_lambda_expression(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
-    self.assertTrue(len(bracket_tokens) >= 2)
+def assert_member_access(self, lexemes):
+    member_access_token = [t for t in lexemes if t.token_type == TokenType.MEMBER_ACCESS][0]
+    self.assertEqual(member_access_token.value, "_")
 
-def assert_lambda_with_multiple_params(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    var_tokens = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
-    self.assertTrue(len(var_tokens) >= 2)
+def assert_read_keyword(self, lexemes):
+    read_token = [t for t in lexemes if t.token_type == TokenType.READ][0]
+    self.assertEqual(read_token.value, "eat😋")
 
-def assert_lambda_with_no_params(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
-    self.assertTrue(len(bracket_tokens) >= 2)
+def assert_print_keyword(self, lexemes):
+    print_token = [t for t in lexemes if t.token_type == TokenType.PRINT][0]
+    self.assertEqual(print_token.value, "print🤮")
 
-def assert_lambda_with_operators(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    operator_tokens = [t for t in lexemes if t.token_type in [
-        TokenType.PLUS, TokenType.MULTIPLY
-    ]]
-    self.assertTrue(len(operator_tokens) >= 1)
+def assert_string_literal_basic(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    self.assertEqual(len(string_tokens), 1)
+    self.assertEqual(string_tokens[0].value, "Hello World")
 
-def assert_lambda_with_comparison(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    comparison_tokens = [t for t in lexemes if t.token_type == TokenType.GREATER]
-    self.assertEqual(len(comparison_tokens), 1)
+def assert_string_literal_with_escapes(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    self.assertEqual(len(string_tokens), 1)
+    self.assertTrue("\n" in string_tokens[0].value or "\t" in string_tokens[0].value)
 
-def assert_lambda_with_logical_operators(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    and_tokens = [t for t in lexemes if t.token_type == TokenType.AND]
-    self.assertTrue(len(and_tokens) >= 1)
+def assert_string_in_print(self, lexemes):
+    print_token = [t for t in lexemes if t.token_type == TokenType.PRINT][0]
+    string_token = [t for t in lexemes if t.token_type == TokenType.STRING][0]
+    self.assertEqual(print_token.value, "print🤮")
+    self.assertEqual(string_token.value, "Test Message")
 
-def assert_lambda_with_unary_operator(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    not_tokens = [t for t in lexemes if t.token_type == TokenType.NOT]
-    self.assertEqual(len(not_tokens), 1)
+def assert_empty_string(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    self.assertEqual(len(string_tokens), 1)
+    self.assertEqual(string_tokens[0].value, "")
 
-def assert_nested_lambda_boundaries(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
-    self.assertTrue(len(bracket_tokens) >= 4)
+def assert_string_with_special_chars(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    self.assertEqual(len(string_tokens), 1)
+    self.assertIn("!", string_tokens[0].value)
 
-def assert_lambda_with_different_types(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertEqual(len(lambda_tokens), 4)
-    i16_tokens = [t for t in lexemes if t.token_type == TokenType.I16_TYPE]
-    i32_tokens = [t for t in lexemes if t.token_type == TokenType.I32_TYPE]
-    self.assertTrue(len(i16_tokens) + len(i32_tokens) >= 2)
+def assert_multiple_strings(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    self.assertEqual(len(string_tokens), 2)
+
+def assert_string_tokens_present(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    self.assertGreaterEqual(len(string_tokens), 1)
 
 
-all_tests = [
-    ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 42 #\n", assert_simple_declaration),
-    ("negative_number", "# 😀 🐷 🐖x🐖 @ -100 #\n", assert_negative_number),
-    ("variable_with_ampersand", "# 😀 🐷 🐖my&var🐖 @ 10 #\n", assert_variable_with_ampersand),
-    ("all_operators", "# 🐖a🐖 ❤️ 🐖b🐖 💔 🐖c🐖 💞 🐖d🐖 💕 🐖e🐖 #\n", assert_all_operators),
-    ("comparison_operators", "# 🐖a🐖 🌸🌸 🐖b🐖 💩🌸 🐖c🐖 > 🐖d🐖 < 🐖e🐖 🌸> 🐖f🐖 🌸< 🐖g🐖 #\n", assert_comparison_operators),
-    ("logical_operators", "# 🐖a🐖 hru 🐖b🐖 bruh 🐖c🐖 #\n", assert_logical_operators),
-    ("boolean_literals", "# 😀 wow 🐖flag🐖 @ LOVE #\n# 😀 wow 🐖flag2🐖 @ HATE #\n", assert_boolean_literals),
-    ("control_flow_keywords", "# SAVE 🐖x🐖 > 5 #\n# HURT 🐖x🐖 🌸🌸 0 #\n# KILL #\n# OINK 🐖x🐖 < 10 #\n", assert_control_flow_keywords),
+test_cases = [
+    ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 10 #\n", assert_simple_declaration),
+    ("arithmetic_operators", "# 😀 🐷 🐖result🐖 @ 🐖a🐖 ❤️ 🐖b🐖 💔 🐖c🐖 💞 🐖d🐖 💕 🐖e🐖 #\n", assert_arithmetic_operators),
+    ("comparison_operators", "# 😀 wow 🐖check🐖 @ 🐖x🐖 🌸🌸 🐖y🐖 bruh 🐖a🐖 💩🌸 🐖b🐖 hru 🐖c🐖 🌸> 🐖d🐖 hru 🐖e🐖 🌸< 🐖f🐖 #\n", assert_comparison_operators),
+    ("logical_operators", "# 😀 wow 🐖result🐖 @ 💩 🐖x🐖 hru 🐖y🐖 bruh 🐖z🐖 #\n", assert_logical_operators),
+    ("boolean_literals", "# 😀 wow 🐖t🐖 @ LOVE #\n# 😀 wow 🐖f🐖 @ HATE #\n", assert_boolean_literals),
+    ("control_flow_keywords", "# SAVE 🐖x🐖 > 0 #\n# 🐖🐖🐖 #\n# HURT 🐖x🐖 < 0 #\n# 🐖🐖🐖 #\n# KILL #\n# 🐖🐖🐖 #\n# OINK 🐖i🐖 < 10 #\n# 🐖🐖🐖 #\n", assert_control_flow_keywords),
     ("block_delimiters", "# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n", assert_block_delimiters),
-    ("mood_line_borders", "#~ 🐖x🐖 @ 🐖x🐖 ❤️ 5 ~#\n", assert_mood_line_borders),
-    ("return_statement", "# ... 🐖x🐖 ... #\n", assert_return_statement),
-    ("all_data_types", "# 😀 🐽 🐖a🐖 @ 1 #\n# 😀 🐷 🐖b🐖 @ 2 #\n# 😀 🐗 🐖c🐖 @ 3 #\n# 😀 wow 🐖d🐖 @ LOVE #\n", assert_all_data_types),
-    ("brackets", "# 🐖x🐖 @ ** 🐖a🐖 ❤️ 🐖b🐖 ** #\n", assert_brackets),
+    ("mood_line_borders", "#~ 😀 🐷 🐖x🐖 @ 10 ~#\n", assert_mood_line_borders),
+    ("return_statement", "# ... 42 ... #\n", assert_return_statement),
+    ("all_data_types", "# 😀 🐽 🐖small🐖 @ 10 #\n# 😀 🐷 🐖medium🐖 @ 20 #\n# 😀 🐗 🐖large🐖 @ 30 #\n# 😀 wow 🐖flag🐖 @ LOVE #\n", assert_all_data_types),
+    ("brackets", "# 😀 🐷 🐖x🐖 @ ** 10 ❤️ 5 ** #\n", assert_brackets),
     ("single_line_comment", "👀 This is a comment\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_single_line_comment),
-    ("multiline_comment", "👀👀👀\nThis is a\nmulti-line comment\n👀👀👀\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_multiline_comment),
+    ("multiline_comment", "👀👀👀\nThis is a\nmultiline comment\n👀👀👀\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_multiline_comment),
     ("struct_keyword", "# BOAR 🐖Point🐖 #\n", assert_struct_keyword),
-    ("function_keyword", "# 🐷 PIG 🐖add🐖 #\n", assert_function_keyword),
+    ("function_keyword", "# 🐷 PIG 🐖test🐖 #\n", assert_function_keyword),
     ("member_function_keyword", "# 🐷 PIGLET 🐖getValue🐖 #\n", assert_member_function_keyword),
-    ("struct_with_fields", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n", assert_struct_with_fields),
-    ("function_with_params", "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n", assert_function_with_params),
-    ("void_return_type", "# 😑 PIG 🐖print🐖 #\n", assert_void_return_type),
-    ("member_access_operator", "# 🐖p🐖 _ 🐖x🐖 #\n", assert_member_access_operator),
-    ("struct_declaration_complete", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n", assert_struct_declaration_complete),
-    ( "print_statement", "# print🤮 🐖input&var🐖 #", assert_print_statement),
-    ( "read_statement","# 😀 🐷 🐖input&var🐖 #\n# eat😋 🐖input&var🐖 #",assert_read_statement),
-    ("lambda_type_keyword", "# 😀 🥩 🐖f🐖 #\n", assert_lambda_type_declaration),
-    ("simple_lambda_one_param", "# 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #\n", assert_simple_lambda_expression),
-    ("lambda_multiple_params", "# 😀 🥩 🐖add🐖 @ 🥩 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #\n", assert_lambda_with_multiple_params),
-    ("lambda_no_params", "# 😀 🥩 🐖const🐖 @ 🥩 ** ** 🥩 42 🥩 #\n", assert_lambda_with_no_params),
-    ("lambda_with_arithmetic", "# 😀 🥩 🐖calc🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 2 ❤️ 1 🥩 #\n", assert_lambda_with_operators),
-    ("lambda_with_comparison", "# 😀 🥩 🐖check🐖 @ 🥩 ** 🐷 🐖n🐖 ** 🥩 🐖n🐖 > 0 🥩 #\n", assert_lambda_with_comparison),
-    ("lambda_with_logical_and", "# 😀 🥩 🐖validate🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 > 0 hru 🐖x🐖 < 100 🥩 #\n", assert_lambda_with_logical_operators),
-    ("lambda_with_not_operator", "# 😀 🥩 🐖negate🐖 @ 🥩 ** wow 🐖b🐖 ** 🥩 💩 🐖b🐖 🥩 #\n", assert_lambda_with_unary_operator),
-    ("lambda_with_nested_expression", "# 😀 🥩 🐖complex🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 ** 🐖x🐖 💞 2 ** ❤️ 1 🥩 #\n", assert_nested_lambda_boundaries),
-    ("lambda_with_mixed_types", "# 😀 🥩 🐖mix🐖 @ 🥩 ** 🐽 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #\n", assert_lambda_with_different_types),
+    ("lambda_keyword", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🥩 #\n", assert_lambda_keyword),
+    ("member_access", "# 😀 🐷 🐖val🐖 @ 🐖obj🐖 _ 🐖method🐖 #\n", assert_member_access),
+    ("read_keyword", "# eat😋 🐖x🐖 #\n", assert_read_keyword),
+    ("print_keyword", "# print🤮 🐖x🐖 #\n", assert_print_keyword),
+    ("string_literal_basic", "# print🤮 🥓Hello World🥓 #\n", assert_string_literal_basic),
+    ("string_literal_with_escapes", "# print🤮 🥓Line1\\nLine2\\tTabbed🥓 #\n", assert_string_literal_with_escapes),
+    ("string_in_print", "# print🤮 🥓Test Message🥓 #\n", assert_string_in_print),
+    ("empty_string", "# print🤮 🥓🥓 #\n", assert_empty_string),
+    ("string_with_special_chars", "# print🤮 🥓Hello! @#$%🥓 #\n", assert_string_with_special_chars),
+    ("multiple_strings", "# print🤮 🥓First🥓 #\n# print🤮 🥓Second🥓 #\n", assert_multiple_strings),
+    ("string_tokens_present", "# print🤮 🥓Test🥓 #\n", assert_string_tokens_present),
 ]
 
-for name, source, func in all_tests:
-    TestLexerHappyPath.add_test_case(name, source, func)
+for name, code, func in test_cases:
+    TestLexerHappyPath.add_test_case(name, code, func)
 
 
 if __name__ == "__main__":

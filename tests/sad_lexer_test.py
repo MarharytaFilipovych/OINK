@@ -28,7 +28,7 @@ class TestLexerFailingCases(ExceptionCheckingTestCase):
         ("standalone_ampersand", "# 😀 🐷 🐖x🐖 @ 10 & 5 #\n"),
         ("invalid_bracket", "# 🐖x🐖 @ ( 🐖a🐖 ❤️ 🐖b🐖 ) #\n"),
         ("invalid_void_emoji", "# 😊 PIG 🐖test🐖 #\n"),
-         ("invalid_variable_start_symbol", "# 😀 🐷 🐖1x🐖 @ 10 #"),
+        ("invalid_variable_start_symbol", "# 😀 🐷 🐖1x🐖 @ 10 #"),
         ("variable_with_dash", "# 😀 🐷 🐖my-var🐖 @ 10 #"),
         ("unknown_operator", "# 😀 🐷 🐖x🐖 @ 10 ✨ 5 #"),
         ("lambda_with_invalid_emoji_mix", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🎉 #\n"),
@@ -39,7 +39,9 @@ class TestLexerFailingCases(ExceptionCheckingTestCase):
         ("lambda_with_dash_in_var", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖my-var🐖 ** 🥩 🐖my-var🐖 🥩 #\n"),
         ("lambda_with_invalid_bracket", "# 😀 🥩 🐖f🐖 @ 🥩 ( 🐷 🐖x🐖 ) 🥩 🐖x🐖 🥩 #\n"),
         ("lambda_body_with_unknown_emoji", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🌟 1 🥩 #\n"),
-
+        ("string_with_invalid_quote", '# print🤮 "Hello World" #\n'),
+        ("string_without_closing_bacon", "# print🤮 🥓Hello World #\n"),
+        ("string_multiline", "# print🤮 🥓Hello\nWorld🥓 #\n"),
     ]
 
     def test_all_failing_cases(self):

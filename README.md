@@ -13,10 +13,38 @@
 - **Type-safe arithmetic** with overflow checking
 - **Functions and structures** with member functions
 - **Built-in I/O operations** for input and output
+- **String literals** with bacon emoji 🥓 delimiters
 
 ## ✨ Key Features
 
-### 🥩 Lambda Expressions (NEW!)
+### 🥓 String Literals (NEW!)
+Create string literals using the bacon emoji as delimiters:
+
+```piglang
+# print🤮 🥓Hello, World!🥓 #
+# print🤮 🥓Welcome to OINK Programming Language!🥓 #
+```
+
+**String Syntax:**
+- Start and end with `🥓` (bacon emoji)
+- Support escape sequences: `\n` (newline), `\t` (tab), `\\` (backslash)
+- Can be used with `print🤮` for output
+- Strings must be on a single line
+
+**String Examples:**
+```piglang
+# Simple string output
+# print🤮 🥓Hello, World!🥓 #
+
+# String with escape sequences
+# print🤮 🥓Line 1\nLine 2\tTabbed🥓 #
+
+# Multiple string prints
+# print🤮 🥓Enter your name:🥓 #
+# print🤮 🥓Thank you!🥓 #
+```
+
+### 🥩 Lambda Expressions
 Create anonymous functions inline using the meat emoji:
 
 ```piglang
@@ -105,8 +133,8 @@ Structures are declared using the `BOAR` keyword and can contain both fields and
 ```
 
 ### 📥📤 Input/Output Functions
-- `eat😋` - Read input from user
-- `print🤮` - Print output to console
+- `eat😋` - Read input from user (supports i16, i32, i64)
+- `print🤮` - Print output to console (supports integers and strings)
 
 ## 📋 Language Specification
 
@@ -122,6 +150,45 @@ Structures are declared using the `BOAR` keyword and can contain both fields and
 | `wow` | Boolean             | `LOVE` (true) or `HATE` (false)                 | `HATE`         |
 | `😑` | Void                | No return value (for functions only)             | N/A            |
 | `🥩` | Lambda              | Anonymous function                               | N/A            |
+| `🥓` | String Literal      | Text enclosed in bacon emojis                    | N/A            |
+
+### String Literals
+
+Strings are text literals enclosed in bacon emojis (`🥓`).
+
+**Syntax:**
+```
+🥓text content🥓
+```
+
+**Features:**
+- Single-line strings only (no multi-line support)
+- Escape sequences supported: `\n`, `\t`, `\\`
+- Used primarily with `print🤮` for output
+- Cannot be stored in variables (literals only)
+
+**Usage:**
+```piglang
+# Print a simple message
+# print🤮 🥓Hello, World!🥓 #
+
+# Print with escape sequences
+# print🤮 🥓Name:\tJohn\nAge:\t25🥓 #
+
+# Create user-friendly prompts
+# print🤮 🥓Enter your age:🥓 #
+# 😀 🐷 🐖age🐖 #
+# eat😋 🐖age🐖 #
+# print🤮 🥓Your age is:🥓 #
+# print🤮 🐖age🐖 #
+```
+
+**Escape Sequences:**
+| Sequence | Description |
+|----------|-------------|
+| `\n`     | Newline     |
+| `\t`     | Tab         |
+| `\\`     | Backslash   |
 
 ### Lambda Expressions
 
@@ -276,15 +343,29 @@ Note: `_` is the member access operator (pig tail!)
 ### Input/Output
 
 #### Read Input: `eat😋`
+Reads numeric input from the user.
+
+**Supported types:** i16 (🐽), i32 (🐷), i64 (🐗)
+
 ```piglang
 # 😀 🐷 🐖input_value🐖 #
 # eat😋 🐖input_value🐖 #
 ```
 
 #### Print Output: `print🤮`
+Prints values to console (supports integers and string literals).
+
+**Supported types:** i16 (🐽), i32 (🐷), i64 (🐗), string literals (🥓)
+
 ```piglang
+# Print integer value
 # print🤮 🐖value🐖 #
+
+# Print expression result
 # print🤮 ** 🐖x🐖 ❤️ 🐖y🐖 ** #
+
+# Print string literal
+# print🤮 🥓Hello, World!🥓 #
 ```
 
 ### Operator Precedence (High to Low)
@@ -331,7 +412,8 @@ return_statement ::= "#" "..." expr "..." "#"
 Input/Output statements:
 io_stmt ::= read_stmt | print_stmt
 read_stmt ::= "eat😋" "🐖" ID "🐖"
-print_stmt ::= "print🤮" expr
+print_stmt ::= "print🤮" ( expr | string_literal )
+string_literal ::= "🥓" STRING_CONTENT "🥓"
 
 Statements are either declarations, assignments, conditionals, loops, or function calls:
 stmt ::= decl | assign | if_stmt | while_stmt | function_call | struct_init
@@ -386,11 +468,12 @@ multiplicative_expr ::= unary_expr { ("💞" | "💕") unary_expr }*
 Unary expression: handles logical NOT operator:
 unary_expr ::= [ "💩" ] factor
 
-Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), function calls, member access, lambda expressions, or parenthesized sub-expressions for grouping and overriding precedence:
-factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "**" expr "**" | boolean | function_call | lambda
+Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), string literals, function calls, member access, lambda expressions, or parenthesized sub-expressions for grouping and overriding precedence:
+factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "**" expr "**" | boolean | string_literal | function_call | lambda
 boolean ::= "LOVE" | "HATE"
 ID ::= LETTER { LETTER | "&" }*
 NUMBER ::= [ "-" ] DIGIT { DIGIT }*
+STRING_CONTENT ::= any characters except "🥓" or NEWLINE, with escape sequences \n, \t, \\
 
 NEWLINE ::= "\n" | "\r\n"
 ```
@@ -398,6 +481,25 @@ NEWLINE ::= "\n" | "\r\n"
 ---
 
 ## 📝 Example Programs
+
+### String I/O Example: User Greeting
+
+```piglang
+# print🤮 🥓=============================🥓 #
+# print🤮 🥓  Welcome to OINK Language! 🥓 #
+# print🤮 🥓=============================🥓 #
+
+# print🤮 🥓Enter your age:🥓 #
+# 😀 🐷 🐖age🐖 #
+# eat😋 🐖age🐖 #
+
+# print🤮 🥓Your age is:🥓 #
+# print🤮 🐖age🐖 #
+
+# print🤮 🥓Thank you for using OINK!🥓 #
+
+# ... 0 ... #
+```
 
 ### Lambda Example: Function as First-Class Value
 
@@ -468,17 +570,25 @@ NEWLINE ::= "\n" | "\r\n"
 # ... 0 ... #
 ```
 
-### I/O Example: Interactive Calculator
+### I/O Example: Interactive Calculator with Strings
 
 ```piglang
-# 😀 🐷 🐖a🐖 #
-# 😀 🐷 🐖b🐖 #
+# print🤮 🥓=== Calculator ===🥓 #
 
+# print🤮 🥓Enter first number:🥓 #
+# 😀 🐷 🐖a🐖 #
 # eat😋 🐖a🐖 #
+
+# print🤮 🥓Enter second number:🥓 #
+# 😀 🐷 🐖b🐖 #
 # eat😋 🐖b🐖 #
 
 # 😀 🐷 🐖sum🐖 @ 🐖a🐖 ❤️ 🐖b🐖 #
+
+# print🤮 🥓Result:🥓 #
 # print🤮 🐖sum🐖 #
+
+# print🤮 🥓Thank you!🥓 #
 
 # ... 🐖sum🐖 ... #
 ```
@@ -513,6 +623,11 @@ Structure member access is validated to ensure fields and methods exist.
 Self-assignment is explicitly forbidden in the OINK programming language. 
 An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause a compilation error.
 
+### String validation
+- Strings must be closed on the same line (no multi-line strings)
+- Escape sequences are validated during lexing
+- Unclosed strings result in compile-time errors
+
 ---
 
 ## 🎨 Style Guide
@@ -542,6 +657,11 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Keep names singular (not plural)
 - Always wrap structure names in `🐖`
 
+### String Usage
+- Use strings for user prompts and messages
+- Keep strings concise and clear
+- Use escape sequences for formatting when needed
+
 ### Block Formatting
 ```piglang
 # SAVE condition #
@@ -557,6 +677,9 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 
 **Why pig emojis?**  
 *Answer*: BECAUSE I DECIDED TO CHOOSE PIGS AS A SOURCE OF INSPIRATION
+
+**What's the bacon emoji (🥓) for?**  
+*Answer*: Bacon comes from pigs! It's the perfect delimiter for string literals in our pig-themed language.
 
 **What's the meat emoji (🥩) for?**  
 *Answer*: It represents lambda expressions - meaty, compact functions! Just like how meat is a concentrated source of nutrition, lambdas are concentrated functions.
@@ -600,6 +723,12 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 **Can lambdas access outer scope variables?**
 *Answer*: Currently, lambdas can only access their parameters. Future versions may support closure.
 
+**Can I store strings in variables?**
+*Answer*: Currently, strings are literals only and cannot be stored in variables. They are used directly with `print🤮` for output.
+
+**Can strings span multiple lines?**
+*Answer*: No! Strings must be closed on the same line. Use `\n` escape sequence for newlines within strings.
+
 ---
 
 ## 🎉 HAVE FUN CODING (OR NOT), MY LOVELY FRIENDS!
@@ -610,6 +739,7 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Use `LOVE` and `HATE` for booleans
 - Try *Mood Lines* for inverted logic
 - Use `🥩` for lambda expressions - meaty functions!
+- Use `🥓` for string literals - bacon delimiters!
 - Every program must return something!
 - No variable shadowing allowed!
 - Use `hru` for AND and `bruh` for OR
@@ -618,8 +748,9 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Use `_` for member access (pig tail!)
 - Chain function calls with `_`
 - Read with `eat😋`, print with `print🤮`
+- Strings support escape sequences: `\n`, `\t`, `\\`
 
-Happy *OINK* coding! 🐷🥩✨
+Happy *OINK* coding! 🐷🥩🥓✨
 
 ---
 
@@ -653,8 +784,8 @@ NOW YOU CAN WRITE YOUR OWN MASTERPIECE WITH OINK LANGUAGE. HOW?
 
 ```bash
     python3 -m compiler <YOUR_CODE_LOCATION> ./llm/<YOUR_DESIRED_FILE_NAME>.ll
-    llc -filetype=obj -relocation-model=pic ./llm/test_$i.ll -o ./obj/<YOUR_DESIRED_FILE_NAME>.o
-    clang -fPIE ./obj/<YOUR_DESIRED_FILE_NAME>i.o -o ./exe/<YOUR_DESIRED_FILE_NAME>
+    llc -filetype=obj -relocation-model=pic ./llm/<YOUR_DESIRED_FILE_NAME>.ll -o ./obj/<YOUR_DESIRED_FILE_NAME>.o
+    clang -fPIE ./obj/<YOUR_DESIRED_FILE_NAME>.o -o ./exe/<YOUR_DESIRED_FILE_NAME>
     ./exe/<YOUR_DESIRED_FILE_NAME>
 ```
 

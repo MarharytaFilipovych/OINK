@@ -1,0 +1,14 @@
+# print🤮 🥓===========================🥓 #
+# print🤮 🥓   OINK Calculator        🥓 #
+# print🤮 🥓===========================🥓 #
+# print🤮 🥓Enter first number:🥓 #
+# 😀 🐷 🐖x🐖 #
+# eat😋 🐖x🐖 #
+# print🤮 🥓Enter second number:🥓 #
+# 😀 🐷 🐖y🐖 #
+# eat😋 🐖y🐖 #
+# 😀 🐷 🐖result🐖 @ 🐖x🐖 💞 🐖y🐖 #
+# print🤮 🥓Product:🥓 #
+# print🤮 🐖result🐖 #
+# print🤮 🥓Thank you!🥓 #
+# ... 0 ... #

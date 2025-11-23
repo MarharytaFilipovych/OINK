@@ -1,0 +1,6 @@
+# print🤮 🥓Enter your age:🥓 #
+# 😀 🐷 🐖age🐖 #
+# eat😋 🐖age🐖 #
+# print🤮 🥓Your age is:🥓 #
+# print🤮 🐖age🐖 #
+# ... 0 ... #
