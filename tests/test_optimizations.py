@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import unittest
 import sys
 import os
 
@@ -10,189 +11,124 @@ from compiler.visitor.semantic_analyzer.semantic_analyzer import SemanticAnalyze
 from compiler.optimizer.optimizer import Optimizer
 
 
-def test_unused_variable_removal():
-    print("Test 1: Unused Variable Removal")
-    
-    code = """# 😀 🐷 🐖used🐖 @ 10 #
-# 😀 🐷 🐖unused1🐖 @ 20 #
-# 😀 🐷 🐖unused2🐖 @ 30 #
+class OptimizationTests(unittest.TestCase):
+    test_cases = []
+
+    @classmethod
+    def add_test_case(cls, name, code, assertion_func):
+        cls.test_cases.append((name, code, assertion_func))
+
+    def test_all_cases(self):
+        results = []
+        for name, code, assertion in self.test_cases:
+            try:
+                with self.subTest(name=name):
+                    lexer = Lexer(code)
+                    tokens = lexer.tokenize()
+                    parser = SyntaxParser(tokens)
+                    ast = parser.parse_program()
+                    semantic_analyzer = SemanticAnalyzer()
+                    ast.accept(semantic_analyzer)
+                    
+                    optimizer = Optimizer()
+                    stats = optimizer.optimize(ast)
+                    
+                    assertion(self, ast, stats)
+                results.append((name, "PASS"))
+            except AssertionError as e:
+                results.append((name, f"FAIL ({e})"))
+            except Exception as e:
+                results.append((name, f"ERROR ({type(e).__name__}: {e})"))
+
+        print("\nOptimization Test Summary:")
+        for test_name, status in results:
+            print(f"{test_name}: {status}")
+
+        failures = [s for _, s in results if s.startswith("FAIL") or s.startswith("ERROR")]
+        if failures:
+            self.fail(f"{len(failures)} tests failed. See summary above.")
+
+
+def assert_unused_variable_removal(self, ast, stats):
+    self.assertEqual(stats['variables_removed'], 2)
+    self.assertEqual(len(ast.statement_nodes), 2)
+
+def assert_iterative_variable_removal(self, ast, stats):
+    self.assertGreaterEqual(stats['variables_removed'], 3)
+    self.assertEqual(len(ast.statement_nodes), 1)
+
+def assert_function_inlining(self, ast, stats):
+    self.assertEqual(stats['functions_inlined'], 1)
+    self.assertEqual(len(ast.function_declarations), 0)
+
+def assert_unused_function_removal(self, ast, stats):
+    self.assertEqual(stats['functions_removed'], 1)
+    self.assertEqual(len(ast.function_declarations), 1)
+
+def assert_combined_optimizations(self, ast, stats):
+    self.assertGreaterEqual(stats['variables_removed'], 1)
+    self.assertEqual(stats['functions_inlined'], 1)
+    self.assertEqual(stats['functions_removed'], 1)
+
+
+test_cases = [
+    ("unused_variable_removal", 
+     """# 😀 🐷 🐖used🐖 @ 10 #
+# 😀 🐷 🐖unused&one🐖 @ 20 #
+# 😀 🐷 🐖unused&two🐖 @ 30 #
 # 😀 🐷 🐖result🐖 @ 🐖used🐖 ❤️ 5 #
 # ... 🐖result🐖 ... #
-"""
+""", assert_unused_variable_removal),
     
-    lexer = Lexer(code)
-    tokens = lexer.tokenize()
-    parser = SyntaxParser(tokens)
-    ast = parser.parse_program()
-    semantic_analyzer = SemanticAnalyzer()
-    ast.accept(semantic_analyzer)
-    
-    initial_count = len(ast.statement_nodes)
-    
-    optimizer = Optimizer()
-    stats = optimizer.optimize(ast)
-    
-    final_count = len(ast.statement_nodes)
-    
-    print(f"  Initial statements: {initial_count}")
-    print(f"  Final statements: {final_count}")
-    print(f"  Variables removed: {stats['variables_removed']}")
-    assert stats['variables_removed'] == 2, "Should remove 2 unused variables"
-    print("  ✓ PASSED\n")
-
-
-def test_iterative_variable_removal():
-    print("Test 2: Iterative Variable Removal")
-    
-    code = """# 😀 🐷 🐖used🐖 @ 10 #
-# 😀 🐷 🐖chain1🐖 @ 🐖used🐖 ❤️ 5 #
-# 😀 🐷 🐖chain2🐖 @ 🐖chain1🐖 💞 2 #
-# 😀 🐷 🐖unused🐖 @ 🐖chain2🐖 💔 1 #
+    ("iterative_variable_removal",
+     """# 😀 🐷 🐖used🐖 @ 10 #
+# 😀 🐷 🐖chain&one🐖 @ 🐖used🐖 ❤️ 5 #
+# 😀 🐷 🐖chain&two🐖 @ 🐖chain&one🐖 💞 2 #
+# 😀 🐷 🐖unused🐖 @ 🐖chain&two🐖 💔 1 #
 # ... 🐖used🐖 ... #
-"""
+""", assert_iterative_variable_removal),
     
-    lexer = Lexer(code)
-    tokens = lexer.tokenize()
-    parser = SyntaxParser(tokens)
-    ast = parser.parse_program()
-    semantic_analyzer = SemanticAnalyzer()
-    ast.accept(semantic_analyzer)
-    
-    optimizer = Optimizer()
-    stats = optimizer.optimize(ast)
-    
-    print(f"  Variables removed: {stats['variables_removed']}")
-    assert stats['variables_removed'] >= 3, "Should remove chain of unused variables"
-    print("  ✓ PASSED\n")
-
-
-def test_function_inlining():
-    print("Test 3: Function Inlining (Single Use)")
-    
-    code = """# 🐷 PIG 🐖helper🐖 ** 🐷 🐖x🐖 ** #
+    ("function_inlining",
+     """# 🐷 PIG 🐖helper🐖 ** 🐷 🐖x🐖 ** #
 # 🐖🐖🐖 #
 # ... 🐖x🐖 💞 2 ... #
 # 🐖🐖🐖 #
 # 😀 🐷 🐖result🐖 @ 🐖helper🐖 ** 10 ** #
 # ... 🐖result🐖 ... #
-"""
+""", assert_function_inlining),
     
-    lexer = Lexer(code)
-    tokens = lexer.tokenize()
-    parser = SyntaxParser(tokens)
-    ast = parser.parse_program()
-    semantic_analyzer = SemanticAnalyzer()
-    ast.accept(semantic_analyzer)
-    
-    initial_funcs = len(ast.function_declarations)
-    
-    optimizer = Optimizer()
-    stats = optimizer.optimize(ast)
-    
-    final_funcs = len(ast.function_declarations)
-    
-    print(f"  Initial functions: {initial_funcs}")
-    print(f"  Final functions: {final_funcs}")
-    print(f"  Functions inlined: {stats['functions_inlined']}")
-    assert stats['functions_inlined'] == 1, "Should inline single-use function"
-    print("  ✓ PASSED\n")
-
-
-def test_unused_function_removal():
-    print("Test 4: Unused Function Removal")
-    
-    code = """# 🐷 PIG 🐖used_func🐖 ** 🐷 🐖x🐖 ** #
+    ("unused_function_removal",
+     """# 🐷 PIG 🐖used&func🐖 ** 🐷 🐖x🐖 ** #
 # 🐖🐖🐖 #
 # ... 🐖x🐖 ❤️ 1 ... #
 # 🐖🐖🐖 #
-# 🐷 PIG 🐖unused_func🐖 ** 🐷 🐖y🐖 ** #
+# 🐷 PIG 🐖unused&func🐖 ** 🐷 🐖y🐖 ** #
 # 🐖🐖🐖 #
 # ... 🐖y🐖 💞 2 ... #
 # 🐖🐖🐖 #
-# 😀 🐷 🐖a🐖 @ 🐖used_func🐖 ** 5 ** #
-# 😀 🐷 🐖b🐖 @ 🐖used_func🐖 ** 10 ** #
+# 😀 🐷 🐖a🐖 @ 🐖used&func🐖 ** 5 ** #
+# 😀 🐷 🐖b🐖 @ 🐖used&func🐖 ** 10 ** #
 # ... 🐖a🐖 ❤️ 🐖b🐖 ... #
-"""
+""", assert_unused_function_removal),
     
-    lexer = Lexer(code)
-    tokens = lexer.tokenize()
-    parser = SyntaxParser(tokens)
-    ast = parser.parse_program()
-    semantic_analyzer = SemanticAnalyzer()
-    ast.accept(semantic_analyzer)
-    
-    initial_funcs = len(ast.function_declarations)
-    
-    optimizer = Optimizer()
-    stats = optimizer.optimize(ast)
-    
-    final_funcs = len(ast.function_declarations)
-    
-    print(f"  Initial functions: {initial_funcs}")
-    print(f"  Final functions: {final_funcs}")
-    print(f"  Functions removed: {stats['functions_removed']}")
-    assert stats['functions_removed'] == 1, "Should remove unused function"
-    print("  ✓ PASSED\n")
-
-
-def test_combined_optimizations():
-    print("Test 5: Combined Optimizations")
-    
-    code = """# 🐷 PIG 🐖single_use🐖 ** 🐷 🐖x🐖 ** #
+    ("combined_optimizations",
+     """# 🐷 PIG 🐖single&use🐖 ** 🐷 🐖x🐖 ** #
 # 🐖🐖🐖 #
 # ... 🐖x🐖 💞 3 ... #
 # 🐖🐖🐖 #
-# 🐷 PIG 🐖never_used🐖 ** 🐷 🐖y🐖 ** #
+# 🐷 PIG 🐖never&used🐖 ** 🐷 🐖y🐖 ** #
 # 🐖🐖🐖 #
 # ... 🐖y🐖 💔 5 ... #
 # 🐖🐖🐖 #
-# 😀 🐷 🐖unused_var🐖 @ 100 #
-# 😀 🐷 🐖result🐖 @ 🐖single_use🐖 ** 7 ** #
+# 😀 🐷 🐖unused&var🐖 @ 100 #
+# 😀 🐷 🐖result🐖 @ 🐖single&use🐖 ** 7 ** #
 # ... 🐖result🐖 ... #
-"""
-    
-    lexer = Lexer(code)
-    tokens = lexer.tokenize()
-    parser = SyntaxParser(tokens)
-    ast = parser.parse_program()
-    semantic_analyzer = SemanticAnalyzer()
-    ast.accept(semantic_analyzer)
-    
-    optimizer = Optimizer()
-    stats = optimizer.optimize(ast)
-    
-    print(f"  Variables removed: {stats['variables_removed']}")
-    print(f"  Functions inlined: {stats['functions_inlined']}")
-    print(f"  Functions removed: {stats['functions_removed']}")
-    
-    assert stats['variables_removed'] >= 1, "Should remove unused variables"
-    assert stats['functions_inlined'] == 1, "Should inline single-use function"
-    assert stats['functions_removed'] == 1, "Should remove unused function"
-    print("  ✓ PASSED\n")
+""", assert_combined_optimizations)
+]
+
+for name, code, func in test_cases:
+    OptimizationTests.add_test_case(name, code, func)
 
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("OINK Compiler Optimization Tests")
-    print("=" * 60)
-    print()
-    
-    try:
-        test_unused_variable_removal()
-        test_iterative_variable_removal()
-        test_function_inlining()
-        test_unused_function_removal()
-        test_combined_optimizations()
-        
-        print("=" * 60)
-        print("All optimization tests PASSED!")
-        print("=" * 60)
-        
-    except AssertionError as e:
-        print(f"\n✗ TEST FAILED: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n✗ ERROR: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+    unittest.main(verbosity=2)
