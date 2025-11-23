@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from typing import TYPE_CHECKING
-from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT
+from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT, STRING
 from ...llvm_specifics.data_type import DataType
 from ...node.binary_op_node import BinaryOpNode
 from ...node.number_node import NumberNode
@@ -76,6 +76,9 @@ class ExpressionAnalyzer:
     @staticmethod
     def visit_boolean(node: BooleanNode) -> DataType:
         return DataType.BOOL
+    
+    def visit_string(self, node) -> str:
+        return STRING
 
     def visit_unary_operation(self, node: UnaryOpNode) -> DataType:
         operand_type = node.operand.accept(self.semantic_analyzer)

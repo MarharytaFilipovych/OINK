@@ -69,7 +69,8 @@ class TokenType(Enum):
     LAMBDA = auto()  # 🥩
     QUOTE = auto() # 🥓
 
-    STRING = auto() # 👺
+    STRING_TYPE = auto() # 👺
+    STRING = auto()
 
 
     def if_for_comparision(self) -> bool:

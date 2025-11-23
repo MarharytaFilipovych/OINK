@@ -29,8 +29,7 @@ class Lexer:
 
     def __peek_ahead(self, length: int) -> str:
         end_pos = self.current_position + length
-        return self.source[self.current_position:end_pos] \
-            if end_pos <= len(self.source) else ""
+        return self.source[self.current_position:end_pos] if end_pos <= len(self.source) else ""
 
     def __start_new_token(self, new_state: LexerState):
         self.state = new_state
@@ -65,6 +64,8 @@ class Lexer:
                     self.__manage_comment_state()
                 case LexerState.MULTILINE_COMMENT:
                     self.__manage_multiline_comment_state()
+                case LexerState.STRING:
+                    self.__manage_string_state()
                     
         self.__build_current_token()
         self.tokens.append(Token(TokenType.THE_END, "", self.line, self.index))
@@ -90,6 +91,15 @@ class Lexer:
         if self.__peek_ahead(len(COMMENT)) == COMMENT:
             self.state = LexerState.COMMENT
             self.__move_to_next_char(len(COMMENT))
+            return
+
+        if self.__peek_ahead(len(QUOTE)) == QUOTE:
+            self.line_has_content = True
+            self.state = LexerState.STRING
+            self.current_token_start = self.current_position + len(QUOTE)
+            self.current_token_start_line = self.line
+            self.current_token_start_index = self.index + 1
+            self.__move_to_next_char(len(QUOTE))
             return
 
         self.line_has_content = True
@@ -162,6 +172,34 @@ class Lexer:
 
         self.__build_current_token()
         self.state = LexerState.INITIAL
+
+    def __manage_string_state(self):
+        while self.current_position < len(self.source):
+            if self.__peek_ahead(len(QUOTE)) == QUOTE:
+                value = self.source[self.current_token_start:self.current_position]
+                processed_value = self.__process_escape_sequences(value)
+                self.__add_token(TokenType.STRING, processed_value, 
+                               self.current_token_start_line, 
+                               self.current_token_start_index)
+                self.__move_to_next_char(len(QUOTE))
+                self.state = LexerState.INITIAL
+                return
+            
+            if self.source[self.current_position] == NEWLINE:
+                raise ValueError(
+                    f"Unclosed string literal at line {self.current_token_start_line}! "
+                    f"String must be closed with 🥓 on the same line.")
+            
+            self.__move_to_next_char()
+        
+        raise ValueError(f"Unclosed string literal starting at line {self.current_token_start_line}!")
+
+    @staticmethod
+    def __process_escape_sequences(value: str) -> str:
+        result = value.replace('\\n', '\n')
+        result = result.replace('\\t', '\t')
+        result = result.replace('\\\\', '\\')
+        return result
 
     def __build_identifier_token(self, value: str):
         token_type = KEYWORDS.get(value, TokenType.VARIABLE)

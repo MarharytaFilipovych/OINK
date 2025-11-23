@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+from ...node.print_node import PrintNode
+from ...node.read_node import ReadNode
+from ...node.string_node import StringNode
 from ...node.lambda_node import LambdaNode
 from ...llvm_specifics.boolean import Boolean
 from ...llvm_specifics.data_type import DataType
@@ -7,7 +10,7 @@ from ...node.code_block_node import CodeBlockNode
 from ...node.if_node import IfNode
 from ...node.elif_node import ElifNode
 from ...node.while_node import WhileNode
-from ...constants import NOT, UNDERLINE
+from ...constants import NOT, UNDERLINE, STRING
 from .variable_registry import VariableRegistry
 from .llvm_emitter import LLVMEmitter
 from .type_converter import TypeConverter
@@ -368,7 +371,7 @@ class CodeGenerator(ASTVisitor):
             return 5
         return 0
 
-    def visit_read(self, node):
+    def visit_read(self, node: ReadNode):
         var_type = self.variable_registry.get_variable_type(node.variable)
         scanf_format_len = self.__get_scanf_format_len(var_type)
         format_string_name = self.__get_scanf_format_string(var_type)
@@ -410,19 +413,24 @@ class CodeGenerator(ASTVisitor):
         current_ptr = self.variable_registry.get_current_register(variable_name)
         self.emitter.emit_line(f"  store {var_type.to_llvm()} {temp_val}, {var_type.to_llvm()}* {current_ptr}")
 
-    def visit_print(self, node):
+    def visit_print(self, node: PrintNode):
         value = node.expr_node.accept(self)
         expr_type = self.type_converter.get_node_type(node.expr_node)
-        if expr_type == DataType.BOOL:
-            value = self.struct_ops.widen_value(value, DataType.BOOL.to_llvm(), DataType.I32.to_llvm())
-            print_func_name = "@printValue_i32"
-            llvm_type = DataType.I32.to_llvm()
-        else: 
+        
+        if expr_type == STRING:
+            str_len = len(node.expr_node.value) + 1
+            self.emitter.emit_line(
+            f" call i32 (i8*, ...) @printf(i8* getelementptr inbounds "
+            f"([{str_len} x i8], [{str_len} x i8]* {value}, i32 0, i32 0))")
+        elif expr_type == DataType.BOOL:
+            value = self.struct_ops.widen_value(value, 'i1', 'i32')
+            self.emitter.emit_line(f" call void @printValue_i32(i32 {value})")
+        else:
             llvm_type = expr_type.to_llvm()
-            print_func_name = f"@printValue_{llvm_type}"
-        self.emitter.emit_line(f"  call void {print_func_name}({llvm_type} {value})")
+            self.emitter.emit_line(f" call void @printValue_{llvm_type}({llvm_type} {value})")
 
-    def visit_lambda(self, node):
+
+    def visit_lambda(self, node: LambdaNode):
         if node.lambda_id is None:
             node.lambda_id = self.emitter.get_next_label_id()
         lambda_name = f"lambda_{node.lambda_id}"
@@ -452,7 +460,7 @@ class CodeGenerator(ASTVisitor):
         self.emitter.reset_for_function()
         self.variable_registry.reset()
 
-    def __lambda_build_param_strs(self, node):
+    def __lambda_build_param_strs(self, node: LambdaNode):
         param_strs = []
         for param in node.params:
             llvm_type = self.type_converter.get_llvm_type(param.param_type) \
@@ -460,7 +468,7 @@ class CodeGenerator(ASTVisitor):
             param_strs.append(f"{llvm_type} %{param.name}")
         return param_strs
 
-    def __lambda_allocate_and_store_params(self, node):
+    def __lambda_allocate_and_store_params(self, node: LambdaNode):
         for param in node.params:
             self.variable_registry.max_versions[param.name] = 0
             self.variable_registry.variable_versions[param.name] = 0
@@ -471,6 +479,13 @@ class CodeGenerator(ASTVisitor):
             self.emitter.emit_line(f"  {param_reg} = alloca {param_llvm_type}")
             self.emitter.emit_line(f"  store {param_llvm_type} %{param.name}, {param_llvm_type}* {param_reg}")
 
-    def visit_string(self, node):
-        pass
+    def visit_string(self, node: StringNode) -> str:
+        string_id = self.emitter.get_next_label_id()
+        string_name = f"@.str.{string_id}"
+        string_content = node.value.replace('\n', '\\0A').replace('\t', '\\09')
+        string_len = len(node.value) + 1
+        string_def = (f'{string_name} = private unnamed_addr constant '
+        f'[{string_len} x i8] c"{string_content}\\00", align 1')
+        self.emitter.add_struct_type_definition(string_def)
+        return string_name
 

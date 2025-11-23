@@ -56,7 +56,7 @@ EMOJI_TOKENS = {
     '🐖🐖🐖': TokenType.BLOCK_BORDER,
     '👀👀👀': TokenType.MULTILINE_COMMENT,
     '🥩': TokenType.LAMBDA,
-    '👺': TokenType.STRING,
+    '👺': TokenType.STRING_TYPE,
     '🥓': TokenType.QUOTE
 }
 
@@ -77,4 +77,5 @@ GLOBAL_SCOPE = "global"
 I64_MAX = 2**63 - 1
 I64_MIN = -2**63
 LAMBDA = "lambda"
-
+QUOTE = "🥓"
+STRING = "string"

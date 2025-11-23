@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from typing import Union
-
+from ..node.string_node import StringNode
 from ..constants import FALSE, TRUE, NOT
 from ..node.expr_node import ExprNode
 from ..node.factor_node import FactorNode
@@ -93,6 +93,9 @@ class ExpressionParser:
 
     def parse_value(self) -> Union[FactorNode, ExprNode]:
         token = self.reader.peek()
+        if token and token.token_type == TokenType.STRING:
+            string_token = self.reader.eat()
+            return StringNode(string_token.value, string_token.line)
         if token and token.token_type == TokenType.LAMBDA:
             return self.parse_lambda()
         token = self.reader.eat()
@@ -152,12 +155,10 @@ class ExpressionParser:
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
         member_token = self.reader.expect_token(TokenType.VARIABLE)
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
-
-        if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
-            return self.parse_member_function_call(var_name, member_token.value, line)
-        else:
-            return MemberAccessNode(var_name, member_token.value, line)
-
+        return self.parse_member_function_call(var_name, member_token.value, line) \
+        if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET \
+        else MemberAccessNode(var_name, member_token.value, line)
+        
     def __is_function_call(self) -> bool:
         next_token = self.reader.peek()
         if next_token and next_token.token_type == TokenType.BRACKET:
