@@ -93,49 +93,52 @@ class ExpressionParser:
 
     def parse_value(self) -> Union[FactorNode, ExprNode]:
         token = self.reader.peek()
-
         if token and token.token_type == TokenType.LAMBDA:
             return self.parse_lambda()
-
         token = self.reader.eat()
-
         if not token:
-            line = self.reader.peek() - 1 if self.reader.peek() > 1 else self.reader.peek()
-            raise ValueError(f"You should have used either a number, a variable, or a boolean, "
-                f"but you decided to abandon your work (line {line}!")
+            self.__raise_no_value_error()
+        return self.__handle_value_token(token)
 
+    def __raise_no_value_error(self):
+        line = self.reader.peek() - 1 if self.reader.peek() > 1 else self.reader.peek()
+        raise ValueError(
+            f"You should have used either a number, a variable, or a boolean, "
+            f"but you decided to abandon your work (line {line}!")
+
+    def __handle_value_token(self, token) -> Union[FactorNode, ExprNode]:
         match token.token_type:
             case TokenType.NUMBER:
                 return NumberNode(token.value)
             case TokenType.VARIABLE_BORDER:
                 return self.parse_variable_or_call()
             case TokenType.TRUE | TokenType.FALSE:
-                value = token.value
-                if self.reader.in_mood_line:
-                    value = FALSE if value == TRUE else TRUE
-                return BooleanNode(value)
+                return self.__parse_boolean_token(token)
             case TokenType.BRACKET:
                 expr = self.parse_expression()
                 self.reader.expect_token(TokenType.BRACKET)
                 return expr
             case _:
-                raise ValueError( f"You should have used either a number, a variable, or a boolean "
-                    f"at line {token.line}, not \"{token.value}\" of the type {token.token_type.name.lower()}!")
+                raise ValueError(
+                    f"You should have used either a number, a variable, or a boolean "
+                    f"at line {token.line}, not \"{token.value}\" of the type {token.token_type.name.lower()}!" )
+
+    def __parse_boolean_token(self, token) -> BooleanNode:
+        value = token.value
+        if self.reader.in_mood_line:
+            value = FALSE if value == TRUE else TRUE
+        return BooleanNode(value)
 
     def parse_variable_or_call(self) -> Union[FactorNode, ExprNode]:
         var_token = self.reader.expect_token(TokenType.VARIABLE)
         var_name = var_token.value
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
-
         if self.__is_struct_initialization(var_name):
             return self.parse_struct_init(var_name, var_token.line)
-
         if self.__is_member_access():
             return self.__parse_member_access(var_name, var_token.line)
-
         if self.__is_function_call():
             return self.parse_function_call_expr(var_name, var_token.line)
-
         return IDNode(var_name, var_token.line)
 
     def __is_struct_initialization(self, var_name: str) -> bool:
@@ -162,8 +165,7 @@ class ExpressionParser:
             if token_after_bracket and token_after_bracket.token_type in [
                 TokenType.RETURN,
                 TokenType.SIMPLE_LINE_BORDER,
-                TokenType.MOOD_LINE_BORDER_END
-            ]:
+                TokenType.MOOD_LINE_BORDER_END]:
                 return False
             return True
         return False
@@ -175,58 +177,51 @@ class ExpressionParser:
             func_name = func_token.value
             line = func_token.line
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
-
         self.reader.expect_token(TokenType.BRACKET)
         arguments = self.parse_arguments()
         self.reader.expect_token(TokenType.BRACKET)
-
         result = FunctionCallNode(func_name, arguments, line, None)
-        
         if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS:
             result = self.parse_function_chain(result, line)
-        
         return result
 
     def parse_arguments(self) -> list[ExprNode]:
         arguments = []
-        should_parse_arg = False
-        token = self.reader.peek()
-        
-        if token:
-            if token.token_type != TokenType.BRACKET:
-                should_parse_arg = True
-            else:
-                # Ambiguity check: Is this BRACKET closing the call or starting a group?
-                # We peek at the *next* token. If it starts an expression, this bracket starts a group.
-                next_token = self.reader.peek(1)
-                if next_token and next_token.token_type in [
-                    TokenType.NUMBER, 
-                    TokenType.VARIABLE_BORDER, 
-                    TokenType.TRUE, 
-                    TokenType.FALSE, 
-                    TokenType.NOT, 
-                    TokenType.LAMBDA
-                ]:
-                    should_parse_arg = True
-
-        if should_parse_arg:
+        if self.__should_parse_first_argument():
             arguments.append(self.parse_expression())
-            
-            while True:
-                saved_index = self.reader.current_token_index
-                
-                if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
-                    self.reader.eat()
-                else:
-                    break
-                
-                if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
-                    self.reader.eat()
-                    arguments.append(self.parse_expression())
-                else:
-                    self.reader.current_token_index = saved_index
-                    break
+            self.__parse_additional_arguments(arguments)
         return arguments
+
+    def __should_parse_first_argument(self) -> bool:
+        token = self.reader.peek()
+        if not token:
+            return False
+        if token.token_type != TokenType.BRACKET:
+            return True
+        next_token = self.reader.peek(1)
+        if next_token and next_token.token_type in [
+            TokenType.NUMBER,TokenType.VARIABLE_BORDER,
+            TokenType.TRUE,TokenType.FALSE,
+            TokenType.NOT,TokenType.LAMBDA]:
+            return True
+
+        return False
+
+    def __parse_additional_arguments(self, arguments: list[ExprNode]):
+        while True:
+            saved_index = self.reader.current_token_index
+
+            if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+                self.reader.eat()
+            else:
+                break
+
+            if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+                self.reader.eat()
+                arguments.append(self.parse_expression())
+            else:
+                self.reader.current_token_index = saved_index
+                break
 
     def parse_member_function_call(self, object_name: str, func_name: str, line: int) -> FunctionCallNode:
         self.reader.expect_token(TokenType.BRACKET)
@@ -259,9 +254,17 @@ class ExpressionParser:
         self.reader.expect_token(TokenType.BRACKET)
         return StructInitNode(struct_name, init_exprs, line)
 
-    def parse_lambda(self):
+    def parse_lambda(self) -> LambdaNode:
         lambda_token = self.reader.expect_token(TokenType.LAMBDA)
         self.reader.expect_token(TokenType.BRACKET)
+        params = self.__parse_lambda_parameters()
+        self.reader.expect_token(TokenType.BRACKET)
+        self.reader.expect_token(TokenType.LAMBDA)
+        body = self.parse_expression()
+        self.reader.expect_token(TokenType.LAMBDA)
+        return LambdaNode(params, body, lambda_token.line)
+
+    def __parse_lambda_parameters(self) -> list:
         params = []
         if self.reader.peek() and self.reader.peek().token_type != TokenType.BRACKET:
             params.append(self.parse_lambda_param())
@@ -277,13 +280,14 @@ class ExpressionParser:
                 else:
                     self.reader.current_token_index = saved_index
                     break
-        self.reader.expect_token(TokenType.BRACKET)
-        self.reader.expect_token(TokenType.LAMBDA)
-        body = self.parse_expression()
-        self.reader.expect_token(TokenType.LAMBDA)
-        return LambdaNode(params, body, lambda_token.line)
+        return params
 
-    def parse_lambda_param(self):
+    def parse_lambda_param(self) -> LambdaParam:
+        param_type = self.__parse_lambda_param_type()
+        param_name = self.__parse_lambda_param_name()
+        return LambdaParam(param_type, param_name)
+
+    def __parse_lambda_param_type(self):
         token = self.reader.peek()
         if not token or not (token.token_type.is_data_type() or token.token_type == TokenType.VARIABLE_BORDER):
             raise ValueError(f"Expected type in lambda parameter at line {token.line if token else 'unknown'}!")
@@ -302,7 +306,10 @@ class ExpressionParser:
                 TokenType.BOOL: DataType.BOOL
             }.get(type_token.token_type, DataType.I32)
 
+        return param_type
+
+    def __parse_lambda_param_name(self):
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
         name_token = self.reader.expect_token(TokenType.VARIABLE)
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
-        return LambdaParam(param_type, name_token.value)
+        return name_token.value

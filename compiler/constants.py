@@ -74,4 +74,5 @@ NOT = "💩"
 GLOBAL_SCOPE = "global"
 I64_MAX = 2**63 - 1
 I64_MIN = -2**63
+LAMBDA = "lambda"
 

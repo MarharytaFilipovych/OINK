@@ -13,13 +13,13 @@ from ...node.function_call_node import FunctionCallNode
 from ...constants import I16_MAX, I16_MIN, I32_MAX, I32_MIN, UNDERLINE, VARIABLE_ALLOWED_SIGN
 
 
-def _get_binary_op_type(node: BinaryOpNode) -> DataType:
+def get_binary_op_type(node: BinaryOpNode) -> DataType:
     if node.operator.is_for_comparison() or node.operator.is_logical():
         return DataType.BOOL
     return node.result_type if node.result_type else DataType.I32
 
 
-def _parse_return_type(type_str: str) -> Union[DataType, str]:
+def parse_return_type(type_str: str) -> Union[DataType, str]:
     try:
         return DataType.from_string(type_str)
     except (ValueError, AttributeError):
@@ -58,32 +58,32 @@ class TypeConverter:
             var_type = self.variable_registry.get_variable_type(node.value)
             return var_type if var_type is not None else DataType.I32
         if isinstance(node, NumberNode):
-            return self._infer_number_type(int(node.value))
+            return self.__infer_number_type(int(node.value))
         if isinstance(node, BooleanNode):
             return DataType.BOOL
         if isinstance(node, BinaryOpNode):
-            return _get_binary_op_type(node)
+            return get_binary_op_type(node)
         if isinstance(node, UnaryOpNode):
             return DataType.BOOL
         if isinstance(node, StructInitNode):
             return node.value
         if isinstance(node, MemberAccessNode):
-            return self._get_member_access_type(node)
+            return self.__get_member_access_type(node)
         if isinstance(node, FunctionCallNode):
-            return self._get_function_return_type(node)
+            return self.__get_function_return_type(node)
         if isinstance(node, LambdaNode):
             return f"lambda_{id(node)}"
         return DataType.I32
 
     @staticmethod
-    def _infer_number_type(value: int) -> DataType:
+    def __infer_number_type(value: int) -> DataType:
         if I16_MIN <= value <= I16_MAX:
             return DataType.I16
         if I32_MIN <= value <= I32_MAX:
             return DataType.I32
         return DataType.I64
 
-    def _get_member_access_type(self, node: MemberAccessNode) -> Union[DataType, str]:
+    def __get_member_access_type(self, node: MemberAccessNode) -> Union[DataType, str]:
         obj_type = self.variable_registry.get_variable_type(node.value)
         if obj_type is None:
             return DataType.I32
@@ -98,7 +98,7 @@ class TypeConverter:
         except ValueError:
             return field_info[2]
 
-    def _get_function_return_type(self, node: FunctionCallNode) -> Union[DataType, str]:
+    def __get_function_return_type(self, node: FunctionCallNode) -> Union[DataType, str]:
         if hasattr(self.variable_registry, 'lambda_return_types') and \
            node.value in self.variable_registry.lambda_return_types:
             return self.variable_registry.lambda_return_types[node.value]
@@ -108,11 +108,11 @@ class TypeConverter:
             if isinstance(obj_type, str):
                 mangled_name = f"{obj_type}_{node.value}".replace(VARIABLE_ALLOWED_SIGN, UNDERLINE)
                 type_str = self.function_return_types.get(mangled_name, DataType.I32.to_llvm())
-                return _parse_return_type(type_str)
+                return parse_return_type(type_str)
 
         func_name = node.value.replace(VARIABLE_ALLOWED_SIGN, UNDERLINE)
         type_str = self.function_return_types.get(func_name, DataType.I32.to_llvm())
-        return _parse_return_type(type_str)
+        return parse_return_type(type_str)
 
     def infer_operand_type(self, left_node, right_node) -> str:
         left_type = self.get_node_type(left_node)
@@ -120,7 +120,6 @@ class TypeConverter:
 
         if not isinstance(left_type, DataType) or not isinstance(right_type, DataType):
             return DataType.I32.to_llvm()
-
         if left_type == DataType.I64 or right_type == DataType.I64:
             return DataType.I64.to_llvm()
         if left_type == DataType.I32 or right_type == DataType.I32:

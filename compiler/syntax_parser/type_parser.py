@@ -6,7 +6,7 @@ from ..node.factor_node import FactorNode
 from ..node.number_node import NumberNode
 from ..node.bool_node import BooleanNode
 from ..token.token_type import TokenType
-from ..constants import FALSE
+from ..constants import FALSE, LAMBDA
 
 
 class TypeParser:
@@ -18,35 +18,41 @@ class TypeParser:
         token = self.reader.peek()
         if not token:
             raise ValueError("Expected a type but got nothing!")
-
         if token.token_type == TokenType.LAMBDA:
-            self.reader.eat()
-            return "lambda"
-
+            return self.__parse_lambda_type()
         if token.token_type == TokenType.VARIABLE_BORDER:
-            self.reader.eat()
-            struct_token = self.reader.expect_token(TokenType.VARIABLE)
-            struct_name = struct_token.value
-            self.reader.expect_token(TokenType.VARIABLE_BORDER)
-            if struct_name not in self.declared_structs:
-                raise ValueError(f"Unknown type {struct_name} at line {struct_token.line}!")
-            return struct_name
-
+            return self.__parse_struct_type()
         if token.token_type.is_data_type():
-            self.reader.eat()
-            match token.token_type:
-                case TokenType.I16_TYPE:
-                    return DataType.I16
-                case TokenType.I32_TYPE:
-                    return DataType.I32
-                case TokenType.I64_TYPE:
-                    return DataType.I64
-                case TokenType.BOOL:
-                    return DataType.BOOL
-                case TokenType.VOID:
-                    return DataType.VOID
-
+            return self.__parse_builtin_type(token)
         raise ValueError(f"Expected type declaration at line {token.line}!")
+
+    def __parse_lambda_type(self) -> str:
+        self.reader.eat()
+        return LAMBDA
+
+    def __parse_struct_type(self) -> str:
+        self.reader.eat()
+        struct_token = self.reader.expect_token(TokenType.VARIABLE)
+        struct_name = struct_token.value
+        self.reader.expect_token(TokenType.VARIABLE_BORDER)
+        if struct_name not in self.declared_structs:
+            raise ValueError(f"Unknown type {struct_name} at line {struct_token.line}!")
+        return struct_name
+
+    def __parse_builtin_type(self, token) -> DataType:
+        self.reader.eat()
+        match token.token_type:
+            case TokenType.I16_TYPE:
+                return DataType.I16
+            case TokenType.I32_TYPE:
+                return DataType.I32
+            case TokenType.I64_TYPE:
+                return DataType.I64
+            case TokenType.BOOL:
+                return DataType.BOOL
+            case TokenType.VOID:
+                return DataType.VOID
+        return None
 
     @staticmethod
     def get_default_for_type(data_type: Union[DataType, str]) -> FactorNode:

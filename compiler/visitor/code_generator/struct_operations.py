@@ -93,7 +93,7 @@ class StructOperations:
         if not isinstance(current_type, str):
             return current_reg, current_type
 
-        field_ptr, field_llvm_type, field_data_type = self._get_field_info(
+        field_ptr, field_llvm_type, field_data_type = self.__get_field_info(
             current_type, field_name, current_reg)
 
         if is_final:
@@ -110,8 +110,8 @@ class StructOperations:
         
         return current_reg, new_type
 
-    def _get_field_info(self, struct_name: str, field_name: str, 
-                       base_reg: str) -> tuple[str, str, str]:
+    def __get_field_info(self, struct_name: str, field_name: str,
+                         base_reg: str) -> tuple[str, str, str]:
         fields = self.struct_definitions[struct_name]
         field_index, field_llvm_type, field_data_type = self.find_field(fields, field_name)
         field_ptr = self.get_struct_field_ptr(struct_name, base_reg, field_index)
@@ -128,12 +128,12 @@ class StructOperations:
         fields = self.struct_definitions[struct_name]
         for i, (field_name, field_llvm_type, _) in enumerate(fields):
             src_field_ptr = self.get_struct_field_ptr(struct_name, src_ptr, i)
-            src_val = self._load_value(field_llvm_type, src_field_ptr)
+            src_val = self.__load_value(field_llvm_type, src_field_ptr)
 
             dst_field_ptr = self.get_struct_field_ptr(struct_name, dst_ptr, i)
             self.emitter.emit_line(f"  store {field_llvm_type} {src_val}, {field_llvm_type}* {dst_field_ptr}")
 
-    def _load_value(self, llvm_type: str, ptr: str) -> str:
+    def __load_value(self, llvm_type: str, ptr: str) -> str:
         val_reg = self.emitter.get_temp_register()
         self.emitter.emit_line(f"  {val_reg} = load {llvm_type}, {llvm_type}* {ptr}")
         return val_reg

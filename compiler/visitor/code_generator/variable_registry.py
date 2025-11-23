@@ -14,25 +14,24 @@ class VariableRegistry:
         self.lambda_return_types: dict[str, Union[DataType, str]] = {}
 
     @staticmethod
-    def _sanitize_name(variable: str) -> str:
+    def __sanitize_name(variable: str) -> str:
         return variable.replace(VARIABLE_ALLOWED_SIGN, UNDERLINE)
 
     def get_variable_register(self, variable: str) -> str:
-        sanitized_name = self._sanitize_name(variable)
+        sanitized_name = self.__sanitize_name(variable)
         if variable not in self.max_versions:
             self.max_versions[variable] = 0
             self.variable_versions[variable] = 0
             return f"%{sanitized_name}"
-
         self.max_versions[variable] += 1
         self.variable_versions[variable] = self.max_versions[variable]
         return f"%{sanitized_name}.{self.variable_versions[variable]}"
 
     def get_current_register(self, variable: str) -> str:
-        sanitized_name = self._sanitize_name(variable)
-        if variable not in self.variable_versions or self.variable_versions[variable] == 0:
-            return f"%{sanitized_name}"
-        return f"%{sanitized_name}.{self.variable_versions[variable]}"
+        sanitized_name = self.__sanitize_name(variable)
+        return f"%{sanitized_name}" \
+               if variable not in self.variable_versions or self.variable_versions[variable] == 0 else \
+                f"%{sanitized_name}.{self.variable_versions[variable]}"
 
     def get_variable_type(self, variable: str) -> Optional[Union[DataType, str]]:
         return self.variable_types.get(variable)

@@ -32,24 +32,20 @@ class LLVMEmitter:
         self.function_definitions.extend(lines)
 
     def build_final_output(self) -> str:
-        result = [self._get_io_functions_llvm()]
-
+        result = [self.__get_io_functions_llvm()]
         if self.struct_type_lines:
             result.extend(self.struct_type_lines)
             result.append("")
-
         if self.function_definitions:
             result.extend(self.function_definitions)
             result.append("")
-
         result.append("define i32 @main() {")
         result.extend(self.translated_lines)
         result.append("}")
-
         return "\n".join(result)
 
     @staticmethod
-    def _get_io_functions_llvm() -> str:
+    def __get_io_functions_llvm() -> str:
         return """declare i32 @printf(i8*, ...)
 declare i32 @scanf(i8*, ...)
 

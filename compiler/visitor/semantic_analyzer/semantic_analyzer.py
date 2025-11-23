@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from typing import Optional
+
+from ...constants import LAMBDA
 from ...node.print_node import PrintNode
 from ...visitor.ast_visitor import ASTVisitor
 from ...context.context import Context
@@ -133,7 +135,6 @@ class SemanticAnalyzer(ASTVisitor):
     def visit_read(self, node: ReadNode):
         self.check_variable_declared(node.variable, node.line)
         self.check_variable_mutable(node.variable, node.line)
-
         var_type = self.context.get_variable_type(node.variable)
         if not isinstance(var_type, DataType) or var_type == DataType.BOOL:
             raise ValueError(f"Cannot read into variable \"{node.variable}\" at line {node.line}! "
@@ -192,20 +193,15 @@ class SemanticAnalyzer(ASTVisitor):
             if isinstance(param.param_type, str):
                 if not self.context.is_struct_defined(param.param_type):
                     raise ValueError(f"Type \"{param.param_type}\" is not defined for lambda parameter at line {node.line}!")
-        
         self.context.enter_scope()
-        
         for param in node.params:
             if not self.context.declare_variable(param.name, param.param_type, mutable=False):
                 raise ValueError(f"Duplicate parameter \"{param.name}\" in lambda at line {node.line}!")
         
         was_inside_lambda = self.inside_lambda
         self.inside_lambda = True
-        
         body_type = node.body.accept(self)
-        node.inferred_return_type = body_type 
-        
+        node.inferred_return_type = body_type
         self.inside_lambda = was_inside_lambda
         self.context.exit_scope()
-        
-        return "lambda"
+        return LAMBDA

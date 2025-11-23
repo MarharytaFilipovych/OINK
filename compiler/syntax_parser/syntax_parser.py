@@ -68,7 +68,6 @@ class SyntaxParser:
     def peek_and_check_function(self) -> bool:
         if not self.reader.peek() or self.reader.peek().token_type != TokenType.SIMPLE_LINE_BORDER:
             return False
-
         def check_function():
             self.reader.eat()
             next_token = self.reader.peek()
@@ -76,7 +75,6 @@ class SyntaxParser:
                 self.reader.eat()
                 return self.reader.peek() and self.reader.peek().token_type == TokenType.FUNCTION
             return False
-
         return self.check_with_save(check_function)
 
     def parse_program_return(self) -> ReturnNode:
@@ -113,14 +111,8 @@ class SyntaxParser:
             token = self.reader.peek()
             if not token:
                 raise ValueError("Code block must be closed with 🖖🖖🖖!")
-            if token.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START]:
-                saved_index = self.reader.current_token_index
-                self.reader.eat()
-                next_token = self.reader.peek()
-                if next_token and next_token.token_type == TokenType.BLOCK_BORDER:
-                    self.reader.current_token_index = saved_index
-                    break
-                self.reader.current_token_index = saved_index
+            if self.__is_block_border_ahead():
+                break
             self.reader.define_line_type(token)
             token = self.reader.peek()
             if token.token_type == TokenType.RETURN:
@@ -131,3 +123,14 @@ class SyntaxParser:
             if statement:
                 statements.append(statement)
         return statements, return_node
+
+    def __is_block_border_ahead(self) -> bool:
+        token = self.reader.peek()
+        if token.token_type not in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START]:
+            return False
+        saved_index = self.reader.current_token_index
+        self.reader.eat()
+        next_token = self.reader.peek()
+        is_block_border = next_token and next_token.token_type == TokenType.BLOCK_BORDER
+        self.reader.current_token_index = saved_index
+        return is_block_border

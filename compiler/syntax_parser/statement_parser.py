@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from typing import Optional, Union
-from ..constants import NOT
+from ..constants import NOT, LAMBDA
 from ..node.function_call_node import FunctionCallNode
 from ..node.print_node import PrintNode
 from ..node.unary_op_node import UnaryOpNode
@@ -104,24 +104,34 @@ class StatementParser:
         return PrintNode(expr, print_token.line)
 
     def parse_assignment_or_call(self) -> Union[FunctionCallNode, AssignNode]:
+        var_token = self.__parse_variable_token()
+        return self.__parse_member_access(var_token) \
+            if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS \
+            else self.__parse_simple_assignment(var_token)
+
+    def __parse_variable_token(self):
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
         var_token = self.reader.expect_token(TokenType.VARIABLE)
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
-        if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS:
-            self.reader.eat()
-            self.reader.expect_token(TokenType.VARIABLE_BORDER)
-            member_token = self.reader.expect_token(TokenType.VARIABLE)
-            self.reader.expect_token(TokenType.VARIABLE_BORDER)
-            if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
-                return self.expr_parser.parse_member_function_call(var_token.value, member_token.value, var_token.line)
-            else:
-                self.reader.expect_token(TokenType.ASSIGNMENT)
-                value_expr = self.expr_parser.parse_expression()
-                return AssignNode(f"{var_token.value}_{member_token.value}", value_expr, var_token.line)
+        return var_token
+
+    def __parse_member_access(self, var_token):
+        self.reader.eat()
+        self.reader.expect_token(TokenType.VARIABLE_BORDER)
+        member_token = self.reader.expect_token(TokenType.VARIABLE)
+        self.reader.expect_token(TokenType.VARIABLE_BORDER)
+
+        if self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET:
+            return self.expr_parser.parse_member_function_call(var_token.value, member_token.value, var_token.line)
         else:
             self.reader.expect_token(TokenType.ASSIGNMENT)
             value_expr = self.expr_parser.parse_expression()
-            return AssignNode(var_token.value, value_expr, var_token.line)
+            return AssignNode(f"{var_token.value}_{member_token.value}", value_expr, var_token.line)
+
+    def __parse_simple_assignment(self, var_token):
+        self.reader.expect_token(TokenType.ASSIGNMENT)
+        value_expr = self.expr_parser.parse_expression()
+        return AssignNode(var_token.value, value_expr, var_token.line)
 
     def parse_declaration(self) -> DeclNode:
         mutability_token = self.reader.peek()
@@ -137,8 +147,7 @@ class StatementParser:
             self.reader.eat()
             init_expr = self.expr_parser.parse_expression()
         else:
-            # Lambda types cannot have defaults, must be initialized
-            if var_type == "lambda":
+            if var_type == LAMBDA:
                 raise ValueError(f"Lambda type variables must be initialized at line {token_variable.line}!")
             if isinstance(var_type, str):
                 raise ValueError(f"Struct type variables must be initialized at line {token_variable.line}!")

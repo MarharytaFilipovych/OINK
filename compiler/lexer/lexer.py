@@ -119,34 +119,27 @@ class Lexer:
 
         raise ValueError(
             f"I did not expect character \"{char}\" to be "
-            f"placed at line {self.line}, column {self.index}!!!"
-        )
+            f"placed at line {self.line}, column {self.index}!!!")
 
     def __try_multi_char_token(self) -> bool:
         max_len = max(len(t) for t in MULTI_CHAR_TOKENS)
-
         for length in range(max_len, 0, -1): 
             sequence = self.__peek_ahead(length)
-
             if sequence in MULTI_CHAR_TOKENS:
                 self.__add_token(MULTI_CHAR_TOKENS[sequence], sequence)
                 self.__move_to_next_char(length)
                 return True
-
         return False
-
 
     def __try_emoji_token(self) -> bool:
         if ord(self.source[self.current_position]) <= 127:
             return False
-
         for length in [9, 6, 3, 2, 1]:
             sequence = self.__peek_ahead(length)
             if sequence in EMOJI_TOKENS:
                 self.__add_token(EMOJI_TOKENS[sequence], sequence)
                 self.__move_to_next_char(len(sequence))
                 return True
-        
         return False
 
     def __manage_identifier_state(self, char: str):
@@ -176,7 +169,7 @@ class Lexer:
         self.__add_token(token_type, value, self.current_token_start_line, self.current_token_start_index)
 
     def __build_number_token(self, value: str):
-        if not value.lstrip('-').isdigit():
+        if not value.lstrip(MINUS).isdigit():
             raise ValueError(
                 f"Do you think that this is a correct number: '{value}'? It is not!!!"
                 f"You placed that awful thing at line {self.current_token_start_line} "
