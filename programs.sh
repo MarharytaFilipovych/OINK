@@ -22,14 +22,45 @@ for file in programs/*.txt; do
     echo -e "${BLUE}[1/4] Compiling...${NC}"
     python3 -m compiler.compiler "./programs/$base_name.txt" "./llm/$base_name.ll"
     
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Compilation failed for ${base_name}${NC}"
+        continue
+    fi
+    
     echo -e "${BLUE}[2/4] Assembling...${NC}"
     llc -filetype=obj -relocation-model=pic "./llm/$base_name.ll" -o "./obj/$base_name.o"
+    
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Assembly failed for ${base_name}${NC}"
+        continue
+    fi
     
     echo -e "${BLUE}[3/4] Linking...${NC}"
     clang -fPIE "./obj/$base_name.o" -o "./exe/$base_name"
     
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Linking failed for ${base_name}${NC}"
+        continue
+    fi
+    
     echo -e "${BLUE}[4/4] Running:${NC}"
-    ./exe/"$base_name"
+    
+    # Handle programs that need input
+    case "$base_name" in
+        "bmi_calculator")
+            # BMI calculator needs weight and height
+            printf "70\\n175\\n" | ./exe/"$base_name"
+            ;;
+        "temperature_conventer")
+            # Temperature converter needs celsius input
+            echo "25" | ./exe/"$base_name"
+            ;;
+        *)
+            # No input needed
+            ./exe/"$base_name"
+            ;;
+    esac
+    
     echo ""
 done
 

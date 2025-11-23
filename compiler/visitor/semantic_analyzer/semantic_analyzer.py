@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from typing import Optional
-
-from ...constants import LAMBDA
+from ...constants import LAMBDA, STRING
 from ...node.print_node import PrintNode
 from ...visitor.ast_visitor import ASTVisitor
 from ...context.context import Context
@@ -142,7 +141,7 @@ class SemanticAnalyzer(ASTVisitor):
 
     def visit_print(self, node: PrintNode):
         expr_type = node.expr_node.accept(self)
-        if not isinstance(expr_type, DataType):
+        if not isinstance(expr_type, DataType) and expr_type != "string":
             raise ValueError(f"Cannot print struct type at line {node.line}! "
                 f"Only primitive types can be printed.")
 
@@ -207,4 +206,4 @@ class SemanticAnalyzer(ASTVisitor):
         return LAMBDA
     
     def visit_string(self, node):
-        pass
+        return STRING

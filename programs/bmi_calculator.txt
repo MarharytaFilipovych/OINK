@@ -1,14 +1,15 @@
-👀 BMI Calculator - Real Program Example for Task 3 👀
-👀 This program demonstrates:
+👀👀👀
+BMI Calculator - Real Program Example for Task 3
+This program demonstrates:
    - User input with prompts
    - String literals for clear interface
    - Functions for logic
    - Structures for data organization
    - Custom feature (lambdas) for calculations
    - Clear output formatting
-👀
+👀👀👀
 
-👀 Structure to hold person's data 👀
+👀👀👀 Structure to hold person's data 👀👀👀
 # BOAR 🐖Person🐖 #
 # 🐖🐖🐖 #
 # 😀 🐷 🐖weight🐖 #
@@ -20,31 +21,29 @@
 # 🐖🐖🐖 #
 # 🐖🐖🐖 #
 
-👀 Function to categorize BMI 👀
+👀👀👀 Function to categorize BMI 👀👀👀
 # 🐷 PIG 🐖categorizeBMI🐖 ** 🐷 🐖bmi🐖 ** #
 # 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 4 #
 # SAVE 🐖bmi🐖 < 18 #
 # 🐖🐖🐖 #
-# ... 1 ... #
+# 🐖result🐖 @ 1 #
 # 🐖🐖🐖 #
 # HURT 🐖bmi🐖 < 25 #
 # 🐖🐖🐖 #
-# ... 2 ... #
+# 🐖result🐖 @ 2 #
 # 🐖🐖🐖 #
 # HURT 🐖bmi🐖 < 30 #
 # 🐖🐖🐖 #
-# ... 3 ... #
+# 🐖result🐖 @ 3 #
 # 🐖🐖🐖 #
-# KILL #
-# 🐖🐖🐖 #
-# ... 4 ... #
-# 🐖🐖🐖 #
+# ... 🐖result🐖 ... #
 # 🐖🐖🐖 #
 
-👀 Lambda for converting category to display value 👀
+👀👀👀 Lambda for converting category to display value 👀👀👀
 # 😀 🥩 🐖displayValue🐖 @ 🥩 ** 🐷 🐖category🐖 ** 🥩 🐖category🐖 💞 100 🥩 #
 
-👀 Main program starts here 👀
+👀👀👀 Main program starts here 👀👀👀
 # print🤮 🥓========== BMI Calculator ==========🥓 #
 # print🤮 🥓Enter your weight in kg:🥓 #
 
@@ -56,33 +55,33 @@
 # 😀 🐷 🐖height🐖 #
 # eat😋 🐖height🐖 #
 
-👀 Create person structure 👀
+👀👀👀 Create person structure 👀👀👀
 # 😀 🐖Person🐖 🐖person🐖 @ 🐖Person🐖 ** 🐖weight🐖 ** ** 🐖height🐖 ** #
 
-👀 Calculate BMI using member function 👀
-# 😀 🐷 🐖bmi🐖 @ 🐖person🐖 _ 🐖getBMI🐖 #
+👀👀👀 Calculate BMI using member function 👀👀👀
+# 😀 🐷 🐖bmi🐖 @ 🐖person🐖 _ 🐖getBMI🐖 ** ** #
 
 # print🤮 🥓================================🥓 #
 # print🤮 🥓Your BMI:🥓 #
 # print🤮 🐖bmi🐖 #
 
-👀 Get category 👀
+👀👀👀 Get category 👀👀👀
 # 😀 🐷 🐖category🐖 @ 🐖categorizeBMI🐖 ** 🐖bmi🐖 ** #
 
 # print🤮 🥓Category code:🥓 #
 # print🤮 🐖category🐖 #
 
-👀 Use lambda to display formatted result 👀
+👀👀👀 Use lambda to display formatted result 👀👀👀
 # 😀 🐷 🐖display&val🐖 @ 🐖displayValue🐖 ** 🐖category🐖 ** #
 # print🤮 🥓Display value:🥓 #
 # print🤮 🐖display&val🐖 #
 
 # print🤮 🥓================================🥓 #
 # print🤮 🥓Categories:🥓 #
-# print🤮 🥓1 - Underweight (< 18.5)🥓 #
-# print🤮 🥓2 - Normal (18.5-24.9)🥓 #
-# print🤮 🥓3 - Overweight (25-29.9)🥓 #
-# print🤮 🥓4 - Obese (>= 30)🥓 #
+# print🤮 🥓1 = Underweight🥓 #
+# print🤮 🥓2 = Normal🥓 #
+# print🤮 🥓3 = Overweight🥓 #
+# print🤮 🥓4 = Obese🥓 #
 # print🤮 🥓================================🥓 #
 
-... 0 ...
+# ... 0 ... #

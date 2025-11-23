@@ -20,6 +20,14 @@ for i in {1..69}; do
         EXEC_CMD="echo \"100000000000\" | ./exe/test_$i"
     elif [ "$i" -eq 45 ]; then
         EXEC_CMD="echo \"20\" | ./exe/test_$i"
+    elif [ "$i" -eq 64 ]; then
+        EXEC_CMD="echo \"25\" | ./exe/test_$i"
+    elif [ "$i" -eq 65 ]; then
+        EXEC_CMD="./exe/test_$i"
+    elif [ "$i" -eq 66 ]; then
+        EXEC_CMD="printf \"10\\n20\\n\" | ./exe/test_$i"
+    elif [ "$i" -eq 69 ]; then
+        EXEC_CMD="printf \"5\\n7\\n\" | ./exe/test_$i"
     else
         EXEC_CMD="./exe/test_$i"
     fi
@@ -30,7 +38,7 @@ done
 
 for i in {1..72}; do
     echo "Testing test_fail_$i (should fail)..."
-    python3 -m compiler.compiler ./test_cases/test_fail_$i.txt ./llm/test_fail_$i.ll
+    python3 -m compiler.compiler ./test_cases/test_fail_$i.txt ./llm/test_fail_$i.ll 2>&1
     if [ $? -eq 0 ]; then
         echo "ERROR: test_fail_$i should have failed compilation!"
         exit 1
