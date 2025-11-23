@@ -21,6 +21,7 @@ class FunctionInliner:
     def __init__(self):
         self.inlined_count = 0
         self.param_mapping: dict[str, ExprNode] = {}
+        self.inlined_functions: set[str] = set()
 
     def inline_single_use(self, node: ProgramNode) -> bool:
         analyzer = FunctionUsageAnalyzer()
@@ -31,17 +32,18 @@ class FunctionInliner:
             return False
         
         inlined_any = False
-        for func_name in single_use:
-            func_def = analyzer.function_definitions[func_name]
-            if self._can_inline(func_def):
+        for func_name in list(single_use):
+            func_def = analyzer.function_definitions.get(func_name)
+            if func_def and self._can_inline(func_def):
                 self._inline_function(node, func_name, func_def)
+                self.inlined_functions.add(func_name)
                 self.inlined_count += 1
                 inlined_any = True
         
         if inlined_any:
             node.function_declarations = [
                 f for f in node.function_declarations 
-                if f.variable not in single_use or not self._can_inline(f)
+                if f.variable not in self.inlined_functions or not self._can_inline(f)
             ]
         
         return inlined_any
@@ -66,6 +68,10 @@ class FunctionInliner:
             program.return_node.expr_node = self._inline_in_expression(
                 program.return_node.expr_node, func_name, func_def
             )
+
+        for struct in program.struct_declarations:
+            for member_func in struct.member_functions:
+                self._inline_in_code_block(member_func.body, func_name, func_def)
 
     def _inline_in_statement(self, stmt: StmtNode, func_name: str, func_def: FunctionDeclNode) -> StmtNode:
         if isinstance(stmt, DeclNode):
@@ -99,7 +105,7 @@ class FunctionInliner:
             )
 
     def _inline_in_expression(self, expr: ExprNode, func_name: str, func_def: FunctionDeclNode) -> ExprNode:
-        if isinstance(expr, FunctionCallNode) and expr.value == func_name:
+        if isinstance(expr, FunctionCallNode) and expr.value == func_name and expr.object_name is None:
             return self._create_inlined_expression(expr, func_def)
         elif isinstance(expr, BinaryOpNode):
             expr.left = self._inline_in_expression(expr.left, func_name, func_def)

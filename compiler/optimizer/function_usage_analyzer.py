@@ -76,9 +76,11 @@ class FunctionUsageAnalyzer:
         elif isinstance(node, UnaryOpNode):
             self._analyze_expression(node.operand)
         elif isinstance(node, FunctionCallNode):
-            if node.value not in self.function_calls:
-                self.function_calls[node.value] = 0
-            self.function_calls[node.value] += 1
+            if node.value in self.function_calls and node.object_name is None:
+                self.function_calls[node.value] += 1
+            elif node.value not in self.function_calls and node.object_name is None:
+                # This handles functions not yet defined (e.g., recursive calls, or inlining context)
+                self.function_calls[node.value] = 1 
             for arg in node.arguments:
                 self._analyze_expression(arg)
         elif isinstance(node, StructInitNode):
