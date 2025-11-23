@@ -15,6 +15,7 @@ from ..node.lambda_node import LambdaNode
 from ..node.print_node import PrintNode
 from ..node.read_node import ReadNode
 from ..node.member_access_node import MemberAccessNode
+from ..node.string_node import StringNode
 from ..node.struct_decl_node import StructDeclNode
 from ..node.struct_init_node import StructInitNode
 from ..node.while_node import WhileNode
@@ -107,4 +108,8 @@ class ASTVisitor(ABC):
 
     @abstractmethod
     def visit_lambda(self, node: LambdaNode):
+        pass
+
+    @abstractmethod
+    def visit_string(self, node: StringNode):
         pass

@@ -67,6 +67,7 @@ class TokenType(Enum):
     MULTILINE_COMMENT = auto() # 👀👀👀
 
     LAMBDA = auto()  # 🥩
+    QUOTE = auto() # 🥓
 
     STRING = auto() # 👺
 

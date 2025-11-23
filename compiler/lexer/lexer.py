@@ -29,9 +29,8 @@ class Lexer:
 
     def __peek_ahead(self, length: int) -> str:
         end_pos = self.current_position + length
-        if end_pos <= len(self.source):
-            return self.source[self.current_position:end_pos]
-        return ""
+        return self.source[self.current_position:end_pos] \
+            if end_pos <= len(self.source) else ""
 
     def __start_new_token(self, new_state: LexerState):
         self.state = new_state
