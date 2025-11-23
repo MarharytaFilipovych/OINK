@@ -12,6 +12,8 @@ class LexerState(Enum):
     EMOJI = auto()
     MOOD_LINE = auto()
     MULTILINE_COMMENT = auto()
+    STRING = auto()
+
 
 
 
