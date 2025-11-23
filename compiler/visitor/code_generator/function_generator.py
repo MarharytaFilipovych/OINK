@@ -91,14 +91,18 @@ class FunctionGenerator:
             for arg, expected_type in zip(node.arguments, expected_types)]
         self.__emit_function_call(return_type, return_llvm_type, mangled_name, arg_strs)
 
-    def __get_call_info(self, name, node):
-        mangled_name = f"{name}_{node.value}"
-        return_type = self.type_converter.get_node_type(node)
-        return_llvm_type = self.__get_llvm_type(return_type)
-
+    def __get_call_info(self, name, func_name):
+        mangled_name = f"{name}_{func_name}"
         func_info = self.function_signatures.get(mangled_name)
-        expected_types = [DataType.I32] * len(node.arguments) if not func_info \
-                else [self._string_to_type(t) for t in func_info.param_types[1:]]
+        
+        if func_info:
+            return_type = self._string_to_type(func_info.return_type)
+        else:
+            return_type = DataType.I32
+            
+        return_llvm_type = self.__get_llvm_type(return_type)
+        expected_types = [] if not func_info else [self._string_to_type(t) for t in func_info.param_types[1:]]
+        
         return return_type, return_llvm_type, expected_types, mangled_name
 
     def load_field_from_this(self, field_name: str) -> str:

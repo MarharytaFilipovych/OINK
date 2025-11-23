@@ -37,16 +37,17 @@ class VariableAnalyzer:
     def __process_lambda_declaration(self, node: DeclNode, expr_type):
         if expr_type != LAMBDA:
             raise ValueError(f"Cannot assign type \"{expr_type}\" to a lambda variable at line {node.line}! Use a lambda expression.")
-        return_type = DataType.I32  # Default
-        param_types = []
         if isinstance(node.expr_node, LambdaNode):
-            return_type = node.expr_node.inferred_return_type
+            # visit_lambda already set inferred_return_type, just use it
+            return_type = node.expr_node.inferred_return_type if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
+            self.context.set_lambda_return_type(node.variable, return_type)
             param_types = [p.param_type for p in node.expr_node.params]
+            self.context.set_lambda_signature(node.variable, param_types)
         elif isinstance(node.expr_node, IDNode):
             return_type = self.context.get_lambda_return_type(node.expr_node.value)
             param_types = self.context.get_lambda_signature(node.expr_node.value) or []
-        self.context.set_lambda_return_type(node.variable, return_type)
-        self.context.set_lambda_signature(node.variable, param_types)
+            self.context.set_lambda_return_type(node.variable, return_type)
+            self.context.set_lambda_signature(node.variable, param_types)
 
     def __validate_struct_type_exists(self, type_name: str, line: int):
         if not self.context.is_struct_defined(type_name):
@@ -107,7 +108,9 @@ class VariableAnalyzer:
         if expr_type != LAMBDA:
             raise ValueError(f"Cannot assign type \"{expr_type}\" to a lambda variable at line {node.line}!")
         if isinstance(node.expr_node, LambdaNode):
-            self.context.set_lambda_return_type(node.variable, node.expr_node.inferred_return_type)
+            # visit_lambda already set inferred_return_type, just use it
+            return_type = node.expr_node.inferred_return_type if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
+            self.context.set_lambda_return_type(node.variable, return_type)
             param_types = [p.param_type for p in node.expr_node.params]
             self.context.set_lambda_signature(node.variable, param_types)
         elif isinstance(node.expr_node, IDNode):

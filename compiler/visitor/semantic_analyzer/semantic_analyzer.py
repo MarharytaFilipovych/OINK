@@ -205,3 +205,6 @@ class SemanticAnalyzer(ASTVisitor):
         self.inside_lambda = was_inside_lambda
         self.context.exit_scope()
         return LAMBDA
+    
+    def visit_string(self, node):
+        pass

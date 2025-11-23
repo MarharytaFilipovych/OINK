@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from ...node.lambda_node import LambdaNode
 from ...llvm_specifics.boolean import Boolean
 from ...llvm_specifics.data_type import DataType
 from ...visitor.ast_visitor import ASTVisitor
@@ -72,9 +73,10 @@ class CodeGenerator(ASTVisitor):
             lambda_func_ref = node.expr_node.accept(self) 
             self.variable_registry.set_variable_type(node.variable, "lambda")
             self.variable_registry.lambda_functions[node.variable] = lambda_func_ref
-            self.variable_registry.lambda_signatures[node.variable] = [p.param_type for p in node.expr_node.params]
-            self.variable_registry.lambda_return_types[node.variable] = node.expr_node.inferred_return_type \
-                if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
+            if isinstance(node.expr_node, LambdaNode):
+                self.variable_registry.lambda_signatures[node.variable] = [p.param_type for p in node.expr_node.params]
+                self.variable_registry.lambda_return_types[node.variable] = node.expr_node.inferred_return_type \
+                    if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
             return
         
         self.__declare_struct_variable(node) if isinstance(node.data_type, str) \
@@ -231,11 +233,14 @@ class CodeGenerator(ASTVisitor):
         return value if current_llvm == target_llvm_type \
             else self.struct_ops.widen_value(value, current_llvm, target_llvm_type)
 
-    def __widen_value_if_needed(self, value: str, expr_node, target_type: DataType) -> str:
+    def __widen_value_if_needed(self, value: str, expr_node, target_type) -> str:
         expr_type = self.type_converter.get_node_type(expr_node)
-        return value if not isinstance(expr_type, DataType) \
-                else self.struct_ops.convert_type_if_needed(value, expr_type, target_type.keyword)
-
+        if not isinstance(expr_type, DataType):
+            return value
+        if isinstance(target_type, DataType):
+            return self.struct_ops.convert_type_if_needed(value, expr_type, target_type.keyword)
+        return value
+    
     def __get_llvm_type_string(self, return_type) -> str:
         return self.type_converter.get_llvm_type(return_type) if isinstance(return_type, str) \
             else return_type.to_llvm()
@@ -465,4 +470,7 @@ class CodeGenerator(ASTVisitor):
                 else param.param_type.to_llvm()
             self.emitter.emit_line(f"  {param_reg} = alloca {param_llvm_type}")
             self.emitter.emit_line(f"  store {param_llvm_type} %{param.name}, {param_llvm_type}* {param_reg}")
+
+    def visit_string(self, node):
+        pass
 
