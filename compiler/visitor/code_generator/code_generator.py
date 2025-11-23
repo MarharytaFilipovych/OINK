@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from ...node.print_node import PrintNode
 from ...node.read_node import ReadNode
 from ...node.string_node import StringNode
 from ...node.lambda_node import LambdaNode
@@ -10,7 +9,7 @@ from ...node.code_block_node import CodeBlockNode
 from ...node.if_node import IfNode
 from ...node.elif_node import ElifNode
 from ...node.while_node import WhileNode
-from ...constants import NOT, UNDERLINE, STRING
+from ...constants import NOT, UNDERLINE, LAMBDA
 from .variable_registry import VariableRegistry
 from .llvm_emitter import LLVMEmitter
 from .type_converter import TypeConverter
@@ -68,20 +67,20 @@ class CodeGenerator(ASTVisitor):
         self.func_gen.generate_standalone_function(node, self)
 
     def visit_function_call(self, node):
-        return (self.func_gen.generate_member_function_call(node, self) 
+        return (self.func_gen.generate_member_function_call(node, self)
                 if node.object_name else self.func_gen.generate_regular_function_call(node, self))
 
     def visit_declaration(self, node):
-        if node.data_type == "lambda":
-            lambda_func_ref = node.expr_node.accept(self) 
-            self.variable_registry.set_variable_type(node.variable, "lambda")
+        if node.data_type == LAMBDA:
+            lambda_func_ref = node.expr_node.accept(self)
+            self.variable_registry.set_variable_type(node.variable, LAMBDA)
             self.variable_registry.lambda_functions[node.variable] = lambda_func_ref
             if isinstance(node.expr_node, LambdaNode):
                 self.variable_registry.lambda_signatures[node.variable] = [p.param_type for p in node.expr_node.params]
                 self.variable_registry.lambda_return_types[node.variable] = node.expr_node.inferred_return_type \
                     if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
             return
-        
+
         self.__declare_struct_variable(node) if isinstance(node.data_type, str) \
             else self.__declare_primitive_variable(node)
 
@@ -116,7 +115,7 @@ class CodeGenerator(ASTVisitor):
                 return
         var_type = self.__get_assignable_variable_type(node)
         self.__emit_assignment_code(node, var_type)
-        
+
     def __handle_struct_field_assignment(self, object_name: str, member_name: str, struct_name: str, node):
         object_ptr = self.variable_registry.get_current_register(object_name)
         fields = self.struct_ops.struct_definitions[struct_name]
@@ -134,13 +133,13 @@ class CodeGenerator(ASTVisitor):
         var_type = self.variable_registry.get_variable_type(node.variable)
         if not isinstance(var_type, DataType):
             raise ValueError(f"Cannot reassign entire struct variable '{node.variable}' at line {node.line}! "
-                f"Use field assignment instead: {node.variable}_field @ value")
+                             f"Use field assignment instead: {node.variable}_field @ value")
         return var_type
 
     def __emit_assignment_code(self, node, var_type):
         llvm_type = var_type.to_llvm()
         value = node.expr_node.accept(self)
-        reg = self.variable_registry.get_current_register(node.variable) 
+        reg = self.variable_registry.get_current_register(node.variable)
         value = self.__widen_value_if_needed(value, node.expr_node, var_type)
         self.emitter.emit_line(f"  store {llvm_type} {value}, {llvm_type}* {reg}")
 
@@ -152,11 +151,11 @@ class CodeGenerator(ASTVisitor):
                 self.emitter.emit_line("  call void @printResult(i32 0)")
                 self.emitter.emit_line("  ret i32 0")
             return
-        
+
         value = node.expr_node.accept(self)
         return_type = self.type_converter.get_node_type(node.expr_node)
         self.__generate_function_return(value, return_type) if self.func_gen.in_function \
-        else self.__generate_main_return(value, return_type)
+            else self.__generate_main_return(value, return_type)
 
     def __generate_function_return(self, value: str, return_type):
         llvm_type = self.__get_llvm_type_string(return_type)
@@ -164,8 +163,8 @@ class CodeGenerator(ASTVisitor):
 
     def __generate_main_return(self, value: str, return_type):
         if not isinstance(return_type, DataType):
-            raise NotImplementedError( f"Cannot return struct types from main. "
-                f"Attempted to return value of type '{return_type}'" )
+            raise NotImplementedError(f"Cannot return struct types from main. "
+                                      f"Attempted to return value of type '{return_type}'")
         value = self.__cast_to_i32(value, return_type)
         self.emitter.emit_line(f"  call void @printResult(i32 {value})")
         self.emitter.emit_line(f"  ret i32 {value}")
@@ -243,7 +242,7 @@ class CodeGenerator(ASTVisitor):
         if isinstance(target_type, DataType):
             return self.struct_ops.convert_type_if_needed(value, expr_type, target_type.keyword)
         return value
-    
+
     def __get_llvm_type_string(self, return_type) -> str:
         return self.type_converter.get_llvm_type(return_type) if isinstance(return_type, str) \
             else return_type.to_llvm()
@@ -251,21 +250,21 @@ class CodeGenerator(ASTVisitor):
     def visit_id(self, node):
         if self.variable_registry.is_field_access_from_this(node.value):
             return self.func_gen.load_field_from_this(node.value)
-        
+
         var_type = self.variable_registry.get_variable_type(node.value)
-        
+
         if var_type == "lambda":
             if hasattr(self.variable_registry, 'lambda_functions'):
                 return self.variable_registry.lambda_functions.get(node.value, f"@{node.value}")
             return f"@{node.value}"
-        
+
         if isinstance(var_type, DataType):
             reg = self.variable_registry.get_current_register(node.value)
             llvm_type = var_type.to_llvm()
             temp_reg = self.emitter.get_temp_register()
             self.emitter.emit_line(f"  {temp_reg} = load {llvm_type}, {llvm_type}* {reg}")
             return temp_reg
-        
+
         return self.variable_registry.get_current_register(node.value)
 
     def visit_number(self, node):
@@ -279,19 +278,19 @@ class CodeGenerator(ASTVisitor):
         condition_value = node.condition.accept(self)
         then_label = f"if_then_{label_id}"
         end_label = f"if_end_{label_id}"
-        
+
         elif_start_label = f"if_next_{label_id}"
         next_label = elif_start_label if node.elif_blocks or node.else_block else end_label
-        
+
         self.emitter.emit_line(f"  br i1 {condition_value}, label %{then_label}, label %{next_label}")
         self.__emit_then_block(node.block, then_label, label_id)
-        
-        current_fallthrough_label = next_label 
+
+        current_fallthrough_label = next_label
         if node.elif_blocks:
             current_fallthrough_label = self.__emit_elif_blocks(
                 node.elif_blocks, elif_start_label,
                 label_id, end_label, node.else_block is not None)
-        
+
         if node.else_block:
             self.__emit_else_block(node.else_block, current_fallthrough_label, end_label)
         self.emitter.emit_label(end_label)
@@ -315,7 +314,7 @@ class CodeGenerator(ASTVisitor):
             elif_then_label = f"elif_then_{label_id}_{i}"
             is_last_elif = i == len(elif_blocks) - 1
             next_label = (f"if_else_{label_id}" if has_else else end_label) \
-            if is_last_elif else f"elif_next_{label_id}_{i + 1}"
+                if is_last_elif else f"elif_next_{label_id}_{i + 1}"
             self.emitter.emit_line(f"  br i1 {condition_value}, label %{elif_then_label}, label %{next_label}")
             self.emitter.emit_label(elif_then_label)
             elif_block.block.accept(self)
@@ -364,9 +363,9 @@ class CodeGenerator(ASTVisitor):
     @staticmethod
     def __get_scanf_format_len(data_type: DataType) -> int:
         if data_type == DataType.I16:
-            return 4 
+            return 4
         if data_type == DataType.I32:
-            return 3 
+            return 3
         if data_type == DataType.I64:
             return 5
         return 0
@@ -374,23 +373,11 @@ class CodeGenerator(ASTVisitor):
     def visit_read(self, node: ReadNode):
         var_type = self.variable_registry.get_variable_type(node.variable)
         scanf_format_len = self.__get_scanf_format_len(var_type)
-        format_string_name = self.__get_scanf_format_string(var_type)
+        format_string_name = LLVMEmitter.get_scanf_format_string(var_type)
         temp_ptr = self.__allocate_temp(var_type)
         self.__call_scanf(temp_ptr, var_type, scanf_format_len, format_string_name)
         temp_val = self.__load_temp_value(var_type, temp_ptr)
         self.__store_to_variable(node.variable, var_type, temp_val)
-
-    @staticmethod
-    def __get_scanf_format_string(var_type) -> str:
-        llvm_type_name = var_type.to_llvm().replace('%', '')
-        if llvm_type_name == 'i16':
-            return "@read_i16_format"
-        elif llvm_type_name == 'i32':
-            return "@read_i32_format"
-        elif llvm_type_name == 'i64':
-            return "@read_i64_format"
-        else:
-            raise ValueError(f"Unsupported read type: {llvm_type_name}")
 
     def __allocate_temp(self, var_type):
         temp_ptr = self.emitter.get_temp_register()
@@ -421,9 +408,8 @@ class CodeGenerator(ASTVisitor):
             expr_type = self.type_converter.get_node_type(node.expr_node)
             if isinstance(expr_type, DataType):
                 llvm_type = expr_type.to_llvm()
-                print_func = self.__get_print_function(llvm_type)
+                print_func = LLVMEmitter.get_print_function(llvm_type)
                 self.emitter.emit_line(f"  call void {print_func}({llvm_type} {expr_result})")
-
 
     def visit_lambda(self, node: LambdaNode):
         if node.lambda_id is None:
@@ -479,14 +465,12 @@ class CodeGenerator(ASTVisitor):
         string_len = len(string_literal) + 1
         string_name = f"@.str.{id(node)}"
         string_def = f'{string_name} = private unnamed_addr constant [{string_len} x i8] c"{string_literal}\\00", align 1'
-        
+
         if string_def not in self.emitter.struct_type_lines:
             self.emitter.add_struct_type_definition(string_def)
-        
+
         temp_reg = self.emitter.get_temp_register()
         self.emitter.emit_line(
             f"  {temp_reg} = getelementptr inbounds [{string_len} x i8], "
-            f"[{string_len} x i8]* {string_name}, i32 0, i32 0"
-        )
+            f"[{string_len} x i8]* {string_name}, i32 0, i32 0")
         return temp_reg
-

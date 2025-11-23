@@ -13,7 +13,6 @@ from compiler.node.assign_node import AssignNode
 from compiler.node.if_node import IfNode
 from compiler.node.while_node import WhileNode
 from compiler.node.function_call_node import FunctionCallNode
-from compiler.node.struct_init_node import StructInitNode
 from compiler.node.read_node import ReadNode
 from compiler.node.print_node import PrintNode
 from compiler.node.string_node import StringNode

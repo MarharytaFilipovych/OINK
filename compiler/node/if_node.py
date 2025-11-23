@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from .elif_node import ElifNode
-from .stmt_node import StmtNode
 from .expr_node import ExprNode
 from .code_block_node import CodeBlockNode
 from typing import TYPE_CHECKING, Optional

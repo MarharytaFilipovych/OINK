@@ -79,3 +79,8 @@ I64_MIN = -2**63
 LAMBDA = "lambda"
 QUOTE = "🥓"
 STRING = "string"
+
+I1 = "i1"
+I16 = "i16"
+I64 = "i64"
+I32 = "i32"

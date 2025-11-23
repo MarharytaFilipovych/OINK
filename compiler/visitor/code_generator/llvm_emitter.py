@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from ...constants import I16, I32, I64, I1
 
 
 class LLVMEmitter:
@@ -123,3 +124,26 @@ define i64 @readInput_i64() {
         self.translated_lines = state['translated_lines']
         self.temp_counter = state['temp_counter']
         self.label_counter = state['label_counter']
+
+    @staticmethod
+    def get_print_function(llvm_type: str) -> str:
+        if llvm_type == I16:
+            return "@printValue_i16"
+        elif llvm_type == I32 or llvm_type == I1:
+            return "@printValue_i32"
+        elif llvm_type == I64:
+            return "@printValue_i64"
+        else:
+            raise ValueError(f"Unsupported print type: {llvm_type}")
+
+    @staticmethod
+    def get_scanf_format_string(var_type) -> str:
+        llvm_type_name = var_type.to_llvm().replace('%', '')
+        if llvm_type_name == I16:
+            return "@read_i16_format"
+        elif llvm_type_name == I32:
+            return "@read_i32_format"
+        elif llvm_type_name == I64:
+            return "@read_i64_format"
+        else:
+            raise ValueError(f"Unsupported read type: {llvm_type_name}")

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from ...llvm_specifics.data_type import DataType
+from ...constants import I16, I32, I64, I1
 
 
 class StructOperations:
@@ -68,15 +69,17 @@ class StructOperations:
             return value
 
         conversions = {
-            ("i16", "i32"): "sext",
-            ("i16", "i64"): "sext",
-            ("i32", "i64"): "sext",
-            ("i64", "i32"): "trunc",
-            ("i64", "i16"): "trunc",
-            ("i32", "i16"): "trunc",
-            ("i1", "i16"): "zext",
-            ("i1", "i32"): "zext",
-            ("i1", "i64"): "zext",
+            (I16, I32): "sext",
+            (I16, I64): "sext",
+            (I32, I64): "sext",
+
+            (I64, I32): "trunc",
+            (I64, I16): "trunc",
+            (I32, I16): "trunc",
+
+            (I1, I16): "zext",
+            (I1, I32): "zext",
+            (I1, I64): "zext",
         }
         
         conv_key = (from_type, to_type)
