@@ -70,6 +70,35 @@ def assert_combined_optimizations(self, ast, stats):
     self.assertEqual(stats['functions_inlined'], 1)
     self.assertEqual(stats['functions_removed'], 1)
 
+def assert_variable_used_in_condition(self, ast, stats):
+    self.assertEqual(stats['variables_removed'], 1)
+    self.assertEqual(len(ast.statement_nodes), 2)
+
+def assert_variable_used_in_loop(self, ast, stats):
+    self.assertEqual(stats['variables_removed'], 1)
+
+def assert_struct_field_usage(self, ast, stats):
+    self.assertEqual(stats['variables_removed'], 1)
+
+def assert_function_with_multiple_uses(self, ast, stats):
+    self.assertEqual(stats['functions_inlined'], 0)
+    self.assertEqual(stats['functions_removed'], 0)
+
+def assert_function_with_void_return(self, ast, stats):
+    self.assertEqual(stats['functions_inlined'], 0)
+
+def assert_lambda_variable_not_removed(self, ast, stats):
+    self.assertEqual(stats['variables_removed'], 0)
+
+def assert_variable_used_in_struct_init(self, ast, stats):
+    self.assertEqual(stats['variables_removed'], 1)
+
+def assert_read_makes_variable_used(self, ast, stats):
+    self.assertEqual(stats['variables_removed'], 0)
+
+def assert_print_makes_variable_used(self, ast, stats):
+    self.assertEqual(stats['variables_removed'], 0)
+
 
 test_cases = [
     ("unused_variable_removal", 
@@ -123,7 +152,87 @@ test_cases = [
 # 😀 🐷 🐖unused&var🐖 @ 100 #
 # 😀 🐷 🐖result🐖 @ 🐖single&use🐖 ** 7 ** #
 # ... 🐖result🐖 ... #
-""", assert_combined_optimizations)
+""", assert_combined_optimizations),
+
+    ("variable_used_in_condition",
+     """# 😀 🐷 🐖cond🐖 @ 10 #
+# 😀 🐷 🐖unused🐖 @ 20 #
+# SAVE 🐖cond🐖 > 5 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 @ 1 #
+# 🐖🐖🐖 #
+# ... 0 ... #
+""", assert_variable_used_in_condition),
+
+    ("variable_used_in_loop",
+     """# 😀 🐷 🐖counter🐖 @ 0 #
+# 😀 🐷 🐖unused🐖 @ 50 #
+# OINK 🐖counter🐖 < 5 #
+# 🐖🐖🐖 #
+# 🐖counter🐖 @ 🐖counter🐖 ❤️ 1 #
+# 🐖🐖🐖 #
+# ... 🐖counter🐖 ... #
+""", assert_variable_used_in_loop),
+
+    ("struct_field_usage",
+     """# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** #
+# 😀 🐷 🐖unused🐖 @ 100 #
+# 😀 🐷 🐖val🐖 @ 🐖p🐖 _ 🐖x🐖 #
+# ... 🐖val🐖 ... #
+""", assert_struct_field_usage),
+
+    ("function_multiple_uses_not_inlined",
+     """# 🐷 PIG 🐖helper🐖 ** 🐷 🐖x🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖x🐖 ❤️ 1 ... #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖a🐖 @ 🐖helper🐖 ** 5 ** #
+# 😀 🐷 🐖b🐖 @ 🐖helper🐖 ** 10 ** #
+# ... 🐖a🐖 ❤️ 🐖b🐖 ... #
+""", assert_function_with_multiple_uses),
+
+    ("void_function_not_inlined",
+     """# 😑 PIG 🐖do&nothing🐖 #
+# 🐖🐖🐖 #
+# ... #
+# 🐖🐖🐖 #
+# 🐖do&nothing🐖 ** ** #
+# ... 0 ... #
+""", assert_function_with_void_return),
+
+    ("lambda_variable_preserved",
+     """# 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #
+# 😀 🐷 🐖result🐖 @ 🐖square🐖 ** 5 ** #
+# ... 🐖result🐖 ... #
+""", assert_lambda_variable_not_removed),
+
+    ("variable_used_in_struct_init",
+     """# BOAR 🐖Point🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖x🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖val🐖 @ 10 #
+# 😀 🐷 🐖unused🐖 @ 20 #
+# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 🐖val🐖 ** #
+# 😀 🐷 🐖result🐖 @ 🐖p🐖 _ 🐖x🐖 #
+# ... 🐖result🐖 ... #
+""", assert_variable_used_in_struct_init),
+
+    ("read_makes_variable_used",
+     """# 😀 🐷 🐖input🐖 #
+# eat😋 🐖input🐖 #
+# ... 🐖input🐖 ... #
+""", assert_read_makes_variable_used),
+
+    ("print_makes_variable_used",
+     """# 😀 🐷 🐖output🐖 @ 42 #
+# print🤮 🐖output🐖 #
+# ... 0 ... #
+""", assert_print_makes_variable_used),
 ]
 
 for name, code, func in test_cases:
