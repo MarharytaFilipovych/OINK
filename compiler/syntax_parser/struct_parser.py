@@ -49,7 +49,7 @@ class StructParser:
         while True:
             token = self.reader.peek()
             if not token:
-                raise ValueError("Struct block must be closed with 🖖🖖🖖!")
+                raise ValueError("Struct block must be closed with 🐖🐖🐖!")
             if token.token_type in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_START]:
                 if self.reader.peek(1) and self.reader.peek(1).token_type == TokenType.BLOCK_BORDER:
                     break

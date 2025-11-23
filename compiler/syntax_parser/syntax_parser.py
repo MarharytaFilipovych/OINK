@@ -110,7 +110,7 @@ class SyntaxParser:
         while True:
             token = self.reader.peek()
             if not token:
-                raise ValueError("Code block must be closed with 🖖🖖🖖!")
+                raise ValueError("Code block must be closed with 🐖🐖🐖!")
             if self.__is_block_border_ahead():
                 break
             self.reader.define_line_type(token)

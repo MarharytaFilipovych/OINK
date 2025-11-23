@@ -7,3 +7,5 @@ AI links:
 * https://chatgpt.com/share/6922da7e-dd90-8011-b73a-ef8b92703429
 * https://claude.ai/share/eac4e35e-e210-4b56-898f-0dd01473e9d5
 * https://claude.ai/share/441290a4-ef13-470d-bd07-8fad9af8dbe7
+* https://claude.ai/share/75d8c296-ecfb-417a-a199-2ec2b1bff51c
+* https://claude.ai/share/3e562c70-bcd2-4c1d-96d9-1a637998a27c
