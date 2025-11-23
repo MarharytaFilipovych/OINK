@@ -15,6 +15,7 @@ from ..node.struct_init_node import StructInitNode
 from ..node.function_call_node import FunctionCallNode
 from ..node.print_node import PrintNode
 from ..node.read_node import ReadNode
+from ..node.lambda_node import LambdaNode
 from ..constants import UNDERLINE
 
 class VariableUsageAnalyzer:
@@ -58,7 +59,13 @@ class VariableUsageAnalyzer:
 
     def _analyze_code_block(self, block: CodeBlockNode):
         for stmt in block.statements:
-            self._analyze_statement(stmt)
+            if isinstance(stmt, DeclNode):
+                self.declared_vars.add(stmt.variable)
+                self.used_vars.add(stmt.variable)
+                if stmt.expr_node:
+                    self._analyze_expression(stmt.expr_node)
+            else:
+                self._analyze_statement(stmt)
         if block.return_node and block.return_node.expr_node:
             self._analyze_expression(block.return_node.expr_node)
 
@@ -73,6 +80,7 @@ class VariableUsageAnalyzer:
         elif isinstance(node, FunctionCallNode):
             if node.object_name:
                 self.used_vars.add(node.object_name)
+            self.used_vars.add(node.value)
             for arg in node.arguments:
                 self._analyze_expression(arg)
         elif isinstance(node, MemberAccessNode):
@@ -80,6 +88,9 @@ class VariableUsageAnalyzer:
         elif isinstance(node, StructInitNode):
             for expr in node.init_expressions:
                 self._analyze_expression(expr)
+        elif isinstance(node, LambdaNode):
+            if node.body:
+                self._analyze_expression(node.body)
 
     def get_unused_variables(self) -> set[str]:
         return self.declared_vars - self.used_vars

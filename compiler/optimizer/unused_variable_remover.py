@@ -25,4 +25,8 @@ class UnusedVariableRemover:
         return True
 
     def _should_remove_statement(self, stmt: StmtNode, unused: set[str]) -> bool:
-        return isinstance(stmt, DeclNode) and stmt.variable in unused
+        if isinstance(stmt, DeclNode) and stmt.variable in unused:
+            if stmt.data_type == "lambda":
+                return False
+            return True
+        return False

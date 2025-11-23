@@ -13,6 +13,7 @@ from ..node.binary_op_node import BinaryOpNode
 from ..node.unary_op_node import UnaryOpNode
 from ..node.struct_init_node import StructInitNode
 from ..node.print_node import PrintNode
+from ..node.lambda_node import LambdaNode
 
 class FunctionUsageAnalyzer:
     def __init__(self):
@@ -24,11 +25,21 @@ class FunctionUsageAnalyzer:
             self.function_definitions[func.variable] = func
             self.function_calls[func.variable] = 0
         
+        for struct in node.struct_declarations:
+            for member_func in struct.member_functions:
+                self._analyze_member_function(member_func)
+        
         for stmt in node.statement_nodes:
             self._analyze_statement(stmt)
         
         if node.return_node and node.return_node.expr_node:
             self._analyze_expression(node.return_node.expr_node)
+
+    def _analyze_member_function(self, func):
+        for stmt in func.body.statements:
+            self._analyze_statement(stmt)
+        if func.body.return_node and func.body.return_node.expr_node:
+            self._analyze_expression(func.body.return_node.expr_node)
 
     def _analyze_statement(self, node: StmtNode):
         if isinstance(node, DeclNode):
@@ -65,16 +76,22 @@ class FunctionUsageAnalyzer:
         elif isinstance(node, UnaryOpNode):
             self._analyze_expression(node.operand)
         elif isinstance(node, FunctionCallNode):
-            if node.value in self.function_calls:
-                self.function_calls[node.value] += 1
+            if node.value not in self.function_calls:
+                self.function_calls[node.value] = 0
+            self.function_calls[node.value] += 1
             for arg in node.arguments:
                 self._analyze_expression(arg)
         elif isinstance(node, StructInitNode):
             for expr in node.init_expressions:
                 self._analyze_expression(expr)
+        elif isinstance(node, LambdaNode):
+            if hasattr(node, 'body') and node.body:
+                self._analyze_expression(node.body)
 
     def get_single_use_functions(self) -> set[str]:
-        return {name for name, count in self.function_calls.items() if count == 1}
+        return {name for name in self.function_definitions.keys() 
+                if self.function_calls.get(name, 0) == 1}
 
     def get_unused_functions(self) -> set[str]:
-        return {name for name, count in self.function_calls.items() if count == 0}
+        return {name for name in self.function_definitions.keys() 
+                if self.function_calls.get(name, 0) == 0}

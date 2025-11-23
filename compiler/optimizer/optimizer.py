@@ -11,8 +11,10 @@ class Optimizer:
         self.function_remover = UnusedFunctionRemover()
 
     def optimize(self, ast: ProgramNode) -> dict[str, int]:
-        while self.variable_remover.remove_unused(ast):
-            pass
+        max_iterations = 100
+        iteration = 0
+        while self.variable_remover.remove_unused(ast) and iteration < max_iterations:
+            iteration += 1
         
         self.function_inliner.inline_single_use(ast)
         self.function_remover.remove_unused(ast)
