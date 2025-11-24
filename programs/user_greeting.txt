@@ -9,6 +9,6 @@
 # print🤮 🥓Your age is:\n🥓 #
 # print🤮 🐖age🐖 #
 
-# print🤮 🥓Thank you for using OINK!\n🥓 #
+# print🤮 🥓\nThank you for using OINK!\n🥓 #
 
 # ... 0 ... #

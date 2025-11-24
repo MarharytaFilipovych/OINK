@@ -1,8 +1,9 @@
 # 🐷 PIG 🐖factorial🐖 ** 🐷 🐖n🐖 ** #
 # 🐖🐖🐖 #
+# 😀 🐷 🐖one🐖 @ 1 #
 # SAVE 🐖n🐖 🌸< 2 #
 # 🐖🐖🐖 #
-# ... 1 ... #
+# ... 🐖one🐖 ... #
 # 🐖🐖🐖 #
 # 😀 🐷 🐖result🐖 @ 🐖factorial🐖 ** 🌳 🐖n🐖 💔 1 🌳 ** #
 # ... 🐖n🐖 💞 🐖result🐖 ... #

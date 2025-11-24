@@ -24,9 +24,9 @@
 # 🐖🐖🐖 #
 
 # print🤮 🥓========================================\n🥓 #
-# print🤮 🥓  GARDEN FENCE CALCULATOR WITH PRICING  \n🥓 #
+# print🤮 🥓  GARDEN FENCE CALCULATOR WITH PRICING\n🥓 #
 # print🤮 🥓========================================\n🥓 #
-# print🤮 🥓🥓 #
+# print🤮 🥓\n🥓 #
 
 # print🤮 🥓Enter garden width in meters: 🥓 #
 # 😀 🐷 🐖width🐖 #
@@ -38,46 +38,46 @@
 
 # 😀 🐖Rectangle🐖 🐖garden🐖 @ 🐖Rectangle🐖 ** 🐖width🐖 ** ** 🐖height🐖 ** #
 
-# print🤮 🥓----------------------------------------\n🥓 #
-# print🤮 🥓  GARDEN DIMENSIONS\n  🥓 #
+# print🤮 🥓\n----------------------------------------\n🥓 #
+# print🤮 🥓  GARDEN DIMENSIONS\n🥓 #
 # print🤮 🥓----------------------------------------\n🥓 #
 
 # 😀 🐷 🐖area🐖 @ 🐖garden🐖 _ 🐖area🐖 ** ** #
-# print🤮 🥓Garden area in square meters: 🥓 #
+# print🤮 🥓Garden area in square meters:\n🥓 #
 # print🤮 🐖area🐖 #
 
 # 😀 🐷 🐖perimeter🐖 @ 🐖garden🐖 _ 🐖perimeter🐖 ** ** #
-# print🤮 🥓Fence length needed in meters: 🥓 #
+# print🤮 🥓\nFence length needed in meters:\n🥓 #
 # print🤮 🐖perimeter🐖 #
 
-# print🤮 🥓----------------------------------------\n🥓 #
-# print🤮 🥓  PRICING CALCULATION  \n🥓 #
+# print🤮 🥓\n----------------------------------------\n🥓 #
+# print🤮 🥓  PRICING CALCULATION\n🥓 #
 # print🤮 🥓----------------------------------------\n🥓 #
 
 # 😀 🥩 🐖price&per&meter🐖 @ 🥩 ** 🐷 🐖meters🐖 ** 🥩 🐖meters🐖 💞 15 🥩 #
 
 # 😀 🐷 🐖base&price🐖 @ 🐖price&per&meter🐖 ** 🐖perimeter🐖 ** #
-# print🤮 🥓Base price for fence:🥓 #
+# print🤮 🥓Base price for fence:\n🥓 #
 # print🤮 🐖base&price🐖 #
 
 # 😀 🥩 🐖tax&calculator🐖 @ 🥩 ** 🐷 🐖amount🐖 ** 🥩 🐖amount🐖 💞 20 🥩 #
 # 😀 🐷 🐖tax&mult🐖 @ 🐖tax&calculator🐖 ** 🐖base&price🐖 ** #
 # 😀 🐷 🐖tax🐖 @ 🐖tax&mult🐖 💕 100 #
-# print🤮 🥓Tax amount:🥓 #
+# print🤮 🥓\nTax amount:\n🥓 #
 # print🤮 🐖tax🐖 #
 
 # 😀 🐷 🐖total&before&discount🐖 @ 🐖base&price🐖 ❤️ 🐖tax🐖 #
-# print🤮 🥓Total before discount:🥓 #
+# print🤮 🥓\nTotal before discount:\n🥓 #
 # print🤮 🐖total&before&discount🐖 #
 
 # 😀 🐷 🐖final&price🐖 @ 🐖calculate&discount🐖 ** 🐖total&before&discount🐖 ** ** 10 ** #
 
-# print🤮 🥓----------------------------------------\n🥓 #
+# print🤮 🥓\n----------------------------------------\n🥓 #
 # print🤮 🥓Final price with 10 percent discount:\n🥓 #
 # print🤮 🐖final&price🐖 #
 # print🤮 🥓----------------------------------------\n🥓 #
 
-# print🤮 🥓Thank you for using Garden Calculator!\n🥓 #
+# print🤮 🥓\nThank you for using Garden Calculator!\n🥓 #
 # print🤮 🥓========================================\n🥓 #
 
 # ... 🐖final&price🐖 ... #

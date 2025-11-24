@@ -13,6 +13,6 @@
 # print🤮 🥓Result:\n🥓 #
 # print🤮 🐖sum🐖 #
 
-# print🤮 🥓Thank you!\n🥓 #
+# print🤮 🥓\nThank you!\n🥓 #
 
 # ... 🐖sum🐖 ... #

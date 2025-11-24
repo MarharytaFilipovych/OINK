@@ -44,13 +44,13 @@ This program demonstrates:
 # 😀 🥩 🐖displayValue🐖 @ 🥩 ** 🐷 🐖category🐖 ** 🥩 🐖category🐖 💞 100 🥩 #
 
 👀👀👀 Main program starts here 👀👀👀
-# print🤮 🥓========== BMI Calculator ==========🥓 #
-# print🤮 🥓Enter your weight in kg:🥓 #
+# print🤮 🥓========== BMI Calculator ==========\n🥓 #
+# print🤮 🥓Enter your weight in kg: 🥓 #
 
 # 😀 🐷 🐖weight🐖 #
 # eat😋 🐖weight🐖 #
 
-# print🤮 🥓Enter your height in cm:🥓 #
+# print🤮 🥓Enter your height in cm: 🥓 #
 
 # 😀 🐷 🐖height🐖 #
 # eat😋 🐖height🐖 #
@@ -61,27 +61,27 @@ This program demonstrates:
 👀👀👀 Calculate BMI using member function 👀👀👀
 # 😀 🐷 🐖bmi🐖 @ 🐖person🐖 _ 🐖getBMI🐖 ** ** #
 
-# print🤮 🥓================================🥓 #
-# print🤮 🥓Your BMI:🥓 #
+# print🤮 🥓================================\n🥓 #
+# print🤮 🥓Your BMI:\n🥓 #
 # print🤮 🐖bmi🐖 #
 
 👀👀👀 Get category 👀👀👀
 # 😀 🐷 🐖category🐖 @ 🐖categorizeBMI🐖 ** 🐖bmi🐖 ** #
 
-# print🤮 🥓Category code:🥓 #
+# print🤮 🥓\nCategory code:\n🥓 #
 # print🤮 🐖category🐖 #
 
 👀👀👀 Use lambda to display formatted result 👀👀👀
 # 😀 🐷 🐖display&val🐖 @ 🐖displayValue🐖 ** 🐖category🐖 ** #
-# print🤮 🥓Display value:🥓 #
+# print🤮 🥓\nDisplay value:\n🥓 #
 # print🤮 🐖display&val🐖 #
 
-# print🤮 🥓================================🥓 #
-# print🤮 🥓Categories:🥓 #
-# print🤮 🥓1 = Underweight🥓 #
-# print🤮 🥓2 = Normal🥓 #
-# print🤮 🥓3 = Overweight🥓 #
-# print🤮 🥓4 = Obese🥓 #
-# print🤮 🥓================================🥓 #
+# print🤮 🥓\n================================\n🥓 #
+# print🤮 🥓Categories:\n🥓 #
+# print🤮 🥓1 = Underweight\n🥓 #
+# print🤮 🥓2 = Normal\n🥓 #
+# print🤮 🥓3 = Overweight\n🥓 #
+# print🤮 🥓4 = Obese\n🥓 #
+# print🤮 🥓================================\n🥓 #
 
 # ... 0 ... #

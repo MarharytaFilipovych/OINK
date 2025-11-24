@@ -49,10 +49,10 @@ Features:
 # 😀 🥩 🐖scale🐖 @ 🥩 ** 🐷 🐖value🐖 ** ** 🐷 🐖factor🐖 ** 🥩 🐖value🐖 💞 🐖factor🐖 🥩 #
 
 👀👀👀 Print header 👀👀👀
-# print🤮 🥓=== Temperature Converter ===🥓 #
+# print🤮 🥓=== Temperature Converter ===\n🥓 #
 
 👀👀👀 Get temperature input from user 👀👀👀
-# print🤮 🥓Enter temperature in Celsius:🥓 #
+# print🤮 🥓Enter temperature in Celsius: 🥓 #
 
 # 😀 🐷 🐖celsius&input🐖 #
 # eat😋 🐖celsius&input🐖 #
@@ -68,26 +68,26 @@ Features:
 # 😀 🐖Temperature🐖 🐖temp&data🐖 @ 🐖Temperature🐖 ** 🐖celsius&input🐖 ** ** 🐖fahrenheit&result🐖 ** ** 🐖adjusted&kelvin🐖 ** #
 
 👀👀👀 Print separator 👀👀👀
-# print🤮 🥓=============================🥓 #
+# print🤮 🥓=============================\n🥓 #
 
 👀👀👀 Output results 👀👀👀
-# print🤮 🥓Celsius:🥓 #
+# print🤮 🥓Celsius:\n🥓 #
 # print🤮 🐖temp&data🐖 _ 🐖getCelsius🐖 ** ** #
 
-# print🤮 🥓Fahrenheit:🥓 #
+# print🤮 🥓\nFahrenheit:\n🥓 #
 # print🤮 🐖temp&data🐖 _ 🐖getFahrenheit🐖 ** ** #
 
-# print🤮 🥓Kelvin:🥓 #
+# print🤮 🥓\nKelvin:\n🥓 #
 # print🤮 🐖temp&data🐖 _ 🐖getKelvin🐖 ** ** #
 
 👀👀👀 Use lambda for scaling demo 👀👀👀
 # 😀 🐷 🐖scaled&celsius🐖 @ 🐖scale🐖 ** 🐖celsius&input🐖 ** ** 10 ** #
 
-# print🤮 🥓Scaled value x10:🥓 #
+# print🤮 🥓\nScaled value x10:\n🥓 #
 # print🤮 🐖scaled&celsius🐖 #
 
 👀👀👀 Print footer 👀👀👀
-# print🤮 🥓=============================🥓 #
+# print🤮 🥓\n=============================\n🥓 #
 
 👀👀👀 Return success 👀👀👀
 # ... 0 ... #

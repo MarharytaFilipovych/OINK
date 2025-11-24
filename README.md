@@ -392,28 +392,34 @@ NEWLINE ::= "\n" | "\r\n"
 
 ---
 
+# Updated README.md Examples Section
+
+Replace the "📝 Example Programs" section with this:
+
+---
+
 ## 📝 Example Programs
 
-### String I/O Example: User Greeting
+### User Greeting
 
 ```piglang
-# print🤮 🥓=============================🥓 #
-# print🤮 🥓  Welcome to OINK Language!🥓 #
-# print🤮 🥓=============================🥓 #
+# print🤮 🥓=============================\n🥓 #
+# print🤮 🥓  Welcome to OINK Language!\n🥓 #
+# print🤮 🥓=============================\n🥓 #
 
-# print🤮 🥓Enter your age:🥓 #
+# print🤮 🥓Enter your age: 🥓 #
 # 😀 🐷 🐖age🐖 #
 # eat😋 🐖age🐖 #
 
-# print🤮 🥓Your age is:🥓 #
+# print🤮 🥓Your age is:\n🥓 #
 # print🤮 🐖age🐖 #
 
-# print🤮 🥓Thank you for using OINK!🥓 #
+# print🤮 🥓\nThank you for using OINK!\n🥓 #
 
 # ... 0 ... #
 ```
 
-### Lambda Example: Function as First-Class Value
+### Function as First-Class Value
 
 ```piglang
 # 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #
@@ -426,7 +432,7 @@ NEWLINE ::= "\n" | "\r\n"
 # ... 🐖squared🐖 ❤️ 🐖cubed🐖 ... #
 ```
 
-### Lambda Example: Mathematical Operations
+### Mathematical Operations
 
 ```piglang
 # 😀 🥩 🐖add🐖 @ 🥩 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #
@@ -438,7 +444,7 @@ NEWLINE ::= "\n" | "\r\n"
 # ... 🐖product🐖 ... #
 ```
 
-### Function Example: Factorial Calculator
+### Factorial Calculator
 
 ```piglang
 # 🐷 PIG 🐖factorial🐖 ** 🐷 🐖n🐖 ** #
@@ -447,7 +453,7 @@ NEWLINE ::= "\n" | "\r\n"
 # 🐖🐖🐖 #
 # ... 1 ... #
 # 🐖🐖🐖 #
-# 😀 🐷 🐖result🐖 @ 🐖factorial🐖 ** ** 🐖n🐖 💔 1 ** ** #
+# 😀 🐷 🐖result🐖 @ 🐖factorial🐖 ** 🌳 🐖n🐖 💔 1 🌳 ** #
 # ... 🐖n🐖 💞 🐖result🐖 ... #
 # 🐖🐖🐖 #
 
@@ -457,7 +463,7 @@ NEWLINE ::= "\n" | "\r\n"
 # ... 🐖fact🐖 ... #
 ```
 
-### Structure Example: Point with Distance Calculation
+### Point with Member Functions
 
 ```piglang
 # BOAR 🐖Point🐖 #
@@ -468,10 +474,10 @@ NEWLINE ::= "\n" | "\r\n"
 # 🐖🐖🐖 #
 # ... 🐖x🐖 ... #
 # 🐖🐖🐖 #
-# 🐷 PIGLET 🐖setX🐖 ** 🐷 🐖newX🐖 ** #
+# 😑 PIGLET 🐖setX🐖 ** 🐷 🐖newX🐖 ** #
 # 🐖🐖🐖 #
 # 🐖x🐖 @ 🐖newX🐖 #
-# ... 0 ... #
+# ... #
 # 🐖🐖🐖 #
 # 🐖🐖🐖 #
 
@@ -482,28 +488,159 @@ NEWLINE ::= "\n" | "\r\n"
 # ... 0 ... #
 ```
 
-### I/O Example: Interactive Calculator with Strings
+### Interactive Calculator
 
 ```piglang
-# print🤮 🥓=== Calculator ===🥓 #
+# print🤮 🥓=== Calculator ===\n🥓 #
 
-# print🤮 🥓Enter first number:🥓 #
+# print🤮 🥓Enter first number: 🥓 #
 # 😀 🐷 🐖a🐖 #
 # eat😋 🐖a🐖 #
 
-# print🤮 🥓Enter second number:🥓 #
+# print🤮 🥓Enter second number: 🥓 #
 # 😀 🐷 🐖b🐖 #
 # eat😋 🐖b🐖 #
 
 # 😀 🐷 🐖sum🐖 @ 🐖a🐖 ❤️ 🐖b🐖 #
 
-# print🤮 🥓Result:🥓 #
+# print🤮 🥓Result:\n🥓 #
 # print🤮 🐖sum🐖 #
 
-# print🤮 🥓Thank you!🥓 #
+# print🤮 🥓\nThank you!\n🥓 #
 
 # ... 🐖sum🐖 ... #
 ```
+
+### Temperature Converter
+
+```piglang
+# BOAR 🐖Temperature🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖celsius🐖 #
+# 😀 🐷 🐖fahrenheit🐖 #
+# 😀 🐷 🐖kelvin🐖 #
+# 🐷 PIGLET 🐖getCelsius🐖 #
+# 🐖🐖🐖 #
+# ... 🐖celsius🐖 ... #
+# 🐖🐖🐖 #
+# 🐷 PIGLET 🐖getFahrenheit🐖 #
+# 🐖🐖🐖 #
+# ... 🐖fahrenheit🐖 ... #
+# 🐖🐖🐖 #
+# 🐷 PIGLET 🐖getKelvin🐖 #
+# 🐖🐖🐖 #
+# ... 🐖kelvin🐖 ... #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+
+# 🐷 PIG 🐖celsiusToFahrenheit🐖 ** 🐷 🐖c🐖 ** #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖temp🐖 @ 🌳 🐖c🐖 💞 9 🌳 💕 5 #
+# ... 🐖temp🐖 ❤️ 32 ... #
+# 🐖🐖🐖 #
+
+# 🐷 PIG 🐖celsiusToKelvin🐖 ** 🐷 🐖c🐖 ** #
+# 🐖🐖🐖 #
+# ... 🐖c🐖 ❤️ 273 ... #
+# 🐖🐖🐖 #
+
+# 😀 🥩 🐖addOffset🐖 @ 🥩 ** 🐷 🐖temp🐖 ** ** 🐷 🐖offset🐖 ** 🥩 🐖temp🐖 ❤️ 🐖offset🐖 🥩 #
+
+# print🤮 🥓=== Temperature Converter ===\n🥓 #
+# print🤮 🥓Enter temperature in Celsius: 🥓 #
+
+# 😀 🐷 🐖celsius&input🐖 #
+# eat😋 🐖celsius&input🐖 #
+
+# 😀 🐷 🐖fahrenheit&result🐖 @ 🐖celsiusToFahrenheit🐖 ** 🐖celsius&input🐖 ** #
+# 😀 🐷 🐖kelvin&result🐖 @ 🐖celsiusToKelvin🐖 ** 🐖celsius&input🐖 ** #
+# 😀 🐷 🐖adjusted&kelvin🐖 @ 🐖addOffset🐖 ** 🐖kelvin&result🐖 ** ** 0 ** #
+
+# 😀 🐖Temperature🐖 🐖temp&data🐖 @ 🐖Temperature🐖 ** 🐖celsius&input🐖 ** ** 🐖fahrenheit&result🐖 ** ** 🐖adjusted&kelvin🐖 ** #
+
+# print🤮 🥓=============================\n🥓 #
+# print🤮 🥓Celsius:\n🥓 #
+# print🤮 🐖temp&data🐖 _ 🐖getCelsius🐖 ** ** #
+# print🤮 🥓\nFahrenheit:\n🥓 #
+# print🤮 🐖temp&data🐖 _ 🐖getFahrenheit🐖 ** ** #
+# print🤮 🥓\nKelvin:\n🥓 #
+# print🤮 🐖temp&data🐖 _ 🐖getKelvin🐖 ** ** #
+
+# ... 0 ... #
+```
+
+### BMI Calculator
+
+```piglang
+# BOAR 🐖Person🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖weight🐖 #
+# 😀 🐷 🐖height🐖 #
+# 🐷 PIGLET 🐖getBMI🐖 #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖height&squared🐖 @ 🐖height🐖 💞 🐖height🐖 #
+# ... 🌳🐖weight🐖 💞 10000🌳 💕 🐖height&squared🐖 ... #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+
+# 🐷 PIG 🐖categorizeBMI🐖 ** 🐷 🐖bmi🐖 ** #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 4 #
+# SAVE 🐖bmi🐖 < 18 #
+# 🐖🐖🐖 #
+# 🐖result🐖 @ 1 #
+# 🐖🐖🐖 #
+# HURT 🐖bmi🐖 < 25 #
+# 🐖🐖🐖 #
+# 🐖result🐖 @ 2 #
+# 🐖🐖🐖 #
+# HURT 🐖bmi🐖 < 30 #
+# 🐖🐖🐖 #
+# 🐖result🐖 @ 3 #
+# 🐖🐖🐖 #
+# ... 🐖result🐖 ... #
+# 🐖🐖🐖 #
+
+# 😀 🥩 🐖displayValue🐖 @ 🥩 ** 🐷 🐖category🐖 ** 🥩 🐖category🐖 💞 100 🥩 #
+
+# print🤮 🥓========== BMI Calculator ==========\n🥓 #
+# print🤮 🥓Enter your weight in kg: 🥓 #
+# 😀 🐷 🐖weight🐖 #
+# eat😋 🐖weight🐖 #
+
+# print🤮 🥓Enter your height in cm: 🥓 #
+# 😀 🐷 🐖height🐖 #
+# eat😋 🐖height🐖 #
+
+# 😀 🐖Person🐖 🐖person🐖 @ 🐖Person🐖 ** 🐖weight🐖 ** ** 🐖height🐖 ** #
+# 😀 🐷 🐖bmi🐖 @ 🐖person🐖 _ 🐖getBMI🐖 ** ** #
+
+# print🤮 🥓================================\n🥓 #
+# print🤮 🥓Your BMI:\n🥓 #
+# print🤮 🐖bmi🐖 #
+
+# 😀 🐷 🐖category🐖 @ 🐖categorizeBMI🐖 ** 🐖bmi🐖 ** #
+# print🤮 🥓\nCategory code:\n🥓 #
+# print🤮 🐖category🐖 #
+
+# print🤮 🥓\n================================\n🥓 #
+# print🤮 🥓Categories:\n🥓 #
+# print🤮 🥓1 = Underweight\n🥓 #
+# print🤮 🥓2 = Normal\n🥓 #
+# print🤮 🥓3 = Overweight\n🥓 #
+# print🤮 🥓4 = Obese\n🥓 #
+
+# ... 0 ... #
+```
+
+## Key Syntax Notes
+
+All examples above demonstrate:
+- **Expression grouping** with `🌳` (e.g., `🌳 🐖x🐖 ❤️ 🐖y🐖 🌳`)
+- **Function arguments** with `**` (e.g., `** 🐷 🐖param🐖 **`)
+- **String literals** with `🥓` and escape sequences (`\n`, `\t`)
+- **Structures** with member functions
+- **Lambda expressions** as first-class values
 
 ---
 
