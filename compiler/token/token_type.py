@@ -39,7 +39,7 @@ class TokenType(Enum):
     
     ASSIGNMENT = auto() # @
     
-    BRACKET = auto()   # **
+    BRACKET = auto()   # ** (for arguments)
     
     SIMPLE_LINE_BORDER = auto()       # #
     MOOD_LINE_BORDER_START = auto()   # #~
@@ -71,6 +71,8 @@ class TokenType(Enum):
 
     STRING_TYPE = auto() # 👺
     STRING = auto()
+
+    EXPRESSION_GROUP = auto()  # 🌳 (for expression grouping)
 
 
     def if_for_comparision(self) -> bool:

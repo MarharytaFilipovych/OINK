@@ -246,7 +246,7 @@ Prints values to console (supports integers and string literals).
 
 ### Operator Precedence (High to Low)
 
-1. `**` ... `**` (grouping)
+1. `🌳` ... `🌳` (grouping)
 2. `💩` (unary NOT)
 3. `💞`, `💕` (multiplication, division)
 4. `❤️`, `💔` (addition, subtraction)
@@ -380,7 +380,8 @@ Unary expression: handles logical NOT operator:
 unary_expr ::= [ "💩" ] factor
 
 Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), string literals, function calls, member access, lambda expressions, or parenthesized sub-expressions for grouping and overriding precedence:
-factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "**" expr "**" | boolean | string_literal | function_call | lambda
+factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "🌳" expr "🌳" | ...
+ "**" | boolean | string_literal | function_call | lambda
 boolean ::= "LOVE" | "HATE"
 ID ::= LETTER { LETTER | "&" }*
 NUMBER ::= [ "-" ] DIGIT { DIGIT }*

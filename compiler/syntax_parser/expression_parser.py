@@ -117,9 +117,9 @@ class ExpressionParser:
                 return self.parse_variable_or_call()
             case TokenType.TRUE | TokenType.FALSE:
                 return self.__parse_boolean_token(token)
-            case TokenType.BRACKET:
+            case TokenType.EXPRESSION_GROUP:
                 expr = self.parse_expression()
-                self.reader.expect_token(TokenType.BRACKET)
+                self.reader.expect_token(TokenType.EXPRESSION_GROUP)
                 return expr
             case _:
                 raise ValueError(

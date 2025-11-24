@@ -3,5 +3,5 @@
 # 😀 🐷 🐖x🐖 #
 # 🐖🐖🐖 #
 # 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 1 ** #
-# 😀 🐷 🐖r🐖 @ 🐖p🐖 _ 🐖x🐖 _ 🐖non_func_link🐖 #
+# 😀 🐷 🐖r🐖 @ 🐖p🐖 _ 🐖x🐖 _ 🐖nonfunclink🐖 #
 # ... 1 ... #

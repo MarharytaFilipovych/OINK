@@ -44,11 +44,11 @@
 # print🤮 🥓----------------------------------------🥓 #
 
 # 😀 🐷 🐖area🐖 @ 🐖garden🐖 _ 🐖area🐖 ** ** #
-# print🤮 🥓Garden area in square meters:🥓 #
+# print🤮 🥓Garden area in square meters: 🥓 #
 # print🤮 🐖area🐖 #
 
 # 😀 🐷 🐖perimeter🐖 @ 🐖garden🐖 _ 🐖perimeter🐖 ** ** #
-# print🤮 🥓Fence length needed in meters:🥓 #
+# print🤮 🥓Fence length needed in meters: 🥓 #
 # print🤮 🐖perimeter🐖 #
 
 # print🤮 🥓🥓 #

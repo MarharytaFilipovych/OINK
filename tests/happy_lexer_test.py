@@ -129,6 +129,8 @@ def assert_all_data_types(self, lexemes):
 def assert_brackets(self, lexemes):
     bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
     self.assertEqual(len(bracket_tokens), 2)
+    self.assertEqual(bracket_tokens[0].value, "**")
+    self.assertEqual(bracket_tokens[1].value, "**")
 
 def assert_single_line_comment(self, lexemes):
     var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE][0]
@@ -200,6 +202,9 @@ def assert_string_tokens_present(self, lexemes):
     string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
     self.assertGreaterEqual(len(string_tokens), 1)
 
+def assert_expression_group(self, lexemes):
+    expr_group_tokens = [t for t in lexemes if t.token_type == TokenType.EXPRESSION_GROUP]
+    self.assertEqual(len(expr_group_tokens), 2)
 
 test_cases = [
     ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 10 #\n", assert_simple_declaration),
@@ -229,6 +234,7 @@ test_cases = [
     ("string_with_special_chars", "# print🤮 🥓Hello! @#$%🥓 #\n", assert_string_with_special_chars),
     ("multiple_strings", "# print🤮 🥓First🥓 #\n# print🤮 🥓Second🥓 #\n", assert_multiple_strings),
     ("string_tokens_present", "# print🤮 🥓Test🥓 #\n", assert_string_tokens_present),
+    ("expression_group", "# 😀 🐷 🐖x🐖 @ 🌳 10 ❤️ 5 🌳 #\n", assert_expression_group),
 ]
 
 for name, code, func in test_cases:
