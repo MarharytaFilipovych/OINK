@@ -14,10 +14,11 @@
 - **Functions and structures** with member functions
 - **Built-in I/O operations** for input and output
 - **String literals** with bacon emoji 🥓 delimiters
+- **Powerful optimizations** including dead code elimination, function inlining, and unused function removal
 
 ## ✨ Key Features
 
-### 🥓 String Literals (NEW!)
+### 🥓 String Literals
 Create string literals using the bacon emoji as delimiters:
 
 ```piglang
@@ -196,149 +197,24 @@ Lambdas are anonymous functions that can be stored in variables and called like 
 
 **Syntax:**
 ```
-🥩 ** type 🐖param1🐖 ** ** type 🐖param2🐖 ** ... 🥩 expression 🥩
+🥩 ** type 🐖param🐖 ** ** type 🐖param🐖 ** 🥩 expression 🥩
 ```
 
 **Features:**
-- Single expression body (no statements)
-- Type-checked parameters
-- Can capture outer scope (limited to parameters)
-- Stored in lambda type variables (🥩)
+- Declared with `😀 🥩` mutability marker and type
+- Parameters wrapped in `** **` brackets
+- Body is a single expression
+- Must be initialized at declaration
 
 **Usage:**
 ```piglang
-# Declare lambda
-# 😀 🥩 🐖increment🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 ❤️ 1 🥩 #
+# Lambda declaration
+# 😀 🥩 🐖double🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 2 🥩 #
 
-# Call lambda
-# 😀 🐷 🐖value🐖 @ 10 #
-# 😀 🐷 🐖result🐖 @ 🐖increment🐖 ** 🐖value🐖 ** #
-# ... 11 ... #
+# Lambda call
+# 😀 🐷 🐖result🐖 @ 🐖double🐖 ** 10 ** #
+# ... 🐖result🐖 ... #  # Returns 20
 ```
-
-**Complex Lambda Example:**
-```piglang
-# Lambda that operates on other values
-# 😀 🥩 🐖compute🐖 @ 🥩 ** 🐷 🐖x🐖 ** ** 🐷 🐖y🐖 ** 🥩 ** 🐖x🐖 💞 🐖x🐖 ** ❤️ ** 🐖y🐖 💞 🐖y🐖 ** 🥩 #
-# 😀 🐷 🐖sum&of&squares🐖 @ 🐖compute🐖 ** 3 ** ** 4 ** #
-# ... 25 ... #
-```
-
-### Mutability
-
-- `😀` - Mutable variable
-- `😭` - Constant (immutable) variable
-
-### Operators
-
-#### Arithmetic
-- `❤️` Addition
-- `💔` Subtraction
-- `💞` Multiplication
-- `💕` Division
-
-#### Comparison
-- `🌸🌸` Equals
-- `💩🌸` Not equals
-- `>` Greater than
-- `<` Less than
-- `🌸>` Greater or equal
-- `🌸<` Less or equal
-
-#### Logical
-- `💩` NOT (unary)
-- `hru` AND
-- `bruh` OR
-
-#### Other
-- `@` Assignment
-- `**` ... `**` Expression grouping
-
-### Control Flow
-
-#### If-Elif-Else
-- `SAVE` If
-- `HURT` Elif
-- `KILL` Else
-
-```piglang
-# SAVE condition #
-# 🐖🐖🐖 #
-# statements #
-# 🐖🐖🐖 #
-# HURT another_condition #
-# 🐖🐖🐖 #
-# statements #
-# 🐖🐖🐖 #
-# KILL #
-# 🐖🐖🐖 #
-# statements #
-# 🐖🐖🐖 #
-```
-
-#### While Loop
-- `OINK` While
-
-```piglang
-# OINK condition #
-# 🐖🐖🐖 #
-# statements #
-# 🐖🐖🐖 #
-```
-
-### Functions
-
-Functions are declared with return type, `PIG` keyword, function name, and parameters:
-
-```piglang
-# return_type PIG 🐖function_name🐖 ** type 🐖param1🐖 ** ** type 🐖param2🐖 ** #
-# 🐖🐖🐖 #
-# function body #
-# ... return_value ... #
-# 🐖🐖🐖 #
-```
-
-**Function Features:**
-- Parameters are wrapped in `** type 🐖param🐖 **`
-- Multiple parameters separated by space
-- Return statement required: `# ... expr ... #`
-- Void functions use `😑` as return type and return nothing
-
-**Function Call:**
-```piglang
-# 😀 🐷 🐖result🐖 @ 🐖add🐖 ** 🐖a🐖 ** ** 🐖b🐖 ** #
-```
-
-**Function Chaining:**
-Functions can be chained using `_` (pig tail) operator:
-```piglang
-# 😀 🐷 🐖result🐖 @ 🐖getValue🐖 _ 🐖double🐖 _ 🐖increment🐖 #
-```
-Each function in the chain receives the result of the previous function as its first implicit parameter.
-
-### Structures
-
-Structures group data fields and member functions together:
-
-```piglang
-# BOAR 🐖StructName🐖 #
-# 🐖🐖🐖 #
-# field declarations #
-# member function declarations #
-# 🐖🐖🐖 #
-```
-
-**Structure Features:**
-- Fields declared like variables: `# mutability type 🐖field_name🐖 #`
-- Member functions use `PIGLET` keyword instead of `PIG`
-- Member functions can access structure fields directly
-- Structure instances created with initialization: `# 😀 🐖StructName🐖 🐖instance🐖 @ 🐖StructName🐖 ** value1 ** ** value2 ** #`
-
-**Member Function Access:**
-```piglang
-# 😀 🐷 🐖value🐖 @ 🐖instance🐖 _ 🐖getX🐖 #
-```
-Note: `_` is the member access operator (pig tail!)
 
 ### Input/Output
 
@@ -377,6 +253,41 @@ Prints values to console (supports integers and string literals).
 5. `>`, `<`, `🌸>`, `🌸<`, `🌸🌸`, `💩🌸` (comparison)
 6. `hru` (logical AND)
 7. `bruh` (logical OR)
+
+---
+
+## 🚀 Compiler Pipeline
+
+The OINK compiler processes your code through multiple stages:
+
+1. **Lexer**: Tokenizes source code into tokens
+2. **Parser**: Builds an Abstract Syntax Tree (AST) from tokens
+3. **Semantic Analyzer**: Validates types, scopes, and semantics
+4. **Optimizer**: Applies multiple optimization passes
+5. **Code Generator**: Produces LLVM IR code
+
+### Optimization Passes
+
+The optimizer performs three main optimizations:
+
+#### 1. Dead Variable Elimination
+Removes unused variables iteratively until no more can be removed (max 100 iterations):
+- Identifies variables that are declared but never used
+- Removes their declarations from the AST
+- Reports number of variables removed
+
+#### 2. Function Inlining
+Inlines functions that are called exactly once:
+- Identifies single-use functions
+- Replaces function calls with function body
+- Handles parameter substitution
+- Reports number of functions inlined
+
+#### 3. Unused Function Removal
+Removes functions that are never called:
+- Identifies functions with zero call sites
+- Removes function declarations from AST
+- Reports number of functions removed
 
 ---
 
@@ -422,7 +333,8 @@ Structure initialization:
 struct_init ::= "😀" "🐖" ID "🐖" "🐖" ID "🐖" "@" "🐖" ID "🐖" "**" expr_list "**"
 expr_list ::= expr { "**" "**" expr }*
 
-Declaration: mutability, type, identifier wrapped in 🐖, and initializer expression. Variables are immutable by default unless 😀 is present:
+Declaration: mutability, type, identifier wrapped in 🐖, and initializer expression.
+Variables are immutable by default unless 😀 is present:
 decl ::= mutability type "🐖" ID "🐖" [ "@" ( expr | struct_init | lambda ) ]
 mutability ::= "😀" | "😭"
 type ::= "🐽" | "🐷" | "🐗" | "wow" | "🥩" | ID
@@ -439,7 +351,6 @@ function_call ::= "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ] "**" [ expr { "**" "
 
 Conditional statements: if block with optional elif blocks and else block:
 if_stmt ::= if_block elif_block* else_block?
-
 if_block ::= "#" "SAVE" expr "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* "#" "🐖🐖🐖" "#" NEWLINE
 elif_block ::= "#" "HURT" expr "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* "#" "🐖🐖🐖" "#" NEWLINE
 else_block ::= "#" "KILL" "#" NEWLINE "#" "🐖🐖🐖" "#" NEWLINE statement_wrapper* "#" "🐖🐖🐖" "#" NEWLINE
@@ -486,7 +397,7 @@ NEWLINE ::= "\n" | "\r\n"
 
 ```piglang
 # print🤮 🥓=============================🥓 #
-# print🤮 🥓  Welcome to OINK Language! 🥓 #
+# print🤮 🥓  Welcome to OINK Language!🥓 #
 # print🤮 🥓=============================🥓 #
 
 # print🤮 🥓Enter your age:🥓 #
@@ -564,7 +475,7 @@ NEWLINE ::= "\n" | "\r\n"
 # 🐖🐖🐖 #
 
 # 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** ** 20 ** #
-# 😀 🐷 🐖coord🐖 @ 🐖p🐖 _ 🐖getX🐖 #
+# 😀 🐷 🐖coord🐖 @ 🐖p🐖 _ 🐖getX🐖 ** ** #
 # print🤮 🐖coord🐖 #
 
 # ... 0 ... #
@@ -673,6 +584,48 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 
 ---
 
+## 📦 HOW TO RUN IT???
+
+First of all, you should run some tests and verify that everything is working. 
+In order to do this, you must run these commands... (but verify that you are not inside the *compiler* directory, you must be at the root level)
+
+```bash
+chmod +x tests.sh
+./tests.sh
+```
+NOTE: this checks the work of syntax parser and lexer
+
+... and then these:
+
+```bash
+chmod +x full_compiler.sh
+./full_compiler.sh
+```
+
+NOTE: this checks the overall compiler work with optimizations:)
+
+NOW YOU CAN WRITE YOUR OWN MASTERPIECE WITH OINK LANGUAGE. HOW?
+
+1) Place your perfect **OINK code** in a file with a **txt** extension.
+2) Locate it somewhere but keep in mind the location!
+3) Go to the folder where **compiler.py** file resides.
+4) Ensure that you are in the same location as the **compiler.py**.
+5) Run this command, specifying the path to your OINK code file location:
+
+```bash
+    python3 -m compiler <YOUR_CODE_LOCATION> ./llm/<YOUR_DESIRED_FILE_NAME>.ll
+    llc -filetype=obj -relocation-model=pic ./llm/<YOUR_DESIRED_FILE_NAME>.ll -o ./obj/<YOUR_DESIRED_FILE_NAME>.o
+    clang -fPIE ./obj/<YOUR_DESIRED_FILE_NAME>.o -o ./exe/<YOUR_DESIRED_FILE_NAME>
+    ./exe/<YOUR_DESIRED_FILE_NAME>
+```
+
+The compiler will output optimization statistics:
+- Variables removed: Number of unused variables eliminated
+- Functions inlined: Number of single-use functions inlined
+- Functions removed: Number of unused functions eliminated
+
+---
+
 ## 🤔 FAQ
 
 **Why pig emojis?**  
@@ -699,46 +652,22 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 **Why `**` instead of `()`?**  
 *Answer*: To maintain PigLang's unique visual identity!
 
-**Can I shadow variables?**
-*Answer*: No! PigLang does not allow variable shadowing. Once a variable is declared, it cannot be redeclared in any scope.
+**Can I shadow variables?**  
+*Answer*: No! Variable shadowing is strictly forbidden in OINK. Every variable must have a unique name within the entire program scope.
 
-**Can I use numbers within a variable name?**
-*Answer*: No! Your variable name must start with a letter (alpha) and then can be followed either by a letter or a `&` sign!
+**What optimizations does the compiler perform?**  
+*Answer*: The OINK compiler performs dead variable elimination, function inlining for single-use functions, and unused function removal. These optimizations run automatically during compilation.
 
-**Can structures inherit from other structures?**
-*Answer*: No, PigLang does not support inheritance. Use composition instead!
+**How does function inlining work?**  
+*Answer*: Functions that are called exactly once are automatically inlined - their body replaces the call site. This reduces function call overhead and can enable further optimizations.
 
-**Do member functions have access to structure fields?**
-*Answer*: Yes! Member functions declared with `PIGLET` can directly access all fields of the structure.
-
-**What's the difference between `PIG` and `PIGLET`?**
-*Answer*: `PIG` declares standalone functions, while `PIGLET` declares member functions within structures (BOAR blocks).
-
-**Can I chain function calls?**
-*Answer*: Yes! Use the `_` operator to chain functions. The result of each function becomes the first implicit parameter to the next function in the chain. For example: `🐖getValue🐖 _ 🐖double🐖 _ 🐖addTen🐖`
-
-**Why `_` for member access?**
-*Answer*: The underscore represents a pig's tail! It's a simple, clear character that fits our pig theme and makes chaining operations easy to read.
-
-**Can lambdas access outer scope variables?**
-*Answer*: Currently, lambdas can only access their parameters. Future versions may support closure.
-
-**Can I store strings in variables?**
-*Answer*: Currently, strings are literals only and cannot be stored in variables. They are used directly with `print🤮` for output.
-
-**Can strings span multiple lines?**
-*Answer*: No! Strings must be closed on the same line. Use `\n` escape sequence for newlines within strings.
+**Can I disable optimizations?**  
+*Answer*: No, optimizations are always enabled and are an integral part of the compilation process.
 
 ---
 
-## 🎉 HAVE FUN CODING (OR NOT), MY LOVELY FRIENDS!
+## 🐷 Quick Reference
 
-**Remember:**
-- Wrap your variables in 🐖
-- Enclose blocks with 🐖🐖🐖
-- Use `LOVE` and `HATE` for booleans
-- Try *Mood Lines* for inverted logic
-- Use `🥩` for lambda expressions - meaty functions!
 - Use `🥓` for string literals - bacon delimiters!
 - Every program must return something!
 - No variable shadowing allowed!
@@ -749,44 +678,8 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Chain function calls with `_`
 - Read with `eat😋`, print with `print🤮`
 - Strings support escape sequences: `\n`, `\t`, `\\`
+- Compiler optimizations automatically improve your code!
 
 Happy *OINK* coding! 🐷🥩🥓✨
-
----
-
-## 📦 HOW TO RUN IT???
-
-First of all, you should run some tests and verify that everything is working. 
-In order to do this, you must run these commands... (but verify that you are not inside the *compiler* directory, you must be at the root level)
-
-```bash
-chmod +x tests.sh
-./tests.sh
-```
-NOTE: this checks the work of syntax parser and lexer
-
-... and then these:
-
-```bash
-chmod +x full_compiler.sh
-./full_compiler.sh
-```
-
-NOTE: this checks the overall compiler work:)
-
-NOW YOU CAN WRITE YOUR OWN MASTERPIECE WITH OINK LANGUAGE. HOW?
-
-1) Place your perfect **OINK code** in a file with a **txt** extension.
-2) Locate it somewhere but keep in mind the location!
-3) Go to the folder where **compiler.py** file resides.
-4) Ensure that you are in the same location as the **compiler.py**.
-5) Run this command, specifying the path to your OINK code file location:
-
-```bash
-    python3 -m compiler <YOUR_CODE_LOCATION> ./llm/<YOUR_DESIRED_FILE_NAME>.ll
-    llc -filetype=obj -relocation-model=pic ./llm/<YOUR_DESIRED_FILE_NAME>.ll -o ./obj/<YOUR_DESIRED_FILE_NAME>.o
-    clang -fPIE ./obj/<YOUR_DESIRED_FILE_NAME>.o -o ./exe/<YOUR_DESIRED_FILE_NAME>
-    ./exe/<YOUR_DESIRED_FILE_NAME>
-```
 
 # ENJOY🐖🐖🐖
