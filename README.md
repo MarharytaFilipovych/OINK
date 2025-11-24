@@ -740,6 +740,19 @@ chmod +x full_compiler.sh
 ./full_compiler.sh
 ```
 
+... and then you can launch already ready-for-use programs (note some of them require interaction -> your input):
+* you can launch them all at once -> they will go one after another:
+```bash
+    chmod +x programs.sh
+    ./programs.sh
+```
+* or launch only one (some) of your free choice:
+```bash
+    python3 -m compiler ./programs/<YOUR_CHOICE_PROGRAM_TXT> ./programs/llm/<YOUR_CHOICE_PROGRAM_TXT>.ll
+    llc -filetype=obj -relocation-model=pic ./programs/llm/<YOUR_CHOICE_PROGRAM_TXT>.ll -o ./programs/obj/<YOUR_CHOICE_PROGRAM_TXT>.o
+    clang -fPIE ./programs/obj/<YOUR_CHOICE_PROGRAM_TXT>.o -o ./programs/exe/<YOUR_CHOICE_PROGRAM_TXT>
+    ./exe/<YOUR_CHOICE_PROGRAM_TXT>
+```
 NOTE: this checks the overall compiler work with optimizations:)
 
 NOW YOU CAN WRITE YOUR OWN MASTERPIECE WITH OINK LANGUAGE. HOW?
