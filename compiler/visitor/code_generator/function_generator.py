@@ -89,7 +89,9 @@ class FunctionGenerator:
         arg_strs = [f"%struct.{obj_type}* {object_ptr}"] + [
             self.__build_call_argument(arg, visitor, expected_type)
             for arg, expected_type in zip(node.arguments, expected_types)]
-        self.__emit_function_call(return_type, return_llvm_type, mangled_name, arg_strs)
+        
+        # FIX: Ensure the result register is returned.
+        return self.__emit_function_call(return_type, return_llvm_type, mangled_name, arg_strs)
 
     def __get_call_info(self, name, func_name):
         mangled_name = f"{name}_{func_name}"
@@ -130,7 +132,7 @@ class FunctionGenerator:
         arg_strs = [f"%struct.{struct_name}* %this"] + [
             self.__build_call_argument(arg, visitor, expected_type)
             for arg, expected_type in zip(node.arguments, expected_types)]
-        self.__emit_function_call(return_type, return_llvm_type, mangled_name, arg_strs)
+        return self.__emit_function_call(return_type, return_llvm_type, mangled_name, arg_strs)
 
     def __emit_function_call(self, return_type, return_llvm_type, func_name, args):
         if return_type == DataType.VOID:

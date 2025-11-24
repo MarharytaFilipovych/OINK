@@ -15,7 +15,7 @@ class StructParser:
         self.parse_member_function_declaration = parse_member_function_callback
 
     def parse_struct_declaration(self) -> StructDeclNode:
-        self.reader.define_line_type(self.reader.peek())
+        self.reader.skip_line_start()
 
         struct_token, struct_name = self.__parse_struct_header()
         self.__expect_block_border()
