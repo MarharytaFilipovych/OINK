@@ -1,0 +1,14 @@
+# print🤮 🥓=============================\n🥓 #
+# print🤮 🥓  Welcome to OINK Language!\n🥓 #
+# print🤮 🥓=============================\n🥓 #
+
+# print🤮 🥓Enter your age: 🥓 #
+# 😀 🐷 🐖age🐖 #
+# eat😋 🐖age🐖 #
+
+# print🤮 🥓Your age is:\n🥓 #
+# print🤮 🐖age🐖 #
+
+# print🤮 🥓Thank you for using OINK!\n🥓 #
+
+# ... 0 ... #

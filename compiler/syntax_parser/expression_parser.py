@@ -137,11 +137,9 @@ class ExpressionParser:
         var_name = var_token.value
         self.reader.expect_token(TokenType.VARIABLE_BORDER)
         
-        # Check for the argument separator pattern ** **
         is_separator_pattern = (
             self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET and 
-            self.reader.peek(1) and self.reader.peek(1).token_type == TokenType.BRACKET
-        )
+            self.reader.peek(1) and self.reader.peek(1).token_type == TokenType.BRACKET)
         
         if self.__is_struct_initialization(var_name):
             return self.parse_struct_init(var_name, var_token.line)
@@ -149,11 +147,12 @@ class ExpressionParser:
         if self.__is_member_access():
             return self.__parse_member_access(var_name, var_token.line)
         
-        # FIX: Only call __is_function_call if we are NOT looking at the separator pattern.
         if self.__is_function_call() and not is_separator_pattern:
             return self.parse_function_call_expr(var_name, var_token.line)
             
-        return IDNode(var_name, var_token.line)
+        return self.parse_function_call_expr(var_name, var_token.line) \
+            if self.__is_function_call() and not is_separator_pattern \
+            else IDNode(var_name, var_token.line)
 
     def __is_struct_initialization(self, var_name: str) -> bool:
         return var_name in self.declared_structs and self.reader.peek() and self.reader.peek().token_type == TokenType.BRACKET
@@ -190,11 +189,7 @@ class ExpressionParser:
             line = func_token.line
             self.reader.expect_token(TokenType.VARIABLE_BORDER)
         self.reader.expect_token(TokenType.BRACKET)
-        
-        print("--- DEBUG: Starting argument parsing ---")
-        arguments = self.parse_arguments()
-        print(f"--- DEBUG: Finished argument parsing. Args count: {len(arguments)} ---")
-        
+        arguments = self.parse_arguments()        
         self.reader.expect_token(TokenType.BRACKET)
         result = FunctionCallNode(func_name, arguments, line, None)
         if self.reader.peek() and self.reader.peek().token_type == TokenType.MEMBER_ACCESS:
@@ -204,9 +199,7 @@ class ExpressionParser:
     def parse_arguments(self) -> list[ExprNode]:
         arguments = []
         if self.__should_parse_first_argument():
-            # CHANGED: Using parse_value for the first argument to avoid early token consumption.
             arguments.append(self.parse_value())
-            print(f"--- DEBUG: Parsed first argument. Expression: {arguments[-1]} ---")
             self.__parse_additional_arguments(arguments)
         return arguments
 

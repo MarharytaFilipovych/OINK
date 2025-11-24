@@ -27,7 +27,7 @@ class TokenReader:
         if token.token_type != token_type:
             raise ValueError(
                 f"I expected a token of the type \"{token_type.name.lower()}\""
-                f" but got \"{token.token_type.name.lower()}\" -> ({token.value}) at line {token.line} and index {token.index}!")
+                f" but got \"{token.token_type.name.lower()}\" -> ({token.value}) at line {token.line}!")
         return self.eat()
 
     def skip_newlines(self):

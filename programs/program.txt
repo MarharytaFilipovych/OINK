@@ -23,25 +23,24 @@
 # ... 🐖final🐖 ... #
 # 🐖🐖🐖 #
 
-# print🤮 🥓========================================🥓 #
-# print🤮 🥓  GARDEN FENCE CALCULATOR WITH PRICING  🥓 #
-# print🤮 🥓========================================🥓 #
+# print🤮 🥓========================================\n🥓 #
+# print🤮 🥓  GARDEN FENCE CALCULATOR WITH PRICING  \n🥓 #
+# print🤮 🥓========================================\n🥓 #
 # print🤮 🥓🥓 #
 
-# print🤮 🥓Enter garden width in meters:🥓 #
+# print🤮 🥓Enter garden width in meters: 🥓 #
 # 😀 🐷 🐖width🐖 #
 # eat😋 🐖width🐖 #
 
-# print🤮 🥓Enter garden height in meters:🥓 #
+# print🤮 🥓Enter garden height in meters: 🥓 #
 # 😀 🐷 🐖height🐖 #
 # eat😋 🐖height🐖 #
 
 # 😀 🐖Rectangle🐖 🐖garden🐖 @ 🐖Rectangle🐖 ** 🐖width🐖 ** ** 🐖height🐖 ** #
 
-# print🤮 🥓🥓 #
-# print🤮 🥓----------------------------------------🥓 #
-# print🤮 🥓  GARDEN DIMENSIONS  🥓 #
-# print🤮 🥓----------------------------------------🥓 #
+# print🤮 🥓----------------------------------------\n🥓 #
+# print🤮 🥓  GARDEN DIMENSIONS\n  🥓 #
+# print🤮 🥓----------------------------------------\n🥓 #
 
 # 😀 🐷 🐖area🐖 @ 🐖garden🐖 _ 🐖area🐖 ** ** #
 # print🤮 🥓Garden area in square meters: 🥓 #
@@ -51,10 +50,9 @@
 # print🤮 🥓Fence length needed in meters: 🥓 #
 # print🤮 🐖perimeter🐖 #
 
-# print🤮 🥓🥓 #
-# print🤮 🥓----------------------------------------🥓 #
-# print🤮 🥓  PRICING CALCULATION  🥓 #
-# print🤮 🥓----------------------------------------🥓 #
+# print🤮 🥓----------------------------------------\n🥓 #
+# print🤮 🥓  PRICING CALCULATION  \n🥓 #
+# print🤮 🥓----------------------------------------\n🥓 #
 
 # 😀 🥩 🐖price&per&meter🐖 @ 🥩 ** 🐷 🐖meters🐖 ** 🥩 🐖meters🐖 💞 15 🥩 #
 
@@ -74,14 +72,12 @@
 
 # 😀 🐷 🐖final&price🐖 @ 🐖calculate&discount🐖 ** 🐖total&before&discount🐖 ** ** 10 ** #
 
-# print🤮 🥓🥓 #
-# print🤮 🥓----------------------------------------🥓 #
-# print🤮 🥓Final price with 10 percent discount:🥓 #
+# print🤮 🥓----------------------------------------\n🥓 #
+# print🤮 🥓Final price with 10 percent discount:\n🥓 #
 # print🤮 🐖final&price🐖 #
-# print🤮 🥓----------------------------------------🥓 #
+# print🤮 🥓----------------------------------------\n🥓 #
 
-# print🤮 🥓🥓 #
-# print🤮 🥓Thank you for using Garden Calculator!🥓 #
-# print🤮 🥓========================================🥓 #
+# print🤮 🥓Thank you for using Garden Calculator!\n🥓 #
+# print🤮 🥓========================================\n🥓 #
 
 # ... 🐖final&price🐖 ... #

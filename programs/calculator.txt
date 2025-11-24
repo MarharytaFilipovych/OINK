@@ -1,0 +1,18 @@
+# print🤮 🥓=== Calculator ===\n🥓 #
+
+# print🤮 🥓Enter first number: 🥓 #
+# 😀 🐷 🐖a🐖 #
+# eat😋 🐖a🐖 #
+
+# print🤮 🥓Enter second number: 🥓 #
+# 😀 🐷 🐖b🐖 #
+# eat😋 🐖b🐖 #
+
+# 😀 🐷 🐖sum🐖 @ 🐖a🐖 ❤️ 🐖b🐖 #
+
+# print🤮 🥓Result:\n🥓 #
+# print🤮 🐖sum🐖 #
+
+# print🤮 🥓Thank you!\n🥓 #
+
+# ... 🐖sum🐖 ... #

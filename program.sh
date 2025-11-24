@@ -1,29 +1,46 @@
-program="program"
+#!/bin/bash
 
-# Ensure the output directories exist
 mkdir -p llm
 mkdir -p obj
 mkdir -p exe
 
-echo "Running $program.txt compilation..."
+echo "========================================"
+echo "  Running OINK Example Programs"
+echo "========================================"
+echo ""
 
-# 1. Compilation (Creates ./llm/program.ll)
-python3 -m compiler.compiler ./"$program".txt ./llm/"$program".ll
-if [ $? -ne 0 ]; then
-    echo "ERROR: The program should have compiled successfully!"
+if [ ! -d "programs" ]; then
+    echo "ERROR: programs directory not found!"
+    echo "Please run this script from the project root directory."
     exit 1
 fi
 
-# 2. LLVM Object Generation (Reads from ./llm/program.ll and creates ./obj/program.o)
-# FIX: Correctly points llc to the input file in the 'llm' directory
-llc -filetype=obj -relocation-model=pic ./llm/"$program".ll -o ./obj/"$program".o
+for program_file in programs/*.txt; do
+    program=$(basename "$program_file" .txt)
+    
+    echo "----------------------------------------"
+    echo "Running: $program"
+    echo "----------------------------------------"
+    
+    echo "Compiling $program.txt..."
+    python3 -m compiler.compiler "$program_file" ./llm/"$program".ll
+    if [ $? -ne 0 ]; then
+        echo "ERROR: $program should have compiled successfully!"
+        exit 1
+    fi
+    
+    echo "Generating object file..."
+    llc -filetype=obj -relocation-model=pic ./llm/"$program".ll -o ./obj/"$program".o
+    
+    echo "Linking executable..."
+    clang -fPIE ./obj/"$program".o -o ./exe/"$program"
+    
+    echo "Executing $program..."
+    ./exe/"$program"
+    
+    echo ""
+done
 
-# 3. Final Executable (Reads from ./obj/program.o and creates ./exe/program)
-# FIX: Correctly points clang to the object file in the 'obj' directory
-clang -fPIE ./obj/"$program".o -o ./exe/"$program"
-
-EXEC_CMD="./exe/"$program""
-
-echo "Running executable: $EXEC_CMD"
-eval $EXEC_CMD
-echo ""
+echo "========================================"
+echo "  All programs executed successfully!"
+echo "========================================"
