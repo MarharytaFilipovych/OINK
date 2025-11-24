@@ -12,3 +12,4 @@ AI links:
 * https://claude.ai/share/3c6a6171-fc40-4846-b23c-7a5dca856fa7
 * https://claude.ai/share/75d8c296-ecfb-417a-a199-2ec2b1bff51c
 * https://claude.ai/share/a348ecf1-f29c-4883-a87c-4047b1feabfd
+* https://www.notion.so/GEMINI-2b36dd39bc3a804894e3c6c41b89ce36?source=copy_link  -> Different Gemini chats are copied and gathered all together in the notion, because I used the version of the Gemini where, unfortunately, you are not allowed to provide links to chats (that is why i copied everything and tried to organized in a meaningful way).

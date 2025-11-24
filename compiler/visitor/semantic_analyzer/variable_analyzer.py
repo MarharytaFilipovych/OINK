@@ -26,7 +26,7 @@ class VariableAnalyzer:
 
     def __validate_declaration(self, node: DeclNode):
         if isinstance(node.data_type, str) and node.data_type != LAMBDA:
-            self.__validate_struct_type_exists(node.data_type, node.line)
+            self.__validate_struct_type_exists(str(node.data_type), node.line)
 
         if self.context.is_variable_declared(node.variable):
             raise ValueError(f"Variable \"{node.variable}\" has already been declared at line {node.line}!!!!!!!!!!")
@@ -38,7 +38,6 @@ class VariableAnalyzer:
         if expr_type != LAMBDA:
             raise ValueError(f"Cannot assign type \"{expr_type}\" to a lambda variable at line {node.line}! Use a lambda expression.")
         if isinstance(node.expr_node, LambdaNode):
-            # visit_lambda already set inferred_return_type, just use it
             return_type = node.expr_node.inferred_return_type if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
             self.context.set_lambda_return_type(node.variable, return_type)
             param_types = [p.param_type for p in node.expr_node.params]
@@ -108,7 +107,6 @@ class VariableAnalyzer:
         if expr_type != LAMBDA:
             raise ValueError(f"Cannot assign type \"{expr_type}\" to a lambda variable at line {node.line}!")
         if isinstance(node.expr_node, LambdaNode):
-            # visit_lambda already set inferred_return_type, just use it
             return_type = node.expr_node.inferred_return_type if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
             self.context.set_lambda_return_type(node.variable, return_type)
             param_types = [p.param_type for p in node.expr_node.params]

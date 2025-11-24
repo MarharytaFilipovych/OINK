@@ -77,7 +77,8 @@ class ExpressionAnalyzer:
     def visit_boolean(node: BooleanNode) -> DataType:
         return DataType.BOOL
     
-    def visit_string(self, node) -> str:
+    @staticmethod
+    def visit_string(node) -> str:
         return STRING
 
     def visit_unary_operation(self, node: UnaryOpNode) -> DataType:
