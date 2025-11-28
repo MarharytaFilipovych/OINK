@@ -2,11 +2,15 @@
 import unittest
 import sys
 import os
-from happy_lexer_test import get_lexemes
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from compiler.lexer.lexer import Lexer
 from compiler.token.token_type import TokenType
+
+def get_lexemes(source: str):
+    lexer = Lexer(source)
+    return lexer.tokenize()
 
 class ExceptionCheckingTestCase(unittest.TestCase):
     def tearDown(self):

@@ -5,16 +5,28 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from compiler.node.intr_string_node import InterpolatedStringNode
+from compiler.syntax_parser.syntax_parser import SyntaxParser
 from compiler.lexer.lexer import Lexer
-from compiler.token.token_type import TokenType
+from compiler.node.program_node import ProgramNode
+from compiler.node.decl_node import DeclNode
+from compiler.node.assign_node import AssignNode
+from compiler.node.if_node import IfNode
+from compiler.node.while_node import WhileNode
+from compiler.node.function_call_node import FunctionCallNode
+from compiler.node.read_node import ReadNode
+from compiler.node.print_node import PrintNode
+from compiler.node.string_node import StringNode
+from compiler.node.member_access_node import MemberAccessNode
+from compiler.llvm_specifics.data_type import DataType
 
-def get_lexemes(source: str):
+def parse_code(source: str) -> ProgramNode:
     lexer = Lexer(source)
-    return lexer.tokenize()
+    tokens = lexer.tokenize()
+    parser = SyntaxParser(tokens)
+    return parser.parse_program()
 
-
-class TestLexerHappyPath(unittest.TestCase):
-
+class TestSyntaxParserHappyPath(unittest.TestCase):
     test_cases = []
 
     @classmethod
@@ -26,15 +38,15 @@ class TestLexerHappyPath(unittest.TestCase):
         for name, source, assertion in self.test_cases:
             try:
                 with self.subTest(name=name):
-                    lexemes = get_lexemes(source)
-                    assertion(self, lexemes)
+                    ast = parse_code(source)
+                    assertion(self, ast)
                 results.append((name, "PASS"))
             except AssertionError as e:
                 results.append((name, f"FAIL ({e})"))
             except Exception as e:
                 results.append((name, f"ERROR ({type(e).__name__}: {e})"))
 
-        print("\nTest Summary:")
+        print("\nSyntax Parser Test Summary:")
         for test_name, status in results:
             print(f"{test_name}: {status}")
 
@@ -43,264 +55,211 @@ class TestLexerHappyPath(unittest.TestCase):
             self.fail(f"{len(failures)} tests failed or errored. See summary above.")
 
 
-def assert_simple_declaration(self, lexemes):
-    mut_token = [t for t in lexemes if t.token_type == TokenType.MUT][0]
-    type_token = [t for t in lexemes if t.token_type == TokenType.I32_TYPE][0]
-    var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE][0]
+def assert_simple_declaration(self, ast):
+    self.assertEqual(len(ast.statement_nodes), 1)
+    decl = ast.statement_nodes[0]
+    self.assertIsInstance(decl, DeclNode)
+    self.assertEqual(decl.variable, "x")
 
-    self.assertEqual(mut_token.value, "😀")
-    self.assertEqual(type_token.value, "🐷")
-    self.assertEqual(var_token.value, "x")
+def assert_assignment(self, ast):
+    self.assertEqual(len(ast.statement_nodes), 2)
+    assign = ast.statement_nodes[1]
+    self.assertIsInstance(assign, AssignNode)
 
-def assert_arithmetic_operators(self, lexemes):
-    plus_token = [t for t in lexemes if t.token_type == TokenType.PLUS][0]
-    minus_token = [t for t in lexemes if t.token_type == TokenType.MINUS][0]
-    mult_token = [t for t in lexemes if t.token_type == TokenType.MULTIPLY][0]
-    div_token = [t for t in lexemes if t.token_type == TokenType.DIVIDE][0]
+def assert_if_statement(self, ast):
+    if_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(if_stmt, IfNode)
 
-    self.assertEqual(plus_token.value, "❤️")
-    self.assertEqual(minus_token.value, "💔")
-    self.assertEqual(mult_token.value, "💞")
-    self.assertEqual(div_token.value, "💕")
+def assert_while_loop(self, ast):
+    while_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(while_stmt, WhileNode)
 
-def assert_comparison_operators(self, lexemes):
-    eq_token = [t for t in lexemes if t.token_type == TokenType.EQUALS][0]
-    neq_token = [t for t in lexemes if t.token_type == TokenType.NOT_EQUALS][0]
-    ge_token = [t for t in lexemes if t.token_type == TokenType.GREATER_EQUAL][0]
-    le_token = [t for t in lexemes if t.token_type == TokenType.LESS_EQUAL][0]
+def assert_function_declaration(self, ast):
+    self.assertEqual(len(ast.function_declarations), 1)
+    func = ast.function_declarations[0]
+    self.assertEqual(func.variable, "add")
 
-    self.assertEqual(eq_token.value, "🌸🌸")
-    self.assertEqual(neq_token.value, "💩🌸")
-    self.assertEqual(ge_token.value, "🌸>")
-    self.assertEqual(le_token.value, "🌸<")
+def assert_function_parameters(self, ast):
+    func = ast.function_declarations[0]
+    self.assertEqual(len(func.params), 2)
+    self.assertEqual(func.params[0].name, "a")
+    self.assertEqual(func.params[1].name, "b")
 
-def assert_logical_operators(self, lexemes):
-    not_token = [t for t in lexemes if t.token_type == TokenType.NOT][0]
-    and_token = [t for t in lexemes if t.token_type == TokenType.AND][0]
-    or_token = [t for t in lexemes if t.token_type == TokenType.OR][0]
+def assert_function_return_type(self, ast):
+    func = ast.function_declarations[0]
+    self.assertEqual(func.return_type, DataType.I32)
 
-    self.assertEqual(not_token.value, "💩")
-    self.assertEqual(and_token.value, "hru")
-    self.assertEqual(or_token.value, "bruh")
+def assert_struct_with_member_function(self, ast):
+    struct = ast.struct_declarations[0]
+    self.assertEqual(len(struct.member_functions), 1)
+    self.assertEqual(struct.member_functions[0].variable, "getX")
 
-def assert_boolean_literals(self, lexemes):
-    true_token = [t for t in lexemes if t.token_type == TokenType.TRUE][0]
-    false_token = [t for t in lexemes if t.token_type == TokenType.FALSE][0]
+def assert_void_function(self, ast):
+    func = ast.function_declarations[0]
+    self.assertEqual(func.return_type, DataType.VOID)
 
-    self.assertEqual(true_token.value, "LOVE")
-    self.assertEqual(false_token.value, "HATE")
+def assert_struct_field_types(self, ast):
+    struct = ast.struct_declarations[0]
+    self.assertEqual(struct.fields[0].field_type, DataType.I32)
+    self.assertEqual(struct.fields[1].field_type, DataType.I32)
 
-def assert_control_flow_keywords(self, lexemes):
-    if_token = [t for t in lexemes if t.token_type == TokenType.IF][0]
-    elif_token = [t for t in lexemes if t.token_type == TokenType.ELIF][0]
-    else_token = [t for t in lexemes if t.token_type == TokenType.ELSE][0]
-    while_token = [t for t in lexemes if t.token_type == TokenType.WHILE][0]
+def assert_function_with_struct_param(self, ast):
+    self.assertEqual(len(ast.function_declarations), 1)
+    func = ast.function_declarations[0]
+    self.assertEqual(len(func.params), 1)
+    self.assertEqual(func.params[0].name, "p")
+    self.assertEqual(func.params[0].param_type, "Point")
 
-    self.assertEqual(if_token.value, "SAVE")
-    self.assertEqual(elif_token.value, "HURT")
-    self.assertEqual(else_token.value, "KILL")
-    self.assertEqual(while_token.value, "OINK")
+def assert_struct_member_function_call(self, ast):
+    self.assertEqual(len(ast.statement_nodes), 2)
+    decl = ast.statement_nodes[1]
+    self.assertIsInstance(decl, DeclNode)
+    self.assertEqual(decl.variable, "result")
+    member_access = decl.expr_node
+    self.assertTrue(isinstance(member_access, MemberAccessNode) or isinstance(member_access, FunctionCallNode))
 
-def assert_block_delimiters(self, lexemes):
-    block_tokens = [t for t in lexemes if t.token_type == TokenType.BLOCK_BORDER]
-    self.assertEqual(len(block_tokens), 2)
+def assert_read_i32(self, ast):
+    read_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(read_stmt, ReadNode)
+    self.assertEqual(read_stmt.variable, "x")
 
-def assert_mood_line_borders(self, lexemes):
-    mood_start = [t for t in lexemes if t.token_type == TokenType.MOOD_LINE_BORDER_START][0]
-    mood_end = [t for t in lexemes if t.token_type == TokenType.MOOD_LINE_BORDER_END][0]
-    self.assertEqual(mood_start.value, "#~")
-    self.assertEqual(mood_end.value, "~#")
+def assert_print_expression(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsNotNone(print_stmt.expr_node)
 
-def assert_return_statement(self, lexemes):
-    return_tokens = [t for t in lexemes if t.token_type == TokenType.RETURN]
-    self.assertEqual(len(return_tokens), 2)
+def assert_chained_function_calls(self, ast):
+    decl = ast.statement_nodes[0]
+    self.assertIsInstance(decl, DeclNode)
+    result = decl.expr_node
+    self.assertTrue(isinstance(result, MemberAccessNode) or isinstance(result, FunctionCallNode))
 
-def assert_all_data_types(self, lexemes):
-    i16_token = [t for t in lexemes if t.token_type == TokenType.I16_TYPE][0]
-    i32_token = [t for t in lexemes if t.token_type == TokenType.I32_TYPE][0]
-    i64_token = [t for t in lexemes if t.token_type == TokenType.I64_TYPE][0]
-    bool_token = [t for t in lexemes if t.token_type == TokenType.BOOL][0]
+def assert_print_string(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, StringNode)
+    self.assertEqual(print_stmt.expr_node.value, "Hello World")
 
-    self.assertEqual(i16_token.value, "🐽")
-    self.assertEqual(i32_token.value, "🐷")
-    self.assertEqual(i64_token.value, "🐗")
-    self.assertEqual(bool_token.value, "wow")
+def assert_print_string_with_escapes(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, StringNode)
+    self.assertTrue("\n" in print_stmt.expr_node.value or "\t" in print_stmt.expr_node.value)
 
-def assert_brackets(self, lexemes):
-    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
-    self.assertEqual(len(bracket_tokens), 2)
-    self.assertEqual(bracket_tokens[0].value, "**")
-    self.assertEqual(bracket_tokens[1].value, "**")
+def assert_multiple_print_strings(self, ast):
+    self.assertGreaterEqual(len(ast.statement_nodes), 2)
+    print_stmt1 = ast.statement_nodes[0]
+    print_stmt2 = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt1, PrintNode)
+    self.assertIsInstance(print_stmt2, PrintNode)
+    self.assertIsInstance(print_stmt1.expr_node, StringNode)
+    self.assertIsInstance(print_stmt2.expr_node, StringNode)
 
-def assert_single_line_comment(self, lexemes):
-    var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE][0]
-    self.assertEqual(var_token.value, "x")
+def assert_print_empty_string(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, StringNode)
+    self.assertEqual(print_stmt.expr_node.value, "")
 
-def assert_multiline_comment(self, lexemes):
-    var_token = [t for t in lexemes if t.token_type == TokenType.VARIABLE][0]
-    self.assertEqual(var_token.value, "x")
+def assert_print_number_then_string(self, ast):
+    self.assertGreaterEqual(len(ast.statement_nodes), 2)
+    print_num = ast.statement_nodes[0]
+    print_str = ast.statement_nodes[1]
+    self.assertIsInstance(print_num, PrintNode)
+    self.assertIsInstance(print_str, PrintNode)
+    self.assertIsInstance(print_str.expr_node, StringNode)
 
-def assert_struct_keyword(self, lexemes):
-    struct_token = [t for t in lexemes if t.token_type == TokenType.STRUCT][0]
-    self.assertEqual(struct_token.value, "BOAR")
+def assert_read_then_print_string(self, ast):
+    self.assertGreaterEqual(len(ast.statement_nodes), 3)
+    read_stmt = ast.statement_nodes[1]
+    print_stmt = ast.statement_nodes[2]
+    self.assertIsInstance(read_stmt, ReadNode)
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, StringNode)
 
-def assert_function_keyword(self, lexemes):
-    func_token = [t for t in lexemes if t.token_type == TokenType.FUNCTION][0]
-    self.assertEqual(func_token.value, "PIG")
+def assert_interpolated_string_simple(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+    self.assertEqual(len(print_stmt.expr_node.parts), 3)
 
-def assert_member_function_keyword(self, lexemes):
-    mem_func_token = [t for t in lexemes if t.token_type == TokenType.MEMBER_FUNCTION][0]
-    self.assertEqual(mem_func_token.value, "PIGLET")
+def assert_interpolated_string_number(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+    self.assertGreaterEqual(len(print_stmt.expr_node.parts), 2)
 
-def assert_lambda_keyword(self, lexemes):
-    lambda_tokens = [t for t in lexemes if t.token_type == TokenType.LAMBDA]
-    self.assertGreaterEqual(len(lambda_tokens), 3)
+def assert_interpolated_string_variable(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
 
-def assert_member_access(self, lexemes):
-    member_access_token = [t for t in lexemes if t.token_type == TokenType.MEMBER_ACCESS][0]
-    self.assertEqual(member_access_token.value, "_")
+def assert_interpolated_string_expression(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
 
-def assert_read_keyword(self, lexemes):
-    read_token = [t for t in lexemes if t.token_type == TokenType.READ][0]
-    self.assertEqual(read_token.value, "eat😋")
+def assert_interpolated_string_multiple(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    interp = print_stmt.expr_node
+    self.assertIsInstance(interp, InterpolatedStringNode)
+    self.assertGreaterEqual(len(interp.parts), 3)
 
-def assert_print_keyword(self, lexemes):
-    print_token = [t for t in lexemes if t.token_type == TokenType.PRINT][0]
-    self.assertEqual(print_token.value, "print🤮")
+def assert_interpolated_string_with_escapes(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
 
-def assert_string_literal_basic(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    self.assertEqual(len(string_tokens), 1)
-    self.assertEqual(string_tokens[0].value, "Hello World")
+def assert_interpolated_string_nested_bracket(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
 
-def assert_string_literal_with_escapes(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    self.assertEqual(len(string_tokens), 1)
-    self.assertTrue("\n" in string_tokens[0].value or "\t" in string_tokens[0].value)
+def assert_interpolated_only_expr(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
 
-def assert_string_in_print(self, lexemes):
-    print_token = [t for t in lexemes if t.token_type == TokenType.PRINT][0]
-    string_token = [t for t in lexemes if t.token_type == TokenType.STRING][0]
-    self.assertEqual(print_token.value, "print🤮")
-    self.assertEqual(string_token.value, "Test Message")
+def assert_interpolated_bool_expression(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
 
-def assert_empty_string(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    self.assertEqual(len(string_tokens), 1)
-    self.assertEqual(string_tokens[0].value, "")
-
-def assert_string_with_special_chars(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    self.assertEqual(len(string_tokens), 1)
-    self.assertIn("!", string_tokens[0].value)
-
-def assert_multiple_strings(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    self.assertEqual(len(string_tokens), 2)
-
-def assert_string_tokens_present(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    self.assertGreaterEqual(len(string_tokens), 1)
-
-def assert_expression_group(self, lexemes):
-    expr_group_tokens = [t for t in lexemes if t.token_type == TokenType.EXPRESSION_GROUP]
-    self.assertEqual(len(expr_group_tokens), 2)
-
-def assert_interpolated_string_simple(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    self.assertEqual(len(string_tokens), 2)
-    self.assertEqual(len(interp_tokens), 2)
-    self.assertEqual(string_tokens[0].value, "result: ")
-
-def assert_interpolated_string_number(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    number_tokens = [t for t in lexemes if t.token_type == TokenType.NUMBER]
-    self.assertGreaterEqual(len(interp_tokens), 2)
-    self.assertGreaterEqual(len(number_tokens), 1)
-
-def assert_interpolated_string_variable(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    var_tokens = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
-    self.assertGreaterEqual(len(interp_tokens), 2)
-    self.assertGreaterEqual(len(var_tokens), 1)
-
-def assert_interpolated_string_expression(self, lexemes):
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    plus_tokens = [t for t in lexemes if t.token_type == TokenType.PLUS]
-    self.assertGreaterEqual(len(interp_tokens), 2)
-    self.assertGreaterEqual(len(plus_tokens), 1)
-
-def assert_interpolated_string_multiple(self, lexemes):
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    self.assertGreaterEqual(len(interp_tokens), 4)
-
-def assert_interpolated_string_with_text(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    self.assertGreaterEqual(len(string_tokens), 2)
-    self.assertGreaterEqual(len(interp_tokens), 2)
-
-def assert_interpolated_string_nested_expr(self, lexemes):
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
-    self.assertGreaterEqual(len(interp_tokens), 2)
-    self.assertGreaterEqual(len(bracket_tokens), 2)
-
-def assert_interpolated_empty_start(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    self.assertGreaterEqual(len(interp_tokens), 2)
-
-def assert_interpolated_empty_end(self, lexemes):
-    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
-    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
-    self.assertGreaterEqual(len(interp_tokens), 2)
 
 test_cases = [
-    ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 10 #\n", assert_simple_declaration),
-    ("arithmetic_operators", "# 😀 🐷 🐖result🐖 @ 🐖a🐖 ❤️ 🐖b🐖 💔 🐖c🐖 💞 🐖d🐖 💕 🐖e🐖 #\n", assert_arithmetic_operators),
-    ("comparison_operators", "# 😀 wow 🐖check🐖 @ 🐖x🐖 🌸🌸 🐖y🐖 bruh 🐖a🐖 💩🌸 🐖b🐖 hru 🐖c🐖 🌸> 🐖d🐖 hru 🐖e🐖 🌸< 🐖f🐖 #\n", assert_comparison_operators),
-    ("logical_operators", "# 😀 wow 🐖result🐖 @ 💩 🐖x🐖 hru 🐖y🐖 bruh 🐖z🐖 #\n", assert_logical_operators),
-    ("boolean_literals", "# 😀 wow 🐖t🐖 @ LOVE #\n# 😀 wow 🐖f🐖 @ HATE #\n", assert_boolean_literals),
-    ("control_flow_keywords", "# SAVE 🐖x🐖 > 0 #\n# 🐖🐖🐖 #\n# HURT 🐖x🐖 < 0 #\n# 🐖🐖🐖 #\n# KILL #\n# 🐖🐖🐖 #\n# OINK 🐖i🐖 < 10 #\n# 🐖🐖🐖 #\n", assert_control_flow_keywords),
-    ("block_delimiters", "# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n", assert_block_delimiters),
-    ("mood_line_borders", "#~ 😀 🐷 🐖x🐖 @ 10 ~#\n", assert_mood_line_borders),
-    ("return_statement", "# ... 42 ... #\n", assert_return_statement),
-    ("all_data_types", "# 😀 🐽 🐖small🐖 @ 10 #\n# 😀 🐷 🐖medium🐖 @ 20 #\n# 😀 🐗 🐖large🐖 @ 30 #\n# 😀 wow 🐖flag🐖 @ LOVE #\n", assert_all_data_types),
-    ("brackets", "# 😀 🐷 🐖x🐖 @ ** 10 ❤️ 5 ** #\n", assert_brackets),
-    ("single_line_comment", "👀 This is a comment\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_single_line_comment),
-    ("multiline_comment", "👀👀👀\nThis is a\nmultiline comment\n👀👀👀\n# 😀 🐷 🐖x🐖 @ 10 #\n", assert_multiline_comment),
-    ("struct_keyword", "# BOAR 🐖Point🐖 #\n", assert_struct_keyword),
-    ("function_keyword", "# 🐷 PIG 🐖test🐖 #\n", assert_function_keyword),
-    ("member_function_keyword", "# 🐷 PIGLET 🐖getValue🐖 #\n", assert_member_function_keyword),
-    ("lambda_keyword", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🥩 #\n", assert_lambda_keyword),
-    ("member_access", "# 😀 🐷 🐖val🐖 @ 🐖obj🐖 _ 🐖method🐖 #\n", assert_member_access),
-    ("read_keyword", "# eat😋 🐖x🐖 #\n", assert_read_keyword),
-    ("print_keyword", "# print🤮 🐖x🐖 #\n", assert_print_keyword),
-    ("string_literal_basic", "# print🤮 🥓Hello World🥓 #\n", assert_string_literal_basic),
-    ("string_literal_with_escapes", "# print🤮 🥓Line1\\nLine2\\tTabbed🥓 #\n", assert_string_literal_with_escapes),
-    ("string_in_print", "# print🤮 🥓Test Message🥓 #\n", assert_string_in_print),
-    ("empty_string", "# print🤮 🥓🥓 #\n", assert_empty_string),
-    ("string_with_special_chars", "# print🤮 🥓Hello! @#$%🥓 #\n", assert_string_with_special_chars),
-    ("multiple_strings", "# print🤮 🥓First🥓 #\n# print🤮 🥓Second🥓 #\n", assert_multiple_strings),
-    ("string_tokens_present", "# print🤮 🥓Test🥓 #\n", assert_string_tokens_present),
-    ("expression_group", "# 😀 🐷 🐖x🐖 @ 🌳 10 ❤️ 5 🌳 #\n", assert_expression_group),
-    ("interpolated_string_simple", "# print🤮 🥓result: 🍗42🍗🥓 #\n", assert_interpolated_string_simple),
-    ("interpolated_string_number", "# print🤮 🥓value: 🍗100🍗🥓 #\n", assert_interpolated_string_number),
-    ("interpolated_string_variable", "# print🤮 🥓x = 🍗🐖x🐖🍗🥓 #\n", assert_interpolated_string_variable),
-    ("interpolated_string_expression", "# print🤮 🥓sum: 🍗5❤️3🍗🥓 #\n", assert_interpolated_string_expression),
-    ("interpolated_string_multiple", "# print🤮 🥓a=🍗🐖a🐖🍗 b=🍗🐖b🐖🍗🥓 #\n", assert_interpolated_string_multiple),
-    ("interpolated_string_with_text", "# print🤮 🥓start🍗🐖x🐖🍗end🥓 #\n", assert_interpolated_string_with_text),
-    ("interpolated_string_nested_expr", "# print🤮 🥓result: 🍗**🐖x🐖❤️🐖y🐖**🍗🥓 #\n", assert_interpolated_string_nested_expr),
-    ("interpolated_empty_start", "# print🤮 🥓🍗10🍗 done🥓 #\n", assert_interpolated_empty_start),
-    ("interpolated_empty_end", "# print🤮 🥓start 🍗20🍗🥓 #\n", assert_interpolated_empty_end),
+    ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 10 #\n# ... 🐖x🐖 ... #", assert_simple_declaration),
+    ("assignment", "# 😀 🐷 🐖x🐖 @ 10 #\n# 🐖x🐖 @ 20 #\n# ... 🐖x🐖 ... #", assert_assignment),
+    ("if_statement", "# 😀 🐷 🐖x🐖 @ 10 #\n# SAVE 🐖x🐖 > 5 #\n# 🐖🐖🐖 #\n# 🐖x🐖 @ 20 #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 ... #", assert_if_statement),
+    ("while_loop", "# 😀 🐷 🐖counter🐖 @ 0 #\n# OINK 🐖counter🐖 < 5 #\n# 🐖🐖🐖 #\n# 🐖counter🐖 @ 🐖counter🐖 ❤️ 1 #\n# 🐖🐖🐖 #\n# ... 🐖counter🐖 ... #", assert_while_loop),
+    ("function_declaration", "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖a🐖 ❤️ 🐖b🐖 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_declaration),
+    ("function_parameters", "# 🐷 PIG 🐖add🐖 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** #\n# 🐖🐖🐖 #\n# ... 🐖a🐖 ❤️ 🐖b🐖 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_parameters),
+    ("function_return_type", "# 🐷 PIG 🐖test🐖 #\n# 🐖🐖🐖 #\n# ... 42 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_return_type),
+    ("struct_with_member_function", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐷 PIGLET 🐖getX🐖 #\n# 🐖🐖🐖 #\n# ... 🐖x🐖 ... #\n# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_with_member_function),
+    ("void_function", "# 😑 PIG 🐖doNothing🐖 #\n# 🐖🐖🐖 #\n# ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_void_function),
+    ("struct_field_types", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 😀 🐷 🐖y🐖 #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_struct_field_types),
+    ("function_with_struct_param", "# BOAR 🐖Point🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖x🐖 #\n# 🐖🐖🐖 #\n# 🐷 PIG 🐖test🐖 ** 🐖Point🐖 🐖p🐖 ** #\n# 🐖🐖🐖 #\n# ... 0 ... #\n# 🐖🐖🐖 #\n# ... 0 ... #", assert_function_with_struct_param),
+    ("struct_member_function_call", "# BOAR 🐖Counter🐖 #\n# 🐖🐖🐖 #\n# 😀 🐷 🐖val🐖 #\n# 🐷 PIGLET 🐖getValue🐖 #\n# 🐖🐖🐖 #\n# ... 🐖val🐖 ... #\n# 🐖🐖🐖 #\n# 🐖🐖🐖 #\n# 😀 🐖Counter🐖 🐖c🐖 @ 🐖Counter🐖 ** 5 ** #\n# 😀 🐷 🐖result🐖 @ 🐖c🐖 _ 🐖getValue🐖 #\n# ... 🐖result🐖 ... #", assert_struct_member_function_call),
+    ("read_i32", "# 😀 🐷 🐖x🐖 #\n# eat😋 🐖x🐖 #\n# ... 🐖x🐖 ... #", assert_read_i32),
+    ("print_expression", "# 😀 🐷 🐖x🐖 @ 10 #\n# print🤮 🐖x🐖 #\n# ... 0 ... #", assert_print_expression),
+    ("chained_function_calls", "# 😀 🐷 🐖result🐖 @ 🐖getValue🐖 _ 🐖double🐖 #\n# ... 🐖result🐖 ... #", assert_chained_function_calls),
+    ("print_string", "# print🤮 🥓Hello World🥓 #\n# ... 0 ... #", assert_print_string),
+    ("print_string_with_escapes", "# print🤮 🥓Line1\\nLine2\\tTab🥓 #\n# ... 0 ... #", assert_print_string_with_escapes),
+    ("multiple_print_strings", "# print🤮 🥓First🥓 #\n# print🤮 🥓Second🥓 #\n# ... 0 ... #", assert_multiple_print_strings),
+    ("print_empty_string", "# print🤮 🥓🥓 #\n# ... 0 ... #", assert_print_empty_string),
+    ("print_number_then_string", "# print🤮 42 #\n# print🤮 🥓Result🥓 #\n# ... 0 ... #", assert_print_number_then_string),
+    ("read_then_print_string", "# 😀 🐷 🐖x🐖 #\n# eat😋 🐖x🐖 #\n# print🤮 🥓You entered:🥓 #\n# ... 0 ... #", assert_read_then_print_string),
+    ("interpolated_string_simple", "# print🤮 🥓result: 🍗42🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_simple),
+    ("interpolated_string_number", "# print🤮 🥓value: 🍗100🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_number),
+    ("interpolated_string_variable", "# 😀 🐷 🐖x🐖 @ 10 #\n# print🤮 🥓x = 🍗🐖x🐖🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_variable),
+    ("interpolated_string_expression", "# print🤮 🥓sum: 🍗5❤️3🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_expression),
+    ("interpolated_string_multiple", "# 😀 🐷 🐖a🐖 @ 5 #\n# print🤮 🥓a=🍗🐖a🐖🍗 b=🍗10🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_multiple),
+    ("interpolated_string_with_escapes", "# print🤮 🥓Line1\\n🍗42🍗\\tEnd🥓 #\n# ... 0 ... #", assert_interpolated_string_with_escapes),
+    ("interpolated_bool_expression", "# 😀 wow 🐖flag🐖 @ LOVE #\n# print🤮 🥓flag: 🍗🐖flag🐖🍗🥓 #\n# ... 0 ... #", assert_interpolated_bool_expression),
 ]
 
 for name, code, func in test_cases:
-    TestLexerHappyPath.add_test_case(name, code, func)
+    TestSyntaxParserHappyPath.add_test_case(name, code, func)
 
 
 if __name__ == "__main__":

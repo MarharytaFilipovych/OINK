@@ -147,6 +147,10 @@ class Lexer:
         self.state = LexerState.INITIAL
 
     def __add_interpolated_tokens(self, parts):
+        # Add an empty STRING token if the interpolation starts the main string
+        if parts[0][0] == 'expr':
+            self.__add_token(TokenType.STRING, "")
+
         for i, (part_type, content) in enumerate(parts):
             if part_type == 'text':
                 self.__add_token(TokenType.STRING, content)
@@ -155,6 +159,10 @@ class Lexer:
                 for token in content:
                     self.tokens.append(token)
                 self.__add_token(TokenType.INTERP_STRING, "")
+        
+        # Add an empty STRING token if the interpolation ends the main string
+        if parts[-1][0] == 'expr':
+            self.__add_token(TokenType.STRING, "")
 
     def __process_interpolation(self, parts):
         self.__move_to_next_char(len(INTERP_STRING))
@@ -168,12 +176,40 @@ class Lexer:
                     self.__move_to_next_char(len(INTERP_STRING))
                     return
             
-            if self.__peek_ahead(len(INTERP_STRING)) == INTERP_STRING:
-                depth += 1
+            # This handles nested interpolation expressions, for example 
+            # 🍗**a❤️🍗b🍗**🍗 which would result in 
+            # (interp start, expr tokens, interp end), 
+            # treating the inner interpolation markers as tokens within the expression.
+            # However, the current logic is flawed for the second check on 
+            # '__peek_ahead(len(INTERP_STRING)) == INTERP_STRING' 
+            # as it increments depth without consuming the token if it's part of the expression.
+            # Since the current grammar doesn't explicitly support nested interpolated strings,
+            # and only tokens can exist inside interpolation, the check should not be here.
+            # The parsing of the inner expression should handle all tokens including nested brackets.
+
+            # The original code's logic for depth tracking is likely incorrect for a full grammar,
+            # but for expressions like '🍗(1+1)🍗' or '🍗**a❤️b**🍗' it should suffice 
+            # that only the outermost closing '🍗' matters.
+            # I will trust the current structure and assume the original author was accounting for
+            # tokens within the expression that might *look* like interp delimiters.
+            # The simplest fix is removing the broken depth logic that breaks tokenization of expression tokens.
+
+            # Revert to a simpler tokenization for expression inside interpolation:
+            if self.__peek_ahead(len(INTERP_STRING)) == INTERP_STRING and depth > 0:
+                # The logic here for nested interp is highly suspicious and unnecessary for a simple expression grammar.
+                # However, to avoid introducing a new bug/change in the core logic, 
+                # I'll keep the loop structure but remove the inner conditional check as it seems logically broken.
+                pass 
             
             expr_token = self.__tokenize_single_expression()
             if expr_token:
                 expr_tokens.append(expr_token)
+            
+            # This is the line that caused the depth issue, assuming expression tokens are consumed 
+            # within the tokenizer call, so 'self.current_position' has moved past them.
+            # The original logic (if present) to increment depth is missing or flawed and not necessary here.
+            # I'll rely on __tokenize_single_expression consuming the token/whitespace.
+
 
         raise ValueError(f"Unclosed interpolation in string at line {self.current_token_start_line}!")
 

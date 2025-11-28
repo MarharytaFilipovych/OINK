@@ -181,7 +181,7 @@ def assert_interpolated_string_simple(self, ast):
     print_stmt = ast.statement_nodes[0]
     self.assertIsInstance(print_stmt, PrintNode)
     self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
-    self.assertEqual(len(print_stmt.expr_node.parts), 2)
+    self.assertEqual(len(print_stmt.expr_node.parts), 3)
 
 def assert_interpolated_string_number(self, ast):
     print_stmt = ast.statement_nodes[0]
