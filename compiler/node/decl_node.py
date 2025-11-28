@@ -13,5 +13,9 @@ class DeclNode(StmtNode):
         self.mutable = mutable
         self.data_type = data_type
 
+    @property
+    def var_type(self):
+        return self.data_type
+
     def accept(self, visitor: 'ASTVisitor'):
         visitor.visit_declaration(self)

@@ -206,6 +206,59 @@ def assert_expression_group(self, lexemes):
     expr_group_tokens = [t for t in lexemes if t.token_type == TokenType.EXPRESSION_GROUP]
     self.assertEqual(len(expr_group_tokens), 2)
 
+def assert_interpolated_string_simple(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    self.assertEqual(len(string_tokens), 2)
+    self.assertEqual(len(interp_tokens), 2)
+    self.assertEqual(string_tokens[0].value, "result: ")
+
+def assert_interpolated_string_number(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    number_tokens = [t for t in lexemes if t.token_type == TokenType.NUMBER]
+    self.assertGreaterEqual(len(interp_tokens), 2)
+    self.assertGreaterEqual(len(number_tokens), 1)
+
+def assert_interpolated_string_variable(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    var_tokens = [t for t in lexemes if t.token_type == TokenType.VARIABLE]
+    self.assertGreaterEqual(len(interp_tokens), 2)
+    self.assertGreaterEqual(len(var_tokens), 1)
+
+def assert_interpolated_string_expression(self, lexemes):
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    plus_tokens = [t for t in lexemes if t.token_type == TokenType.PLUS]
+    self.assertGreaterEqual(len(interp_tokens), 2)
+    self.assertGreaterEqual(len(plus_tokens), 1)
+
+def assert_interpolated_string_multiple(self, lexemes):
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    self.assertGreaterEqual(len(interp_tokens), 4)
+
+def assert_interpolated_string_with_text(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    self.assertGreaterEqual(len(string_tokens), 2)
+    self.assertGreaterEqual(len(interp_tokens), 2)
+
+def assert_interpolated_string_nested_expr(self, lexemes):
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    bracket_tokens = [t for t in lexemes if t.token_type == TokenType.BRACKET]
+    self.assertGreaterEqual(len(interp_tokens), 2)
+    self.assertGreaterEqual(len(bracket_tokens), 2)
+
+def assert_interpolated_empty_start(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    self.assertGreaterEqual(len(interp_tokens), 2)
+
+def assert_interpolated_empty_end(self, lexemes):
+    string_tokens = [t for t in lexemes if t.token_type == TokenType.STRING]
+    interp_tokens = [t for t in lexemes if t.token_type == TokenType.INTERP_STRING]
+    self.assertGreaterEqual(len(interp_tokens), 2)
+
 test_cases = [
     ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 10 #\n", assert_simple_declaration),
     ("arithmetic_operators", "# 😀 🐷 🐖result🐖 @ 🐖a🐖 ❤️ 🐖b🐖 💔 🐖c🐖 💞 🐖d🐖 💕 🐖e🐖 #\n", assert_arithmetic_operators),
@@ -235,6 +288,15 @@ test_cases = [
     ("multiple_strings", "# print🤮 🥓First🥓 #\n# print🤮 🥓Second🥓 #\n", assert_multiple_strings),
     ("string_tokens_present", "# print🤮 🥓Test🥓 #\n", assert_string_tokens_present),
     ("expression_group", "# 😀 🐷 🐖x🐖 @ 🌳 10 ❤️ 5 🌳 #\n", assert_expression_group),
+    ("interpolated_string_simple", "# print🤮 🥓result: 🍗42🍗🥓 #\n", assert_interpolated_string_simple),
+    ("interpolated_string_number", "# print🤮 🥓value: 🍗100🍗🥓 #\n", assert_interpolated_string_number),
+    ("interpolated_string_variable", "# print🤮 🥓x = 🍗🐖x🐖🍗🥓 #\n", assert_interpolated_string_variable),
+    ("interpolated_string_expression", "# print🤮 🥓sum: 🍗5❤️3🍗🥓 #\n", assert_interpolated_string_expression),
+    ("interpolated_string_multiple", "# print🤮 🥓a=🍗🐖a🐖🍗 b=🍗🐖b🐖🍗🥓 #\n", assert_interpolated_string_multiple),
+    ("interpolated_string_with_text", "# print🤮 🥓start🍗🐖x🐖🍗end🥓 #\n", assert_interpolated_string_with_text),
+    ("interpolated_string_nested_expr", "# print🤮 🥓result: 🍗**🐖x🐖❤️🐖y🐖**🍗🥓 #\n", assert_interpolated_string_nested_expr),
+    ("interpolated_empty_start", "# print🤮 🥓🍗10🍗 done🥓 #\n", assert_interpolated_empty_start),
+    ("interpolated_empty_end", "# print🤮 🥓start 🍗20🍗🥓 #\n", assert_interpolated_empty_end),
 ]
 
 for name, code, func in test_cases:

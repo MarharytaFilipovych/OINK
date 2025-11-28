@@ -148,6 +148,9 @@ class SyntaxParserSadTest(ExceptionCheckingTestCase):
         ("lambda_extra_meat_emoji", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 🥩 🥩 #\n# ... 0 ... #"),
         ("lambda_wrong_bracket_type", "# 😀 🥩 🐖f🐖 @ 🥩 ( 🐷 🐖x🐖 ) 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
         ("lambda_with_unclosed_param_bracket", "# 😀 🥩 🐖f🐖 @ 🥩 ** 🐷 🐖x🐖 🥩 🐖x🐖 🥩 #\n# ... 0 ... #"),
+        ("interpolated_string_missing_close_meat", "# print🤮 🥓test 🍗10 🥓 #\n# ... 0 ... #"),
+        ("interpolated_string_empty_expr", "# print🤮 🥓test 🍗🍗🥓 #\n# ... 0 ... #"),
+        ("interpolated_string_invalid_expr", "# print🤮 🥓test 🍗@🍗🥓 #\n# ... 0 ... #"),
     ]
 
     def test_all_failing_cases(self):

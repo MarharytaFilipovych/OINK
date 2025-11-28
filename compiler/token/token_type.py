@@ -73,6 +73,7 @@ class TokenType(Enum):
     STRING = auto()
 
     EXPRESSION_GROUP = auto()  # 🌳 (for expression grouping)
+    INTERP_STRING = auto() # 🍗 (for interpolated strings)
 
 
     def if_for_comparision(self) -> bool:

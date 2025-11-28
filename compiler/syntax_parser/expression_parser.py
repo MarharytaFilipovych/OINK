@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from typing import Union
+from ..node.intr_string_node import InterpolatedStringNode
 from ..node.string_node import StringNode
 from ..constants import FALSE, TRUE, NOT
 from ..node.expr_node import ExprNode
@@ -94,14 +95,34 @@ class ExpressionParser:
     def parse_value(self) -> Union[FactorNode, ExprNode]:
         token = self.reader.peek()
         if token and token.token_type == TokenType.STRING:
-            string_token = self.reader.eat()
-            return StringNode(string_token.value, string_token.line)
+            return self.__parse_string_or_interpolated()
         if token and token.token_type == TokenType.LAMBDA:
             return self.parse_lambda()
         token = self.reader.eat()
         if not token:
             self.__raise_no_value_error()
         return self.__handle_value_token(token)
+
+    def __parse_string_or_interpolated(self):
+        parts = []
+        line = self.reader.peek().line
+
+        while self.reader.peek() and self.reader.peek().token_type in [TokenType.STRING, TokenType.INTERP_STRING]:
+            token = self.reader.peek()
+            
+            if token.token_type == TokenType.STRING:
+                string_token = self.reader.eat()
+                parts.append(('text', string_token.value))
+            elif token.token_type == TokenType.INTERP_STRING:
+                self.reader.eat()
+                expr = self.parse_expression()
+                parts.append(('expr', expr))
+                self.reader.expect_token(TokenType.INTERP_STRING)
+
+        if len(parts) == 1 and parts[0][0] == 'text':
+            return StringNode(parts[0][1], line)
+        
+        return InterpolatedStringNode(parts, line)
 
     def __raise_no_value_error(self):
         line = self.reader.peek() - 1 if self.reader.peek() > 1 else self.reader.peek()

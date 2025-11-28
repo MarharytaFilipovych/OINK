@@ -42,6 +42,13 @@ class TestLexerFailingCases(ExceptionCheckingTestCase):
         ("string_with_invalid_quote", '# print🤮 "Hello World" #\n'),
         ("string_without_closing_bacon", "# print🤮 🥓Hello World #\n"),
         ("string_multiline", "# print🤮 🥓Hello\nWorld🥓 #\n"),
+        ("interpolated_string_unclosed", "# print🤮 🥓test 🍗10 #\n"),
+        ("interpolated_string_invalid_char", "# print🤮 🥓test 🍗10$5🍗🥓 #\n"),
+        ("interpolated_string_multiline", "# print🤮 🥓test 🍗10\n5🍗🥓 #\n"),
+        ("interpolated_string_unclosed_main", "# print🤮 🥓test 🍗10🍗 #\n"),
+        ("interpolated_string_invalid_operator", "# print🤮 🥓test 🍗10+5🍗🥓 #\n"),
+        ("interpolated_string_decimal", "# print🤮 🥓value: 🍗12.5🍗🥓 #\n"),
+        ("interpolated_string_unknown_emoji", "# print🤮 🥓test 🍗10🌟5🍗🥓 #\n"),
     ]
 
     def test_all_failing_cases(self):

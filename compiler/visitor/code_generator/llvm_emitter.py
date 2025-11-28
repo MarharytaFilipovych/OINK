@@ -9,6 +9,7 @@ class LLVMEmitter:
         self.function_definitions: list[str] = []
         self.temp_counter = 0
         self.label_counter = 0
+        self.string_constants: list[str] = []
 
     def emit_line(self, line: str):
         self.translated_lines.append(line)
@@ -32,14 +33,24 @@ class LLVMEmitter:
     def add_function_definition(self, lines: list[str]):
         self.function_definitions.extend(lines)
 
+    def add_string_constants(self, constants: list[str]):
+        self.string_constants.extend(constants)
+
     def build_final_output(self) -> str:
         result = [self.__get_io_functions_llvm()]
+        
+        if self.string_constants:
+            result.extend(self.string_constants)
+            result.append("")
+        
         if self.struct_type_lines:
             result.extend(self.struct_type_lines)
             result.append("")
+        
         if self.function_definitions:
             result.extend(self.function_definitions)
             result.append("")
+        
         result.append("define i32 @main() {")
         result.extend(self.translated_lines)
         result.append("}")

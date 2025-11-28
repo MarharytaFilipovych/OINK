@@ -95,25 +95,165 @@ class Lexer:
         self.state = LexerState.INITIAL
 
     def __manage_string_state(self):
+        parts = []
+        current_part = []
+
         while self.current_position < len(self.source):
-            if self.__peek_ahead(len(QUOTE)) == QUOTE:
-                value = self.source[self.current_token_start:self.current_position]
-                processed_value = self.__process_escape_sequences(value)
-                self.__add_token(TokenType.STRING, processed_value,
-                               self.current_token_start_line,
-                               self.current_token_start_index)
-                self.__move_to_next_char(len(QUOTE))
-                self.state = LexerState.INITIAL
+            if self.__check_quote():
+                self.__add_string_part(parts, current_part)
+                self.__finalize_string(parts)
                 return
 
-            if self.source[self.current_position] == NEWLINE:
+            if self.__check_interp_start():
+                self.__add_string_part(parts, current_part)
+                current_part = []
+                self.__process_interpolation(parts)
+                continue
+
+            if self.__check_newline():
                 raise ValueError(
                     f"Unclosed string literal at line {self.current_token_start_line}! "
                     f"String must be closed with 🥓 on the same line.")
 
+            current_part.append(self.source[self.current_position])
             self.__move_to_next_char()
 
         raise ValueError(f"Unclosed string literal starting at line {self.current_token_start_line}!")
+
+    def __check_quote(self):
+        return self.__peek_ahead(len(QUOTE)) == QUOTE
+
+    def __check_interp_start(self):
+        return self.__peek_ahead(len(INTERP_STRING)) == INTERP_STRING
+
+    def __check_newline(self):
+        return self.source[self.current_position] == NEWLINE
+
+    def __add_string_part(self, parts, current_part):
+        if current_part:
+            text = ''.join(current_part)
+            processed = self.__process_escape_sequences(text)
+            parts.append(('text', processed))
+
+    def __finalize_string(self, parts):
+        if not parts:
+            self.__add_token(TokenType.STRING, "", self.current_token_start_line, self.current_token_start_index)
+        elif len(parts) == 1 and parts[0][0] == 'text':
+            self.__add_token(TokenType.STRING, parts[0][1], self.current_token_start_line, self.current_token_start_index)
+        else:
+            self.__add_interpolated_tokens(parts)
+        
+        self.__move_to_next_char(len(QUOTE))
+        self.state = LexerState.INITIAL
+
+    def __add_interpolated_tokens(self, parts):
+        for i, (part_type, content) in enumerate(parts):
+            if part_type == 'text':
+                self.__add_token(TokenType.STRING, content)
+            elif part_type == 'expr':
+                self.__add_token(TokenType.INTERP_STRING, "")
+                for token in content:
+                    self.tokens.append(token)
+                self.__add_token(TokenType.INTERP_STRING, "")
+
+    def __process_interpolation(self, parts):
+        self.__move_to_next_char(len(INTERP_STRING))
+        expr_tokens = []
+        depth = 0
+
+        while self.current_position < len(self.source):
+            if self.__peek_ahead(len(INTERP_STRING)) == INTERP_STRING:
+                if depth == 0:
+                    parts.append(('expr', expr_tokens))
+                    self.__move_to_next_char(len(INTERP_STRING))
+                    return
+            
+            if self.__peek_ahead(len(INTERP_STRING)) == INTERP_STRING:
+                depth += 1
+            
+            expr_token = self.__tokenize_single_expression()
+            if expr_token:
+                expr_tokens.append(expr_token)
+
+        raise ValueError(f"Unclosed interpolation in string at line {self.current_token_start_line}!")
+
+    def __tokenize_single_expression(self):
+        char = self.source[self.current_position]
+        
+        if self.__is_whitespace(char):
+            self.__move_to_next_char()
+            return None
+
+        if char.isdigit() or (char == MINUS and self.current_position + 1 < len(self.source) 
+                              and self.source[self.current_position + 1].isdigit()):
+            return self.__tokenize_number()
+
+        if char.isalpha() or char == VARIABLE_ALLOWED_SIGN:
+            return self.__tokenize_identifier()
+
+        if self.__try_multi_char_expr_token():
+            return self.tokens.pop()
+
+        if self.__try_emoji_expr_token():
+            return self.tokens.pop()
+
+        if char in SPECIAL_CHARS:
+            token = Token(SPECIAL_CHARS[char], char, self.line, self.index)
+            self.__move_to_next_char()
+            return token
+
+        raise ValueError(f"Unexpected character in interpolation: '{char}' at line {self.line}")
+
+    def __tokenize_number(self):
+        start = self.current_position
+        start_line = self.line
+        start_index = self.index
+        
+        if self.source[self.current_position] == MINUS:
+            self.__move_to_next_char()
+        
+        while self.current_position < len(self.source) and self.source[self.current_position].isdigit():
+            self.__move_to_next_char()
+        
+        value = self.source[start:self.current_position]
+        return Token(TokenType.NUMBER, value, start_line, start_index)
+
+    def __tokenize_identifier(self):
+        start = self.current_position
+        start_line = self.line
+        start_index = self.index
+        
+        while self.current_position < len(self.source):
+            char = self.source[self.current_position]
+            if char.isalnum() or char == VARIABLE_ALLOWED_SIGN:
+                self.__move_to_next_char()
+            else:
+                break
+        
+        value = self.source[start:self.current_position]
+        token_type = KEYWORDS.get(value, TokenType.VARIABLE)
+        return Token(token_type, value, start_line, start_index)
+
+    def __try_multi_char_expr_token(self):
+        max_len = max(len(t) for t in MULTI_CHAR_TOKENS)
+        for length in range(max_len, 0, -1):
+            sequence = self.__peek_ahead(length)
+            if sequence in MULTI_CHAR_TOKENS:
+                self.__add_token(MULTI_CHAR_TOKENS[sequence], sequence)
+                self.__move_to_next_char(length)
+                return True
+        return False
+
+    def __try_emoji_expr_token(self):
+        if ord(self.source[self.current_position]) <= 127:
+            return False
+        for length in [9, 6, 3, 2, 1]:
+            sequence = self.__peek_ahead(length)
+            if sequence in EMOJI_TOKENS:
+                self.__add_token(EMOJI_TOKENS[sequence], sequence)
+                self.__move_to_next_char(len(sequence))
+                return True
+        return False
 
     def __process_escape_sequences(self, value: str) -> str:
         result = []
@@ -260,5 +400,3 @@ class Lexer:
         raise ValueError(
             f"I did not expect character \"{char}\" to be "
             f"placed at line {self.line}, column {self.index}!!!")
-
-

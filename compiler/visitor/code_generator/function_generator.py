@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from typing import Optional, Union
-from ...constants import VARIABLE_ALLOWED_SIGN, UNDERLINE
+from ...constants import VARIABLE_ALLOWED_SIGN, UNDERLINE, LAMBDA
 from ...llvm_specifics.data_type import DataType
 from ...context.function_info import FunctionInfo
 
@@ -45,15 +45,24 @@ class FunctionGenerator:
         self.__finalize_function()
 
     def generate_regular_function_call(self, node, visitor) -> str:
-        if hasattr(self.variable_registry, 'lambda_functions') and \
-                node.value in self.variable_registry.lambda_functions:
+        var_type = self.variable_registry.get_variable_type(node.value)
+        
+        if var_type == LAMBDA:
             return self.__process_lambda_call(node, visitor)
+        
         if self.current_struct_context and self.__is_member_function(node.value):
             return self.__generate_member_to_member_call(node, visitor)
         return self.__process_regular_function_call(node, visitor)
 
     def __process_lambda_call(self, node, visitor) -> str:
-        lambda_func_name = self.variable_registry.lambda_functions[node.value].strip('@')
+        # Logic is simplified: If it's declared as a LAMBDA variable, it must use its registered LLVM name.
+        if node.value not in self.variable_registry.lambda_functions:
+            # Fallback for unexpected registration failure, though this shouldn't happen after semantic pass.
+            lambda_func_name = node.value
+        else:
+            lambda_func_ref = self.variable_registry.lambda_functions[node.value]
+            lambda_func_name = lambda_func_ref.strip('@')
+        
         return_type = self.type_converter.get_node_type(node)
         return_llvm_type = self.__get_llvm_type(return_type)
         signatures = self.variable_registry.lambda_signatures.get(node.value, [])
@@ -90,7 +99,6 @@ class FunctionGenerator:
             self.__build_call_argument(arg, visitor, expected_type)
             for arg, expected_type in zip(node.arguments, expected_types)]
         
-        # FIX: Ensure the result register is returned.
         return self.__emit_function_call(return_type, return_llvm_type, mangled_name, arg_strs)
 
     def __get_call_info(self, name, func_name):

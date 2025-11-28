@@ -5,6 +5,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from compiler.node.intr_string_node import InterpolatedStringNode
 from compiler.syntax_parser.syntax_parser import SyntaxParser
 from compiler.lexer.lexer import Lexer
 from compiler.node.program_node import ProgramNode
@@ -114,7 +115,6 @@ def assert_struct_member_function_call(self, ast):
     decl = ast.statement_nodes[1]
     self.assertIsInstance(decl, DeclNode)
     self.assertEqual(decl.variable, "result")
-    # Member function calls result in MemberAccessNode
     member_access = decl.expr_node
     self.assertTrue(isinstance(member_access, MemberAccessNode) or isinstance(member_access, FunctionCallNode))
 
@@ -131,7 +131,6 @@ def assert_print_expression(self, ast):
 def assert_chained_function_calls(self, ast):
     decl = ast.statement_nodes[0]
     self.assertIsInstance(decl, DeclNode)
-    # Chained calls can be represented as MemberAccessNode or FunctionCallNode
     result = decl.expr_node
     self.assertTrue(isinstance(result, MemberAccessNode) or isinstance(result, FunctionCallNode))
 
@@ -178,6 +177,55 @@ def assert_read_then_print_string(self, ast):
     self.assertIsInstance(print_stmt, PrintNode)
     self.assertIsInstance(print_stmt.expr_node, StringNode)
 
+def assert_interpolated_string_simple(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+    self.assertEqual(len(print_stmt.expr_node.parts), 2)
+
+def assert_interpolated_string_number(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+    self.assertGreaterEqual(len(print_stmt.expr_node.parts), 2)
+
+def assert_interpolated_string_variable(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+
+def assert_interpolated_string_expression(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+
+def assert_interpolated_string_multiple(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    interp = print_stmt.expr_node
+    self.assertIsInstance(interp, InterpolatedStringNode)
+    self.assertGreaterEqual(len(interp.parts), 3)
+
+def assert_interpolated_string_with_escapes(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+
+def assert_interpolated_string_nested_bracket(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+
+def assert_interpolated_only_expr(self, ast):
+    print_stmt = ast.statement_nodes[0]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+
+def assert_interpolated_bool_expression(self, ast):
+    print_stmt = ast.statement_nodes[1]
+    self.assertIsInstance(print_stmt, PrintNode)
+    self.assertIsInstance(print_stmt.expr_node, InterpolatedStringNode)
+
 
 test_cases = [
     ("simple_declaration", "# 😀 🐷 🐖x🐖 @ 10 #\n# ... 🐖x🐖 ... #", assert_simple_declaration),
@@ -201,6 +249,13 @@ test_cases = [
     ("print_empty_string", "# print🤮 🥓🥓 #\n# ... 0 ... #", assert_print_empty_string),
     ("print_number_then_string", "# print🤮 42 #\n# print🤮 🥓Result🥓 #\n# ... 0 ... #", assert_print_number_then_string),
     ("read_then_print_string", "# 😀 🐷 🐖x🐖 #\n# eat😋 🐖x🐖 #\n# print🤮 🥓You entered:🥓 #\n# ... 0 ... #", assert_read_then_print_string),
+    ("interpolated_string_simple", "# print🤮 🥓result: 🍗42🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_simple),
+    ("interpolated_string_number", "# print🤮 🥓value: 🍗100🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_number),
+    ("interpolated_string_variable", "# 😀 🐷 🐖x🐖 @ 10 #\n# print🤮 🥓x = 🍗🐖x🐖🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_variable),
+    ("interpolated_string_expression", "# print🤮 🥓sum: 🍗5❤️3🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_expression),
+    ("interpolated_string_multiple", "# 😀 🐷 🐖a🐖 @ 5 #\n# print🤮 🥓a=🍗🐖a🐖🍗 b=🍗10🍗🥓 #\n# ... 0 ... #", assert_interpolated_string_multiple),
+    ("interpolated_string_with_escapes", "# print🤮 🥓Line1\\n🍗42🍗\\tEnd🥓 #\n# ... 0 ... #", assert_interpolated_string_with_escapes),
+    ("interpolated_bool_expression", "# 😀 wow 🐖flag🐖 @ LOVE #\n# print🤮 🥓flag: 🍗🐖flag🐖🍗🥓 #\n# ... 0 ... #", assert_interpolated_bool_expression),
 ]
 
 for name, code, func in test_cases:

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from typing import Optional
+from ...node.intr_string_node import InterpolatedStringNode
 from ...constants import LAMBDA, STRING
 from ...node.print_node import PrintNode
 from ...visitor.ast_visitor import ASTVisitor
@@ -206,4 +207,13 @@ class SemanticAnalyzer(ASTVisitor):
         return LAMBDA
     
     def visit_string(self, node):
+        return STRING
+
+    def visit_interpolated_string(self, node: InterpolatedStringNode):
+        for part_type, content in node.parts:
+            if part_type == 'expr':
+                expr_type = content.accept(self)
+                if not isinstance(expr_type, DataType):
+                    raise ValueError(f"Cannot interpolate struct type in string at line {node.line}! "
+                        f"Only primitive types can be interpolated.")
         return STRING

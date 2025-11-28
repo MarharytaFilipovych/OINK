@@ -58,7 +58,8 @@ EMOJI_TOKENS = {
     '🥩': TokenType.LAMBDA,
     '👺': TokenType.STRING_TYPE,
     '🥓': TokenType.QUOTE,
-    '🌳': TokenType.EXPRESSION_GROUP 
+    '🌳': TokenType.EXPRESSION_GROUP,
+    '🍗': TokenType.INTERP_STRING
 }
 
 MULTILINE_COMMENT = '👀👀👀'
@@ -80,6 +81,7 @@ I64_MIN = -2**63
 LAMBDA = "lambda"
 QUOTE = "🥓"
 STRING = "string"
+INTERP_STRING = "🍗"
 
 I1 = "i1"
 I16 = "i16"

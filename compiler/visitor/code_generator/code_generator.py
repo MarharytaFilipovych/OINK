@@ -79,6 +79,7 @@ class CodeGenerator(ASTVisitor):
                 self.variable_registry.lambda_signatures[node.variable] = [p.param_type for p in node.expr_node.params]
                 self.variable_registry.lambda_return_types[node.variable] = node.expr_node.inferred_return_type \
                     if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
+            self.variable_registry.set_can_mutate(node.variable, node.mutable)
             return
 
         self.__declare_struct_variable(node) if isinstance(node.data_type, str) \
@@ -88,6 +89,7 @@ class CodeGenerator(ASTVisitor):
         struct_value = node.expr_node.accept(self)
         reg = self.variable_registry.get_variable_register(node.variable)
         self.variable_registry.set_variable_type(node.variable, node.data_type)
+        self.variable_registry.set_can_mutate(node.variable, node.mutable)
         self.emitter.emit_line(f"  {reg} = alloca %struct.{node.data_type}")
         self.struct_ops.copy_struct_fields(node.data_type, struct_value, reg)
 
@@ -96,6 +98,7 @@ class CodeGenerator(ASTVisitor):
         value = node.expr_node.accept(self)
         reg = self.variable_registry.get_variable_register(node.variable)
         self.variable_registry.set_variable_type(node.variable, node.data_type)
+        self.variable_registry.set_can_mutate(node.variable, node.mutable)
         value = self.__widen_value_if_needed(value, node.expr_node, node.data_type)
         self.emitter.emit_line(f"  {reg} = alloca {llvm_type}")
         self.emitter.emit_line(f"  store {llvm_type} {value}, {llvm_type}* {reg}")
