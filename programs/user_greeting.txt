@@ -6,8 +6,7 @@
 # 😀 🐷 🐖age🐖 #
 # eat😋 🐖age🐖 #
 
-# print🤮 🥓Your age is:\n🥓 #
-# print🤮 🐖age🐖 #
+# print🤮 🥓Your age is: 🍗🐖age🐖🍗\n🥓 #
 
 # print🤮 🥓\nThank you for using OINK!\n🥓 #
 

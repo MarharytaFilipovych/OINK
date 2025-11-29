@@ -1,11 +1,11 @@
 👀👀👀
-BMI Calculator - Real Program Example for Task 3
+BMI Calculator - Real Program Example
 This program demonstrates:
-   - User input with prompts
-   - String literals for clear interface
+   - User input with validation
+   - String literals and interpolation
    - Functions for logic
    - Structures for data organization
-   - Custom feature (lambdas) for calculations
+   - Lambda functions for calculations
    - Clear output formatting
 👀👀👀
 
@@ -19,6 +19,28 @@ This program demonstrates:
 # 😀 🐷 🐖height&squared🐖 @ 🐖height🐖 💞 🐖height🐖 #
 # ... 🌳🐖weight🐖 💞 10000🌳 💕 🐖height&squared🐖 ... #
 # 🐖🐖🐖 #
+# 🐖🐖🐖 #
+
+👀👀👀 Function to validate weight (must be positive) 👀👀👀
+# 🐷 PIG 🐖isValidWeight🐖 ** 🐷 🐖w🐖 ** #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 0 #
+# SAVE 🐖w🐖 > 0 #
+# 🐖🐖🐖 #
+# 🐖result🐖 @ 1 #
+# 🐖🐖🐖 #
+# ... 🐖result🐖 ... #
+# 🐖🐖🐖 #
+
+👀👀👀 Function to validate height (must be positive) 👀👀👀
+# 🐷 PIG 🐖isValidHeight🐖 ** 🐷 🐖h🐖 ** #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖result🐖 @ 0 #
+# SAVE 🐖h🐖 > 0 #
+# 🐖🐖🐖 #
+# 🐖result🐖 @ 1 #
+# 🐖🐖🐖 #
+# ... 🐖result🐖 ... #
 # 🐖🐖🐖 #
 
 👀👀👀 Function to categorize BMI 👀👀👀
@@ -50,10 +72,26 @@ This program demonstrates:
 # 😀 🐷 🐖weight🐖 #
 # eat😋 🐖weight🐖 #
 
+👀👀👀 Validate weight 👀👀👀
+# 😀 🐷 🐖valid&weight🐖 @ 🐖isValidWeight🐖 ** 🐖weight🐖 ** #
+# SAVE 🐖valid&weight🐖 🌸🌸 0 #
+# 🐖🐖🐖 #
+# print🤮 🥓ERROR: Weight must be positive!\n🥓 #
+# ... 1 ... #
+# 🐖🐖🐖 #
+
 # print🤮 🥓Enter your height in cm: 🥓 #
 
 # 😀 🐷 🐖height🐖 #
 # eat😋 🐖height🐖 #
+
+👀👀👀 Validate height 👀👀👀
+# 😀 🐷 🐖valid&height🐖 @ 🐖isValidHeight🐖 ** 🐖height🐖 ** #
+# SAVE 🐖valid&height🐖 🌸🌸 0 #
+# 🐖🐖🐖 #
+# print🤮 🥓ERROR: Height must be positive!\n🥓 #
+# ... 1 ... #
+# 🐖🐖🐖 #
 
 👀👀👀 Create person structure 👀👀👀
 # 😀 🐖Person🐖 🐖person🐖 @ 🐖Person🐖 ** 🐖weight🐖 ** ** 🐖height🐖 ** #
@@ -62,21 +100,18 @@ This program demonstrates:
 # 😀 🐷 🐖bmi🐖 @ 🐖person🐖 _ 🐖getBMI🐖 ** ** #
 
 # print🤮 🥓================================\n🥓 #
-# print🤮 🥓Your BMI:\n🥓 #
-# print🤮 🐖bmi🐖 #
+# print🤮 🥓Your BMI: 🍗🐖bmi🐖🍗\n🥓 #
 
 👀👀👀 Get category 👀👀👀
 # 😀 🐷 🐖category🐖 @ 🐖categorizeBMI🐖 ** 🐖bmi🐖 ** #
 
-# print🤮 🥓\nCategory code:\n🥓 #
-# print🤮 🐖category🐖 #
+# print🤮 🥓Category code: 🍗🐖category🐖🍗\n🥓 #
 
 👀👀👀 Use lambda to display formatted result 👀👀👀
 # 😀 🐷 🐖display&val🐖 @ 🐖displayValue🐖 ** 🐖category🐖 ** #
-# print🤮 🥓\nDisplay value:\n🥓 #
-# print🤮 🐖display&val🐖 #
+# print🤮 🥓Display value: 🍗🐖display&val🐖🍗\n🥓 #
 
-# print🤮 🥓\n================================\n🥓 #
+# print🤮 🥓================================\n🥓 #
 # print🤮 🥓Categories:\n🥓 #
 # print🤮 🥓1 = Underweight\n🥓 #
 # print🤮 🥓2 = Normal\n🥓 #

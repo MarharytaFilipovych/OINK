@@ -9,7 +9,11 @@
 # ... 🐖n🐖 💞 🐖result🐖 ... #
 # 🐖🐖🐖 #
 
+# print🤮 🥓Calculating factorial...\n🥓 #
+
 # 😀 🐷 🐖num🐖 @ 5 #
 # 😀 🐷 🐖fact🐖 @ 🐖factorial🐖 ** 🐖num🐖 ** #
+
+# print🤮 🥓Factorial of 🍗🐖num🐖🍗 is: 🍗🐖fact🐖🍗\n🥓 #
 
 # ... 🐖fact🐖 ... #

@@ -16,6 +16,7 @@ from ..node.function_call_node import FunctionCallNode
 from ..node.print_node import PrintNode
 from ..node.read_node import ReadNode
 from ..node.lambda_node import LambdaNode
+from ..node.intr_string_node import InterpolatedStringNode
 from ..constants import UNDERLINE
 
 class VariableUsageAnalyzer:
@@ -91,6 +92,10 @@ class VariableUsageAnalyzer:
         elif isinstance(node, LambdaNode):
             if node.body:
                 self._analyze_expression(node.body)
+        elif isinstance(node, InterpolatedStringNode):
+            for part_type, content in node.parts:
+                if part_type == 'expr':
+                    self._analyze_expression(content)
 
     def get_unused_variables(self) -> set[str]:
         return self.declared_vars - self.used_vars

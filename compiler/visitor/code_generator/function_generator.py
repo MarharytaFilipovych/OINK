@@ -55,9 +55,7 @@ class FunctionGenerator:
         return self.__process_regular_function_call(node, visitor)
 
     def __process_lambda_call(self, node, visitor) -> str:
-        # Logic is simplified: If it's declared as a LAMBDA variable, it must use its registered LLVM name.
         if node.value not in self.variable_registry.lambda_functions:
-            # Fallback for unexpected registration failure, though this shouldn't happen after semantic pass.
             lambda_func_name = node.value
         else:
             lambda_func_ref = self.variable_registry.lambda_functions[node.value]

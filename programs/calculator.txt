@@ -10,8 +10,7 @@
 
 # 😀 🐷 🐖sum🐖 @ 🐖a🐖 ❤️ 🐖b🐖 #
 
-# print🤮 🥓Result:\n🥓 #
-# print🤮 🐖sum🐖 #
+# print🤮 🥓\nCalculation: 🍗🐖a🐖🍗 + 🍗🐖b🐖🍗 = 🍗🐖sum🐖🍗\n🥓 #
 
 # print🤮 🥓\nThank you!\n🥓 #
 

@@ -15,6 +15,7 @@
 
 # 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** ** 20 ** #
 # 😀 🐷 🐖coord🐖 @ 🐖p🐖 _ 🐖getX🐖 ** ** #
-# print🤮 🐖coord🐖 #
+
+# print🤮 🥓Point X: 🍗🐖coord🐖🍗\n🥓 #
 
 # ... 0 ... #

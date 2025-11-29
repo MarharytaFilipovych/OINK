@@ -4,4 +4,7 @@
 # 😀 🐷 🐖sum🐖 @ 🐖add🐖 ** 10 ** ** 20 ** #
 # 😀 🐷 🐖product🐖 @ 🐖multiply🐖 ** 🐖sum🐖 ** ** 2 ** #
 
+# print🤮 🥓Sum: 🍗🐖sum🐖🍗\n🥓 #
+# print🤮 🥓Product: 🍗🐖product🐖🍗\n🥓 #
+
 # ... 🐖product🐖 ... #

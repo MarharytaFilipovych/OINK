@@ -5,4 +5,9 @@
 # 😀 🐷 🐖squared🐖 @ 🐖square🐖 ** 🐖val🐖 ** #
 # 😀 🐷 🐖cubed🐖 @ 🐖cube🐖 ** 🐖val🐖 ** #
 
+# print🤮 🥓Value: 🍗🐖val🐖🍗\n🥓 #
+# print🤮 🥓Squared: 🍗🐖squared🐖🍗\n🥓 #
+# print🤮 🥓Cubed: 🍗🐖cubed🐖🍗\n🥓 #
+# print🤮 🥓Sum: 🍗🐖squared🐖 ❤️ 🐖cubed🐖🍗\n🥓 #
+
 # ... 🐖squared🐖 ❤️ 🐖cubed🐖 ... #

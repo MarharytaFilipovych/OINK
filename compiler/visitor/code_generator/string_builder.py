@@ -116,6 +116,5 @@ class StringBuilder:
             "@.str.newline = private unnamed_addr constant [2 x i8] c\"\\0A\\00\", align 1",
             "@.fmt.i16 = private unnamed_addr constant [4 x i8] c\"%hd\\00\", align 1",
             "@.fmt.i32 = private unnamed_addr constant [3 x i8] c\"%d\\00\", align 1",
-            "@.fmt.i64 = private unnamed_addr constant [5 x i8] c\"%lld\\00\", align 1"
-        ]
+            "@.fmt.i64 = private unnamed_addr constant [5 x i8] c\"%lld\\00\", align 1"]
         return constants + self.string_constants

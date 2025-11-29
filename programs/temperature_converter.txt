@@ -1,12 +1,11 @@
 👀👀👀
-Temperature Converter - Real Program Example for Task 3
-This program demonstrates all required features WITH strings
-Features:
-   - User input with clear workflow
+Temperature Converter - Real Program Example
+This program demonstrates all required features:
+   - User input with validation
    - Functions for conversion logic  
    - Structures to organize temperature data
    - Lambda functions (custom feature)
-   - String literals for user interface
+   - String literals and interpolation
 👀👀👀
 
 👀👀👀 Structure to hold temperature in different scales 👀👀👀
@@ -27,6 +26,18 @@ Features:
 # 🐖🐖🐖 #
 # ... 🐖kelvin🐖 ... #
 # 🐖🐖🐖 #
+# 🐖🐖🐖 #
+
+👀👀👀 Function to validate input (must be above absolute zero) 👀👀👀
+# 🐷 PIG 🐖isValidCelsius🐖 ** 🐷 🐖c🐖 ** #
+# 🐖🐖🐖 #
+# 😀 🐷 🐖absolute&zero🐖 @ 0 💔 273 #
+# 😀 🐷 🐖is&valid🐖 @ 0 #
+# SAVE 🐖c🐖 🌸> 🐖absolute&zero🐖 #
+# 🐖🐖🐖 #
+# 🐖is&valid🐖 @ 1 #
+# 🐖🐖🐖 #
+# ... 🐖is&valid🐖 ... #
 # 🐖🐖🐖 #
 
 👀👀👀 Function to convert Celsius to Fahrenheit 👀👀👀
@@ -57,6 +68,15 @@ Features:
 # 😀 🐷 🐖celsius&input🐖 #
 # eat😋 🐖celsius&input🐖 #
 
+👀👀👀 Validate input 👀👀👀
+# 😀 🐷 🐖is&valid🐖 @ 🐖isValidCelsius🐖 ** 🐖celsius&input🐖 ** #
+
+# SAVE 🐖is&valid🐖 🌸🌸 0 #
+# 🐖🐖🐖 #
+# print🤮 🥓ERROR: Temperature below absolute zero!\n🥓 #
+# ... 1 ... #
+# 🐖🐖🐖 #
+
 👀👀👀 Calculate Fahrenheit and Kelvin 👀👀👀
 # 😀 🐷 🐖fahrenheit&result🐖 @ 🐖celsiusToFahrenheit🐖 ** 🐖celsius&input🐖 ** #
 # 😀 🐷 🐖kelvin&result🐖 @ 🐖celsiusToKelvin🐖 ** 🐖celsius&input🐖 ** #
@@ -70,24 +90,22 @@ Features:
 👀👀👀 Print separator 👀👀👀
 # print🤮 🥓=============================\n🥓 #
 
-👀👀👀 Output results 👀👀👀
-# print🤮 🥓Celsius:\n🥓 #
-# print🤮 🐖temp&data🐖 _ 🐖getCelsius🐖 ** ** #
+👀👀👀 Output results with string interpolation 👀👀👀
+# 😀 🐷 🐖c🐖 @ 🐖temp&data🐖 _ 🐖getCelsius🐖 ** ** #
+# 😀 🐷 🐖f🐖 @ 🐖temp&data🐖 _ 🐖getFahrenheit🐖 ** ** #
+# 😀 🐷 🐖k🐖 @ 🐖temp&data🐖 _ 🐖getKelvin🐖 ** ** #
 
-# print🤮 🥓\nFahrenheit:\n🥓 #
-# print🤮 🐖temp&data🐖 _ 🐖getFahrenheit🐖 ** ** #
-
-# print🤮 🥓\nKelvin:\n🥓 #
-# print🤮 🐖temp&data🐖 _ 🐖getKelvin🐖 ** ** #
+# print🤮 🥓Celsius: 🍗🐖c🐖🍗 C\n🥓 #
+# print🤮 🥓Fahrenheit: 🍗🐖f🐖🍗 F\n🥓 #
+# print🤮 🥓Kelvin: 🍗🐖k🐖🍗 K\n🥓 #
 
 👀👀👀 Use lambda for scaling demo 👀👀👀
 # 😀 🐷 🐖scaled&celsius🐖 @ 🐖scale🐖 ** 🐖celsius&input🐖 ** ** 10 ** #
 
-# print🤮 🥓\nScaled value x10:\n🥓 #
-# print🤮 🐖scaled&celsius🐖 #
+# print🤮 🥓\nScaled value x10: 🍗🐖scaled&celsius🐖🍗\n🥓 #
 
 👀👀👀 Print footer 👀👀👀
-# print🤮 🥓\n=============================\n🥓 #
+# print🤮 🥓=============================\n🥓 #
 
 👀👀👀 Return success 👀👀👀
 # ... 0 ... #

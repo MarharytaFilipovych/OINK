@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from compiler.node.intr_string_node import InterpolatedStringNode
 from ...node.read_node import ReadNode
 from ...node.string_node import StringNode
 from ...node.lambda_node import LambdaNode
@@ -16,6 +15,7 @@ from .llvm_emitter import LLVMEmitter
 from .type_converter import TypeConverter
 from .struct_operations import StructOperations
 from .function_generator import FunctionGenerator
+from compiler.node.intr_string_node import InterpolatedStringNode
 
 
 class CodeGenerator(ASTVisitor):
@@ -34,6 +34,22 @@ class CodeGenerator(ASTVisitor):
                                           self.type_converter, self.struct_ops)
         self.type_converter.struct_ops = self.struct_ops
         self.type_converter.function_return_types = self.func_gen.function_return_types
+
+    @staticmethod
+    def _escape_format_string(text: str) -> str:
+        result = []
+        for char in text:
+            if char == '\n':
+                result.append('\\0A')
+            elif char == '\t':
+                result.append('\\09')
+            elif char == '\\':
+                result.append('\\\\')
+            elif char == '"':
+                result.append('\\"')
+            else:
+                result.append(char)
+        return ''.join(result)
 
     def visit_program(self, node):
         self._reset_state()
@@ -392,8 +408,7 @@ class CodeGenerator(ASTVisitor):
         self.emitter.emit_line(
             f"  call i32 (i8*, ...) @scanf(i8* getelementptr inbounds "
             f"([{scanf_format_len} x i8], [{scanf_format_len} x i8]* {format_string_name}, i32 0, i32 0), "
-            f"{var_type.to_llvm()}* {temp_ptr})"
-        )
+            f"{var_type.to_llvm()}* {temp_ptr})")
 
     def __load_temp_value(self, var_type, temp_ptr):
         temp_val = self.emitter.get_temp_register()
@@ -405,8 +420,6 @@ class CodeGenerator(ASTVisitor):
         self.emitter.emit_line(f"  store {var_type.to_llvm()} {temp_val}, {var_type.to_llvm()}* {current_ptr}")
 
     def visit_print(self, node):
-    
-        # Handle interpolated strings specially - they print themselves
         if isinstance(node.expr_node, InterpolatedStringNode):
             node.expr_node.accept(self)
             return
@@ -486,14 +499,12 @@ class CodeGenerator(ASTVisitor):
         return temp_reg
     
     def visit_interpolated_string(self, node):
-        """Handle interpolated string by building format string and calling printf"""
         format_string = self._build_format_string(node)
         expr_values, expr_types = self._evaluate_interpolated_expressions(node)
         self._emit_printf_for_interpolation(format_string, expr_values, expr_types, node)
         return None
 
     def _build_format_string(self, node):
-        """Build the format string from text and expression parts"""
         format_parts = []
         
         for part_type, content in node.parts:
@@ -503,13 +514,13 @@ class CodeGenerator(ASTVisitor):
                 expr_type = self.type_converter.get_node_type(content)
                 format_parts.append(self._get_format_specifier(expr_type))
         
+        format_parts.append('\n')
         return ''.join(format_parts)
 
     def _get_format_specifier(self, expr_type):
-        """Get printf format specifier for a given type"""
         if not isinstance(expr_type, DataType):
             return "%s"
-        
+
         if expr_type == DataType.I16:
             return "%hd"
         elif expr_type == DataType.I32:
@@ -518,78 +529,48 @@ class CodeGenerator(ASTVisitor):
             return "%lld"
         elif expr_type == DataType.BOOL:
             return "%d"
-        
         return "%d"
 
-    def _evaluate_interpolated_expressions(self, node):
-        """Evaluate all expressions in the interpolated string"""
-        from ...node.id_node import IDNode
-        
+    def _evaluate_interpolated_expressions(self, node):        
         expr_values = []
         expr_types = []
         
         for part_type, content in node.parts:
             if part_type == 'expr':
-                # Get the type first
                 expr_type = self.type_converter.get_node_type(content)
-                
-                # Special handling for ID nodes - we need to load the value
-                if isinstance(content, IDNode):
-                    var_name = content.value
-                    var_type = self.variable_registry.get_variable_type(var_name)
-                    
-                    if isinstance(var_type, DataType):
-                        # Load the value from the variable
-                        reg = self.variable_registry.get_current_register(var_name)
-                        llvm_type = var_type.to_llvm()
-                        temp_reg = self.emitter.get_temp_register()
-                        self.emitter.emit_line(f"  {temp_reg} = load {llvm_type}, {llvm_type}* {reg}")
-                        expr_value = temp_reg
-                    else:
-                        # For non-DataType (like structs), use accept
-                        expr_value = content.accept(self)
-                else:
-                    # For other expressions, evaluate normally
-                    expr_value = content.accept(self)
+                expr_value = content.accept(self)
                 
                 if isinstance(expr_type, DataType):
-                    # Convert bool to i32 for printf
                     if expr_type == DataType.BOOL:
                         expr_value = self._convert_bool_to_i32(expr_value)
                         expr_type = DataType.I32
-                    
                     expr_values.append(expr_value)
                     expr_types.append(expr_type)
-        
         return expr_values, expr_types
 
     def _convert_bool_to_i32(self, bool_value):
-        """Convert a boolean value to i32 for printf"""
         temp_reg = self.emitter.get_temp_register()
         self.emitter.emit_line(f"  {temp_reg} = zext i1 {bool_value} to i32")
         return temp_reg
 
     def _emit_printf_for_interpolation(self, format_string, expr_values, expr_types, node):
-        """Emit the printf call for an interpolated string"""
-        # Create format string constant
-        string_len = len(format_string) + 1
+        processed_string = format_string.replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
+        string_bytes = processed_string.encode('utf-8')
+        string_len = len(string_bytes) + 1  
+        c_escaped = format_string.replace('\\', '\\\\').replace('\n', '\\0A').replace('\t', '\\09')
         string_name = f"@.str.interp.{id(node)}"
         string_def = f'{string_name} = private unnamed_addr constant [{string_len} x i8] c"{format_string}\\00", align 1'
-        
         if string_def not in self.emitter.struct_type_lines:
             self.emitter.add_struct_type_definition(string_def)
-        
-        # Get pointer to format string
+    
         format_ptr = self.emitter.get_temp_register()
         self.emitter.emit_line(
             f"  {format_ptr} = getelementptr inbounds [{string_len} x i8], "
             f"[{string_len} x i8]* {string_name}, i32 0, i32 0")
         
-        # Build printf arguments
         printf_args = [f"i8* {format_ptr}"]
         for expr_val, expr_type in zip(expr_values, expr_types):
             if isinstance(expr_type, DataType):
                 printf_args.append(f"{expr_type.to_llvm()} {expr_val}")
         
-        # Call printf
         self.emitter.emit_line(f"  call i32 (i8*, ...) @printf({', '.join(printf_args)})")

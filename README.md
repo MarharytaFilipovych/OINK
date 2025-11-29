@@ -14,6 +14,7 @@
 - **Functions and structures** with member functions
 - **Built-in I/O operations** for input and output
 - **String literals** with bacon emoji 🥓 delimiters
+- **String interpolation** with drumstick emoji 🍗 for embedding expressions
 - **Powerful optimizations** including dead code elimination, function inlining, and unused function removal
 
 ## ✨ Key Features
@@ -44,6 +45,59 @@ Create string literals using the bacon emoji as delimiters:
 # print🤮 🥓Enter your name:🥓 #
 # print🤮 🥓Thank you!🥓 #
 ```
+
+### 🍗 String Interpolation
+Embed expressions directly into strings using the drumstick emoji for dynamic, formatted output:
+
+```piglang
+# 😀 🐷 🐖x🐖 @ 10 #
+# print🤮 🥓Value: 🍗🐖x🐖🍗🥓 #
+```
+
+**Interpolation Syntax:**
+- Wrap expressions in `🍗` (drumstick emoji) markers
+- Can embed variables, arithmetic expressions, and any valid expression
+- Format: `🥓text 🍗expression🍗 more text🥓`
+- Expressions are automatically evaluated and converted to strings
+
+**Interpolation Examples:**
+```piglang
+# Simple variable interpolation
+# 😀 🐷 🐖age🐖 @ 25 #
+# print🤮 🥓Your age is: 🍗🐖age🐖🍗\n🥓 #
+
+# Multiple values in one string
+# 😀 🐷 🐖a🐖 @ 5 #
+# 😀 🐷 🐖b🐖 @ 3 #
+# print🤮 🥓Sum: 🍗🐖a🐖🍗 + 🍗🐖b🐖🍗 = 🍗🐖a🐖 ❤️ 🐖b🐖🍗\n🥓 #
+
+# Expression interpolation
+# 😀 🐷 🐖x🐖 @ 7 #
+# 😀 🐷 🐖y🐖 @ 2 #
+# print🤮 🥓Result: 🍗🐖x🐖 💞 🐖y🐖🍗\n🥓 #
+
+# Complex expressions with labels
+# print🤮 🥓Temperature: 🍗🐖celsius🐖🍗 C = 🍗🐖fahrenheit🐖🍗 F\n🥓 #
+```
+
+**Supported Types in Interpolation:**
+- `🐽` (i16) - 16-bit integers
+- `🐷` (i32) - 32-bit integers  
+- `🐗` (i64) - 64-bit integers
+- `wow` (Boolean) - Automatically converted to integers (1 for LOVE, 0 for HATE)
+- Arithmetic expressions (e.g., `🍗🐖a🐖 ❤️ 🐖b🐖🍗`)
+- Variable references
+
+**Interpolation Features:**
+- Multiple interpolations in a single string
+- Automatic type conversion for output
+- Escape sequences work alongside interpolation
+- Clean, readable output formatting
+
+**Important Notes:**
+- Avoid non-ASCII special characters (like °, €, etc.) in string literals as they may cause compilation issues
+- Use basic ASCII characters and standard escape sequences for best compatibility
+- Interpolated strings are designed for `print🤮` output
 
 ### 🥩 Lambda Expressions
 Create anonymous functions inline using the meat emoji:
@@ -135,7 +189,7 @@ Structures are declared using the `BOAR` keyword and can contain both fields and
 
 ### 📥📤 Input/Output Functions
 - `eat😋` - Read input from user (supports i16, i32, i64)
-- `print🤮` - Print output to console (supports integers and strings)
+- `print🤮` - Print output to console (supports integers, strings, and interpolated strings)
 
 ## 📋 Language Specification
 
@@ -152,6 +206,7 @@ Structures are declared using the `BOAR` keyword and can contain both fields and
 | `😑` | Void                | No return value (for functions only)             | N/A            |
 | `🥩` | Lambda              | Anonymous function                               | N/A            |
 | `🥓` | String Literal      | Text enclosed in bacon emojis                    | N/A            |
+| `🍗` | String Interpolation | Expression marker within strings                | N/A            |
 
 ### String Literals
 
@@ -229,9 +284,9 @@ Reads numeric input from the user.
 ```
 
 #### Print Output: `print🤮`
-Prints values to console (supports integers and string literals).
+Prints values to console (supports integers, string literals, and interpolated strings).
 
-**Supported types:** i16 (🐽), i32 (🐷), i64 (🐗), string literals (🥓)
+**Supported types:** i16 (🐽), i32 (🐷), i64 (🐗), string literals (🥓), interpolated strings (🥓...🍗...🥓)
 
 ```piglang
 # Print integer value
@@ -242,6 +297,9 @@ Prints values to console (supports integers and string literals).
 
 # Print string literal
 # print🤮 🥓Hello, World!🥓 #
+
+# Print interpolated string
+# print🤮 🥓Result: 🍗🐖value🐖🍗\n🥓 #
 ```
 
 ### Operator Precedence (High to Low)
@@ -323,8 +381,10 @@ return_statement ::= "#" "..." expr "..." "#"
 Input/Output statements:
 io_stmt ::= read_stmt | print_stmt
 read_stmt ::= "eat😋" "🐖" ID "🐖"
-print_stmt ::= "print🤮" ( expr | string_literal )
+print_stmt ::= "print🤮" ( expr | string_literal | interpolated_string )
 string_literal ::= "🥓" STRING_CONTENT "🥓"
+interpolated_string ::= "🥓" ( STRING_CONTENT | interpolation )* "🥓"
+interpolation ::= "🍗" expr "🍗"
 
 Statements are either declarations, assignments, conditionals, loops, or function calls:
 stmt ::= decl | assign | if_stmt | while_stmt | function_call | struct_init
@@ -379,258 +439,16 @@ multiplicative_expr ::= unary_expr { ("💞" | "💕") unary_expr }*
 Unary expression: handles logical NOT operator:
 unary_expr ::= [ "💩" ] factor
 
-Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), string literals, function calls, member access, lambda expressions, or parenthesized sub-expressions for grouping and overriding precedence:
+Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), string literals, interpolated strings, function calls, member access, lambda expressions, or parenthesized sub-expressions for grouping and overriding precedence:
 factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "🌳" expr "🌳" | ...
- "**" | boolean | string_literal | function_call | lambda
+ "**" | boolean | string_literal | interpolated_string | function_call | lambda
 boolean ::= "LOVE" | "HATE"
 ID ::= LETTER { LETTER | "&" }*
 NUMBER ::= [ "-" ] DIGIT { DIGIT }*
-STRING_CONTENT ::= any characters except "🥓" or NEWLINE, with escape sequences \n, \t, \\
+STRING_CONTENT ::= any characters except "🥓", "🍗", or NEWLINE, with escape sequences \n, \t, \\
 
 NEWLINE ::= "\n" | "\r\n"
-```
 
----
-
-# Updated README.md Examples Section
-
-Replace the "📝 Example Programs" section with this:
-
----
-
-## 📝 Example Programs
-
-### User Greeting
-
-```piglang
-# print🤮 🥓=============================\n🥓 #
-# print🤮 🥓  Welcome to OINK Language!\n🥓 #
-# print🤮 🥓=============================\n🥓 #
-
-# print🤮 🥓Enter your age: 🥓 #
-# 😀 🐷 🐖age🐖 #
-# eat😋 🐖age🐖 #
-
-# print🤮 🥓Your age is:\n🥓 #
-# print🤮 🐖age🐖 #
-
-# print🤮 🥓\nThank you for using OINK!\n🥓 #
-
-# ... 0 ... #
-```
-
-### Function as First-Class Value
-
-```piglang
-# 😀 🥩 🐖square🐖 @ 🥩 ** 🐷 🐖x🐖 ** 🥩 🐖x🐖 💞 🐖x🐖 🥩 #
-# 😀 🥩 🐖cube🐖 @ 🥩 ** 🐷 🐖n🐖 ** 🥩 🐖n🐖 💞 🐖n🐖 💞 🐖n🐖 🥩 #
-
-# 😀 🐷 🐖val🐖 @ 5 #
-# 😀 🐷 🐖squared🐖 @ 🐖square🐖 ** 🐖val🐖 ** #
-# 😀 🐷 🐖cubed🐖 @ 🐖cube🐖 ** 🐖val🐖 ** #
-
-# ... 🐖squared🐖 ❤️ 🐖cubed🐖 ... #
-```
-
-### Mathematical Operations
-
-```piglang
-# 😀 🥩 🐖add🐖 @ 🥩 ** 🐷 🐖a🐖 ** ** 🐷 🐖b🐖 ** 🥩 🐖a🐖 ❤️ 🐖b🐖 🥩 #
-# 😀 🥩 🐖multiply🐖 @ 🥩 ** 🐷 🐖x🐖 ** ** 🐷 🐖y🐖 ** 🥩 🐖x🐖 💞 🐖y🐖 🥩 #
-
-# 😀 🐷 🐖sum🐖 @ 🐖add🐖 ** 10 ** ** 20 ** #
-# 😀 🐷 🐖product🐖 @ 🐖multiply🐖 ** 🐖sum🐖 ** ** 2 ** #
-
-# ... 🐖product🐖 ... #
-```
-
-### Factorial Calculator
-
-```piglang
-# 🐷 PIG 🐖factorial🐖 ** 🐷 🐖n🐖 ** #
-# 🐖🐖🐖 #
-# SAVE 🐖n🐖 🌸< 2 #
-# 🐖🐖🐖 #
-# ... 1 ... #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖result🐖 @ 🐖factorial🐖 ** 🌳 🐖n🐖 💔 1 🌳 ** #
-# ... 🐖n🐖 💞 🐖result🐖 ... #
-# 🐖🐖🐖 #
-
-# 😀 🐷 🐖num🐖 @ 5 #
-# 😀 🐷 🐖fact🐖 @ 🐖factorial🐖 ** 🐖num🐖 ** #
-
-# ... 🐖fact🐖 ... #
-```
-
-### Point with Member Functions
-
-```piglang
-# BOAR 🐖Point🐖 #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖x🐖 #
-# 😀 🐷 🐖y🐖 #
-# 🐷 PIGLET 🐖getX🐖 #
-# 🐖🐖🐖 #
-# ... 🐖x🐖 ... #
-# 🐖🐖🐖 #
-# 😑 PIGLET 🐖setX🐖 ** 🐷 🐖newX🐖 ** #
-# 🐖🐖🐖 #
-# 🐖x🐖 @ 🐖newX🐖 #
-# ... #
-# 🐖🐖🐖 #
-# 🐖🐖🐖 #
-
-# 😀 🐖Point🐖 🐖p🐖 @ 🐖Point🐖 ** 10 ** ** 20 ** #
-# 😀 🐷 🐖coord🐖 @ 🐖p🐖 _ 🐖getX🐖 ** ** #
-# print🤮 🐖coord🐖 #
-
-# ... 0 ... #
-```
-
-### Interactive Calculator
-
-```piglang
-# print🤮 🥓=== Calculator ===\n🥓 #
-
-# print🤮 🥓Enter first number: 🥓 #
-# 😀 🐷 🐖a🐖 #
-# eat😋 🐖a🐖 #
-
-# print🤮 🥓Enter second number: 🥓 #
-# 😀 🐷 🐖b🐖 #
-# eat😋 🐖b🐖 #
-
-# 😀 🐷 🐖sum🐖 @ 🐖a🐖 ❤️ 🐖b🐖 #
-
-# print🤮 🥓Result:\n🥓 #
-# print🤮 🐖sum🐖 #
-
-# print🤮 🥓\nThank you!\n🥓 #
-
-# ... 🐖sum🐖 ... #
-```
-
-### Temperature Converter
-
-```piglang
-# BOAR 🐖Temperature🐖 #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖celsius🐖 #
-# 😀 🐷 🐖fahrenheit🐖 #
-# 😀 🐷 🐖kelvin🐖 #
-# 🐷 PIGLET 🐖getCelsius🐖 #
-# 🐖🐖🐖 #
-# ... 🐖celsius🐖 ... #
-# 🐖🐖🐖 #
-# 🐷 PIGLET 🐖getFahrenheit🐖 #
-# 🐖🐖🐖 #
-# ... 🐖fahrenheit🐖 ... #
-# 🐖🐖🐖 #
-# 🐷 PIGLET 🐖getKelvin🐖 #
-# 🐖🐖🐖 #
-# ... 🐖kelvin🐖 ... #
-# 🐖🐖🐖 #
-# 🐖🐖🐖 #
-
-# 🐷 PIG 🐖celsiusToFahrenheit🐖 ** 🐷 🐖c🐖 ** #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖temp🐖 @ 🌳 🐖c🐖 💞 9 🌳 💕 5 #
-# ... 🐖temp🐖 ❤️ 32 ... #
-# 🐖🐖🐖 #
-
-# 🐷 PIG 🐖celsiusToKelvin🐖 ** 🐷 🐖c🐖 ** #
-# 🐖🐖🐖 #
-# ... 🐖c🐖 ❤️ 273 ... #
-# 🐖🐖🐖 #
-
-# 😀 🥩 🐖addOffset🐖 @ 🥩 ** 🐷 🐖temp🐖 ** ** 🐷 🐖offset🐖 ** 🥩 🐖temp🐖 ❤️ 🐖offset🐖 🥩 #
-
-# print🤮 🥓=== Temperature Converter ===\n🥓 #
-# print🤮 🥓Enter temperature in Celsius: 🥓 #
-
-# 😀 🐷 🐖celsius&input🐖 #
-# eat😋 🐖celsius&input🐖 #
-
-# 😀 🐷 🐖fahrenheit&result🐖 @ 🐖celsiusToFahrenheit🐖 ** 🐖celsius&input🐖 ** #
-# 😀 🐷 🐖kelvin&result🐖 @ 🐖celsiusToKelvin🐖 ** 🐖celsius&input🐖 ** #
-# 😀 🐷 🐖adjusted&kelvin🐖 @ 🐖addOffset🐖 ** 🐖kelvin&result🐖 ** ** 0 ** #
-
-# 😀 🐖Temperature🐖 🐖temp&data🐖 @ 🐖Temperature🐖 ** 🐖celsius&input🐖 ** ** 🐖fahrenheit&result🐖 ** ** 🐖adjusted&kelvin🐖 ** #
-
-# print🤮 🥓=============================\n🥓 #
-# print🤮 🥓Celsius:\n🥓 #
-# print🤮 🐖temp&data🐖 _ 🐖getCelsius🐖 ** ** #
-# print🤮 🥓\nFahrenheit:\n🥓 #
-# print🤮 🐖temp&data🐖 _ 🐖getFahrenheit🐖 ** ** #
-# print🤮 🥓\nKelvin:\n🥓 #
-# print🤮 🐖temp&data🐖 _ 🐖getKelvin🐖 ** ** #
-
-# ... 0 ... #
-```
-
-### BMI Calculator
-
-```piglang
-# BOAR 🐖Person🐖 #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖weight🐖 #
-# 😀 🐷 🐖height🐖 #
-# 🐷 PIGLET 🐖getBMI🐖 #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖height&squared🐖 @ 🐖height🐖 💞 🐖height🐖 #
-# ... 🌳🐖weight🐖 💞 10000🌳 💕 🐖height&squared🐖 ... #
-# 🐖🐖🐖 #
-# 🐖🐖🐖 #
-
-# 🐷 PIG 🐖categorizeBMI🐖 ** 🐷 🐖bmi🐖 ** #
-# 🐖🐖🐖 #
-# 😀 🐷 🐖result🐖 @ 4 #
-# SAVE 🐖bmi🐖 < 18 #
-# 🐖🐖🐖 #
-# 🐖result🐖 @ 1 #
-# 🐖🐖🐖 #
-# HURT 🐖bmi🐖 < 25 #
-# 🐖🐖🐖 #
-# 🐖result🐖 @ 2 #
-# 🐖🐖🐖 #
-# HURT 🐖bmi🐖 < 30 #
-# 🐖🐖🐖 #
-# 🐖result🐖 @ 3 #
-# 🐖🐖🐖 #
-# ... 🐖result🐖 ... #
-# 🐖🐖🐖 #
-
-# 😀 🥩 🐖displayValue🐖 @ 🥩 ** 🐷 🐖category🐖 ** 🥩 🐖category🐖 💞 100 🥩 #
-
-# print🤮 🥓========== BMI Calculator ==========\n🥓 #
-# print🤮 🥓Enter your weight in kg: 🥓 #
-# 😀 🐷 🐖weight🐖 #
-# eat😋 🐖weight🐖 #
-
-# print🤮 🥓Enter your height in cm: 🥓 #
-# 😀 🐷 🐖height🐖 #
-# eat😋 🐖height🐖 #
-
-# 😀 🐖Person🐖 🐖person🐖 @ 🐖Person🐖 ** 🐖weight🐖 ** ** 🐖height🐖 ** #
-# 😀 🐷 🐖bmi🐖 @ 🐖person🐖 _ 🐖getBMI🐖 ** ** #
-
-# print🤮 🥓================================\n🥓 #
-# print🤮 🥓Your BMI:\n🥓 #
-# print🤮 🐖bmi🐖 #
-
-# 😀 🐷 🐖category🐖 @ 🐖categorizeBMI🐖 ** 🐖bmi🐖 ** #
-# print🤮 🥓\nCategory code:\n🥓 #
-# print🤮 🐖category🐖 #
-
-# print🤮 🥓\n================================\n🥓 #
-# print🤮 🥓Categories:\n🥓 #
-# print🤮 🥓1 = Underweight\n🥓 #
-# print🤮 🥓2 = Normal\n🥓 #
-# print🤮 🥓3 = Overweight\n🥓 #
-# print🤮 🥓4 = Obese\n🥓 #
-
-# ... 0 ... #
 ```
 
 ## Key Syntax Notes
@@ -639,6 +457,7 @@ All examples above demonstrate:
 - **Expression grouping** with `🌳` (e.g., `🌳 🐖x🐖 ❤️ 🐖y🐖 🌳`)
 - **Function arguments** with `**` (e.g., `** 🐷 🐖param🐖 **`)
 - **String literals** with `🥓` and escape sequences (`\n`, `\t`)
+- **String interpolation** with `🍗` for embedding expressions
 - **Structures** with member functions
 - **Lambda expressions** as first-class values
 
@@ -676,6 +495,7 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Strings must be closed on the same line (no multi-line strings)
 - Escape sequences are validated during lexing
 - Unclosed strings result in compile-time errors
+- Interpolation markers must be properly paired within strings
 
 ---
 
@@ -710,6 +530,8 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Use strings for user prompts and messages
 - Keep strings concise and clear
 - Use escape sequences for formatting when needed
+- Use string interpolation for dynamic values and formatted output
+- Avoid non-ASCII special characters in strings (use ASCII equivalents)
 
 ### Block Formatting
 ```piglang
@@ -719,6 +541,29 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 # statement2 #
 # 🐖🐖🐖 #
 ```
+
+---
+
+## 📝 Example Programs
+
+Complete example programs demonstrating all OINK features can be found in the `programs/` directory:
+
+- **user_greeting.txt** - Simple user input/output with string interpolation
+- **calculator.txt** - Basic arithmetic with formatted output
+- **factorial.txt** - Recursive function example
+- **lambda_math.txt** - Lambda expressions for math operations
+- **lambda_square_cube.txt** - Multiple lambda functions
+- **point_struct.txt** - Structure with member functions
+- **temperature_converter.txt** - Full-featured app with validation, structures, lambdas, and string interpolation
+- **bmi_calculator.txt** - BMI calculation with input validation and categorization
+- **garden_calculator.txt** - Complex calculations with structures and pricing
+
+All programs include:
+- Input validation where applicable
+- String interpolation for clear output
+- Functions and/or lambdas for logic
+- Structures for data organization
+- Professional formatting
 
 ---
 
@@ -785,6 +630,9 @@ The compiler will output optimization statistics:
 **What's the bacon emoji (🥓) for?**  
 *Answer*: Bacon comes from pigs! It's the perfect delimiter for string literals in our pig-themed language.
 
+**What's the drumstick emoji (🍗) for?**  
+*Answer*: String interpolation! It lets you embed expressions directly into strings for dynamic, formatted output. Just like how a drumstick is meaty and flavorful, interpolation adds substance to your strings!
+
 **What's the meat emoji (🥩) for?**  
 *Answer*: It represents lambda expressions - meaty, compact functions! Just like how meat is a concentrated source of nutrition, lambdas are concentrated functions.
 
@@ -815,11 +663,22 @@ The compiler will output optimization statistics:
 **Can I disable optimizations?**  
 *Answer*: No, optimizations are always enabled and are an integral part of the compilation process.
 
+**Can I use special characters (like °, €, etc.) in strings?**  
+*Answer*: It's recommended to avoid non-ASCII special characters in string literals as they may cause compilation issues. Use ASCII equivalents or describe them in words instead (e.g., "degrees C" instead of "°C").
+
+**How many expressions can I interpolate in one string?**  
+*Answer*: You can interpolate as many expressions as you need! Each expression is wrapped in `🍗` markers and evaluated independently.
+
+**Can I interpolate structure values?**  
+*Answer*: No, string interpolation only supports primitive types (i16, i32, i64) and boolean values. For structures, access their fields first and then interpolate those values.
+
 ---
 
 ## 🐷 Quick Reference
 
 - Use `🥓` for string literals - bacon delimiters!
+- Use `🍗` for string interpolation - embed expressions in strings!
+- Use `🥩` for lambda expressions - meaty functions!
 - Every program must return something!
 - No variable shadowing allowed!
 - Use `hru` for AND and `bruh` for OR
@@ -829,8 +688,10 @@ The compiler will output optimization statistics:
 - Chain function calls with `_`
 - Read with `eat😋`, print with `print🤮`
 - Strings support escape sequences: `\n`, `\t`, `\\`
+- Interpolation works with all primitive numeric types and booleans
+- Avoid non-ASCII characters in strings for best compatibility
 - Compiler optimizations automatically improve your code!
 
-Happy *OINK* coding! 🐷🥩🥓✨
+Happy *OINK* coding! 🐷🥩🥓🍗✨
 
 # ENJOY🐖🐖🐖
