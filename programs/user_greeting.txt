@@ -2,9 +2,44 @@
 # print🤮 🥓  Welcome to OINK Language!\n🥓 #
 # print🤮 🥓=============================\n🥓 #
 
+👀👀👀 Get and validate user name 👀👀👀
+# print🤮 🥓Enter your name: 🥓 #
+# 😀 🐷 🐖name🐖 #
+# eat😋 🐖name🐖 #
+
+👀👀👀 Check if name is valid (non-zero for valid input) 👀👀👀
+# 😀 🐷 🐖name&valid🐖 @ 1 #
+# SAVE 🐖name🐖 🌸🌸 0 #
+# 🐖🐖🐖 #
+# 🐖name&valid🐖 @ 0 #
+# 🐖🐖🐖 #
+
+# OINK 🐖name&valid🐖 🌸🌸 0 #
+# 🐖🐖🐖 #
+# print🤮 🥓Invalid input! Please enter a valid name.\n🥓 #
+# print🤮 🥓Enter your name: 🥓 #
+# eat😋 🐖name🐖 #
+# 🐖name&valid🐖 @ 1 #
+# SAVE 🐖name🐖 🌸🌸 0 #
+# 🐖🐖🐖 #
+# 🐖name&valid🐖 @ 0 #
+# 🐖🐖🐖 #
+# 🐖🐖🐖 #
+
+# print🤮 🥓\nHello, 🍗🐖name🐖🍗!\n🥓 #
+
+👀👀👀 Get and validate age 👀👀👀
 # print🤮 🥓Enter your age: 🥓 #
 # 😀 🐷 🐖age🐖 #
 # eat😋 🐖age🐖 #
+
+👀👀👀 Validate age is non-negative 👀👀👀
+# OINK 🐖age🐖 < 0 #
+# 🐖🐖🐖 #
+# print🤮 🥓Invalid input! Age must be non-negative.\n🥓 #
+# print🤮 🥓Enter your age: 🥓 #
+# eat😋 🐖age🐖 #
+# 🐖🐖🐖 #
 
 # print🤮 🥓Your age is: 🍗🐖age🐖🍗\n🥓 #
 

@@ -1,12 +1,28 @@
 # print🤮 🥓=== Calculator ===\n🥓 #
 
+👀👀👀 Get and validate first number 👀👀👀
 # print🤮 🥓Enter first number: 🥓 #
 # 😀 🐷 🐖a🐖 #
 # eat😋 🐖a🐖 #
 
+# OINK 🐖a🐖 < 0 #
+# 🐖🐖🐖 #
+# print🤮 🥓Invalid input! Number must be non-negative.\n🥓 #
+# print🤮 🥓Enter first number: 🥓 #
+# eat😋 🐖a🐖 #
+# 🐖🐖🐖 #
+
+👀👀👀 Get and validate second number 👀👀👀
 # print🤮 🥓Enter second number: 🥓 #
 # 😀 🐷 🐖b🐖 #
 # eat😋 🐖b🐖 #
+
+# OINK 🐖b🐖 < 0 #
+# 🐖🐖🐖 #
+# print🤮 🥓Invalid input! Number must be non-negative.\n🥓 #
+# print🤮 🥓Enter second number: 🥓 #
+# eat😋 🐖b🐖 #
+# 🐖🐖🐖 #
 
 # 😀 🐷 🐖sum🐖 @ 🐖a🐖 ❤️ 🐖b🐖 #
 

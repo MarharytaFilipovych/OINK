@@ -41,26 +41,32 @@
 # print🤮 🥓========================================\n🥓 #
 # print🤮 🥓\n🥓 #
 
+👀👀👀 Get and validate width with loop 👀👀👀
 # print🤮 🥓Enter garden width in meters: 🥓 #
 # 😀 🐷 🐖width🐖 #
 # eat😋 🐖width🐖 #
 
 # 😀 🐷 🐖width&valid🐖 @ 🐖isValidDimension🐖 ** 🐖width🐖 ** #
-# SAVE 🐖width&valid🐖 🌸🌸 0 #
+# OINK 🐖width&valid🐖 🌸🌸 0 #
 # 🐖🐖🐖 #
-# print🤮 🥓Error: Width must be 1-999 meters\n🥓 #
-# ... 1 ... #
+# print🤮 🥓Invalid input! Width must be 1-999 meters.\n🥓 #
+# print🤮 🥓Enter garden width in meters: 🥓 #
+# eat😋 🐖width🐖 #
+# 🐖width&valid🐖 @ 🐖isValidDimension🐖 ** 🐖width🐖 ** #
 # 🐖🐖🐖 #
 
+👀👀👀 Get and validate height with loop 👀👀👀
 # print🤮 🥓Enter garden height in meters: 🥓 #
 # 😀 🐷 🐖height🐖 #
 # eat😋 🐖height🐖 #
 
 # 😀 🐷 🐖height&valid🐖 @ 🐖isValidDimension🐖 ** 🐖height🐖 ** #
-# SAVE 🐖height&valid🐖 🌸🌸 0 #
+# OINK 🐖height&valid🐖 🌸🌸 0 #
 # 🐖🐖🐖 #
-# print🤮 🥓Error: Height must be 1-999 meters\n🥓 #
-# ... 1 ... #
+# print🤮 🥓Invalid input! Height must be 1-999 meters.\n🥓 #
+# print🤮 🥓Enter garden height in meters: 🥓 #
+# eat😋 🐖height🐖 #
+# 🐖height&valid🐖 @ 🐖isValidDimension🐖 ** 🐖height🐖 ** #
 # 🐖🐖🐖 #
 
 # 😀 🐖Rectangle🐖 🐖garden🐖 @ 🐖Rectangle🐖 ** 🐖width🐖 ** ** 🐖height🐖 ** #

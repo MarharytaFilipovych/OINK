@@ -72,12 +72,14 @@ This program demonstrates:
 # 😀 🐷 🐖weight🐖 #
 # eat😋 🐖weight🐖 #
 
-👀👀👀 Validate weight 👀👀👀
+👀👀👀 Validate weight with loop 👀👀👀
 # 😀 🐷 🐖valid&weight🐖 @ 🐖isValidWeight🐖 ** 🐖weight🐖 ** #
-# SAVE 🐖valid&weight🐖 🌸🌸 0 #
+# OINK 🐖valid&weight🐖 🌸🌸 0 #
 # 🐖🐖🐖 #
-# print🤮 🥓ERROR: Weight must be positive!\n🥓 #
-# ... 1 ... #
+# print🤮 🥓Invalid input! Weight must be positive.\n🥓 #
+# print🤮 🥓Enter your weight in kg: 🥓 #
+# eat😋 🐖weight🐖 #
+# 🐖valid&weight🐖 @ 🐖isValidWeight🐖 ** 🐖weight🐖 ** #
 # 🐖🐖🐖 #
 
 # print🤮 🥓Enter your height in cm: 🥓 #
@@ -85,12 +87,14 @@ This program demonstrates:
 # 😀 🐷 🐖height🐖 #
 # eat😋 🐖height🐖 #
 
-👀👀👀 Validate height 👀👀👀
+👀👀👀 Validate height with loop 👀👀👀
 # 😀 🐷 🐖valid&height🐖 @ 🐖isValidHeight🐖 ** 🐖height🐖 ** #
-# SAVE 🐖valid&height🐖 🌸🌸 0 #
+# OINK 🐖valid&height🐖 🌸🌸 0 #
 # 🐖🐖🐖 #
-# print🤮 🥓ERROR: Height must be positive!\n🥓 #
-# ... 1 ... #
+# print🤮 🥓Invalid input! Height must be positive.\n🥓 #
+# print🤮 🥓Enter your height in cm: 🥓 #
+# eat😋 🐖height🐖 #
+# 🐖valid&height🐖 @ 🐖isValidHeight🐖 ** 🐖height🐖 ** #
 # 🐖🐖🐖 #
 
 👀👀👀 Create person structure 👀👀👀

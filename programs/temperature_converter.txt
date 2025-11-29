@@ -68,13 +68,15 @@ This program demonstrates all required features:
 # 😀 🐷 🐖celsius&input🐖 #
 # eat😋 🐖celsius&input🐖 #
 
-👀👀👀 Validate input 👀👀👀
+👀👀👀 Validate input with loop 👀👀👀
 # 😀 🐷 🐖is&valid🐖 @ 🐖isValidCelsius🐖 ** 🐖celsius&input🐖 ** #
 
-# SAVE 🐖is&valid🐖 🌸🌸 0 #
+# OINK 🐖is&valid🐖 🌸🌸 0 #
 # 🐖🐖🐖 #
-# print🤮 🥓ERROR: Temperature below absolute zero!\n🥓 #
-# ... 1 ... #
+# print🤮 🥓Invalid input! Temperature must be above absolute zero (-273 C).\n🥓 #
+# print🤮 🥓Enter temperature in Celsius: 🥓 #
+# eat😋 🐖celsius&input🐖 #
+# 🐖is&valid🐖 @ 🐖isValidCelsius🐖 ** 🐖celsius&input🐖 ** #
 # 🐖🐖🐖 #
 
 👀👀👀 Calculate Fahrenheit and Kelvin 👀👀👀
