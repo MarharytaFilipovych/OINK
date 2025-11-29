@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from abc import ABC, abstractmethod
-
+from ..node.intr_string_node import InterpolatedStringNode
 from ..node.assign_node import AssignNode
 from ..node.binary_op_node import BinaryOpNode
 from ..node.bool_node import BooleanNode
@@ -112,4 +112,8 @@ class ASTVisitor(ABC):
 
     @abstractmethod
     def visit_string(self, node: StringNode):
+        pass
+
+    @abstractmethod
+    def visit_interpolated_string(self, node: InterpolatedStringNode):
         pass
