@@ -148,3 +148,5 @@ def get_token_display_name(token_type_name: str) -> str:
     return TOKEN_DISPLAY_NAMES.get(token_type_name, token_type_name.lower())
 
 
+TEXT = 'text'
+EXPR = 'expr'

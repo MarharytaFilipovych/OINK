@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 from typing import TYPE_CHECKING
-from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT, get_token_display_name
+from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT
 from ...llvm_specifics.data_type import DataType
 from ...node.binary_op_node import BinaryOpNode
 from ...node.number_node import NumberNode
-from ...node.bool_node import BooleanNode
 from ...node.unary_op_node import UnaryOpNode
 
 if TYPE_CHECKING:
@@ -30,7 +29,6 @@ class ExpressionAnalyzer:
 
     @staticmethod
     def _format_operator(operator):
-        """Format operator for display in error messages"""
         op_map = {
             '+': '❤️ (addition)',
             '-': '💔 (subtraction)',
@@ -80,7 +78,6 @@ class ExpressionAnalyzer:
 
     @staticmethod
     def _format_type(data_type):
-        """Format type for display in error messages"""
         type_map = {
             DataType.I16: "🐽 (i16)",
             DataType.I32: "🐷 (i32)",
@@ -109,7 +106,7 @@ class ExpressionAnalyzer:
         return DataType.I64
 
     @staticmethod
-    def visit_boolean(node: BooleanNode) -> DataType:
+    def visit_boolean(node) -> DataType:
         return DataType.BOOL
     
     @staticmethod

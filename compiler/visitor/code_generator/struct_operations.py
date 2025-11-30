@@ -95,22 +95,18 @@ class StructOperations:
                     is_final: bool) -> tuple[str, object]:
         if not isinstance(current_type, str):
             return current_reg, current_type
-
         field_ptr, field_llvm_type, field_data_type = self.__get_field_info(
             current_type, field_name, current_reg)
-
         if is_final:
             value_reg = self.emitter.get_temp_register()
             self.emitter.emit_line(f"  {value_reg} = load {field_llvm_type}, {field_llvm_type}* {field_ptr}")
             current_reg = value_reg
         else:
             current_reg = field_ptr
-
         try:
             new_type = DataType.from_string(field_data_type)
         except ValueError:
             new_type = field_data_type
-        
         return current_reg, new_type
 
     def __get_field_info(self, struct_name: str, field_name: str,

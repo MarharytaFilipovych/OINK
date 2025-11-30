@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pickle import GLOBAL
 from typing import Optional, TYPE_CHECKING
-from ...constants import LAMBDA, get_token_display_name
+from ...constants import LAMBDA
 from ...llvm_specifics.data_type import DataType
 from ...node.function_decl_node import FunctionDeclNode
 from ...node.function_call_node import FunctionCallNode
@@ -113,7 +113,6 @@ class FunctionAnalyzer:
 
     @staticmethod
     def _format_type(type_obj):
-        """Format type for display in error messages"""
         if isinstance(type_obj, DataType):
             type_map = {
                 DataType.I16: "🐽 (i16)",

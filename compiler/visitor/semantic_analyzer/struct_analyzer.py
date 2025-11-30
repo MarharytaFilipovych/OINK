@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from typing import TYPE_CHECKING
-from ...constants import get_token_display_name
 from ...llvm_specifics.data_type import DataType
 from ...node.struct_decl_node import StructDeclNode
 from ...node.struct_init_node import StructInitNode

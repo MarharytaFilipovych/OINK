@@ -12,22 +12,7 @@ class StringBuilder:
     def build_string_constant(self, text: str) -> str:
         if not text:
             return self.__create_empty_string()
-        
-        string_id = self.next_string_id
-        self.next_string_id += 1
-        
-        escaped_text = self.__escape_for_llvm(text)
-        length = len(text) + 1
-        
-        global_name = f"@.str.{string_id}"
-        constant_def = f"{global_name} = private unnamed_addr constant [{length} x i8] c\"{escaped_text}\\00\", align 1"
-        self.string_constants.append(constant_def)
-        
-        ptr_reg = self.emitter.get_temp_register()
-        self.emitter.emit_line(f"  {ptr_reg} = getelementptr inbounds [{length} x i8], [{length} x i8]* {global_name}, i32 0, i32 0")
-        self.emitter.emit_line(f"  call i32 (i8*, ...) @printf(i8* {ptr_reg})")
-        
-        return ptr_reg
+        return self.__define_and_print_string(text)
 
     def __create_empty_string(self):
         ptr_reg = self.emitter.get_temp_register()
@@ -41,33 +26,41 @@ class StringBuilder:
             else:
                 value_reg, expr_type = content
                 self.__print_expr_segment(value_reg, expr_type)
-        
+
         self.__print_newline()
         return ""
 
+    def __define_and_print_string(self, text: str) -> str:
+        string_id = self.next_string_id
+        self.next_string_id += 1
+
+        escaped_text = self.escape_for_llvm(text)
+        length = len(text) + 1
+
+        global_name = f"@.str.{string_id}"
+        constant_def = f"{global_name} = private unnamed_addr constant [{length} x i8] c\"{escaped_text}\\00\", align 1"
+        self.string_constants.append(constant_def)
+
+        ptr_reg = self.emitter.get_temp_register()
+        self.emitter.emit_line(
+            f"  {ptr_reg} = getelementptr inbounds [{length} x i8], "
+            f"[{length} x i8]* {global_name}, i32 0, i32 0"
+        )
+        self.emitter.emit_line(f"  call i32 (i8*, ...) @printf(i8* {ptr_reg})")
+
+        return ptr_reg
+
     def __print_text_segment(self, text: str):
         if text:
-            string_id = self.next_string_id
-            self.next_string_id += 1
-            
-            escaped_text = self.__escape_for_llvm(text)
-            length = len(text) + 1
-            
-            global_name = f"@.str.{string_id}"
-            constant_def = f"{global_name} = private unnamed_addr constant [{length} x i8] c\"{escaped_text}\\00\", align 1"
-            self.string_constants.append(constant_def)
-            
-            ptr_reg = self.emitter.get_temp_register()
-            self.emitter.emit_line(f"  {ptr_reg} = getelementptr inbounds [{length} x i8], [{length} x i8]* {global_name}, i32 0, i32 0")
-            self.emitter.emit_line(f"  call i32 (i8*, ...) @printf(i8* {ptr_reg})")
+            self.__define_and_print_string(text)
 
     def __print_expr_segment(self, value_reg: str, expr_type: DataType):
         llvm_type = expr_type.to_llvm()
-        
+
         if llvm_type == I1:
             value_reg = self.__extend_bool_to_i32(value_reg)
             llvm_type = I32
-        
+
         format_str = self.__get_format_string(llvm_type)
         ptr_reg = self.emitter.get_temp_register()
         self.emitter.emit_line(f"  {ptr_reg} = getelementptr inbounds {format_str}")
@@ -75,7 +68,8 @@ class StringBuilder:
 
     def __print_newline(self):
         newline_reg = self.emitter.get_temp_register()
-        self.emitter.emit_line(f"  {newline_reg} = getelementptr inbounds [2 x i8], [2 x i8]* @.str.newline, i32 0, i32 0")
+        self.emitter.emit_line(
+            f"  {newline_reg} = getelementptr inbounds [2 x i8], [2 x i8]* @.str.newline, i32 0, i32 0")
         self.emitter.emit_line(f"  call i32 (i8*, ...) @printf(i8* {newline_reg})")
 
     def __extend_bool_to_i32(self, bool_reg: str) -> str:
@@ -95,7 +89,7 @@ class StringBuilder:
             raise ValueError(f"Unsupported type for interpolation: {llvm_type}")
 
     @staticmethod
-    def __escape_for_llvm(text: str) -> str:
+    def escape_for_llvm(text: str) -> str:
         result = []
         for char in text:
             if char == '\n':
@@ -116,5 +110,6 @@ class StringBuilder:
             "@.str.newline = private unnamed_addr constant [2 x i8] c\"\\0A\\00\", align 1",
             "@.fmt.i16 = private unnamed_addr constant [4 x i8] c\"%hd\\00\", align 1",
             "@.fmt.i32 = private unnamed_addr constant [3 x i8] c\"%d\\00\", align 1",
-            "@.fmt.i64 = private unnamed_addr constant [5 x i8] c\"%lld\\00\", align 1"]
+            "@.fmt.i64 = private unnamed_addr constant [5 x i8] c\"%lld\\00\", align 1"
+        ]
         return constants + self.string_constants

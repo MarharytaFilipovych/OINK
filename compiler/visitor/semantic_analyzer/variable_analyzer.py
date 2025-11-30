@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from typing import TYPE_CHECKING
-from ...constants import UNDERLINE, LAMBDA, get_token_display_name
+from ...constants import UNDERLINE, LAMBDA
 from ...node.decl_node import DeclNode
 from ...node.assign_node import AssignNode
 from ...node.id_node import IDNode
@@ -36,7 +36,7 @@ class VariableAnalyzer:
 
     def __process_lambda_declaration(self, node: DeclNode, expr_type):
         if expr_type != LAMBDA:
-            raise ValueError(f"Cannot assign type {self._format_type(expr_type)} to a lambda variable (🥩) at line {node.line}! "
+            raise ValueError(f"Cannot assign type {SemanticAnalyzer.format_type(expr_type)} to a lambda variable (🥩) at line {node.line}! "
                            f"Use a lambda expression.")
         if isinstance(node.expr_node, LambdaNode):
             return_type = node.expr_node.inferred_return_type if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
@@ -70,11 +70,12 @@ class VariableAnalyzer:
         expr_type = node.expr_node.accept(self.semantic_analyzer)
         self.semantic_analyzer.check_type_match(expr_type, data_type, node.line)
 
-    def __check_struct_type(self, base_type, member_name, line):
+    @staticmethod
+    def __check_struct_type(base_type, member_name, line):
         if isinstance(base_type, str):
             return
         raise ValueError(f"Cannot assign member 🐖{member_name}🐖 on primitive type "
-                       f"{self._format_type(base_type)} at line {line}!")
+                       f"{SemanticAnalyzer.format_type(base_type)} at line {line}!")
 
     @staticmethod
     def __get_struct_field(struct_fields, member_name, line):
@@ -106,7 +107,7 @@ class VariableAnalyzer:
 
     def __process_lambda_assignment(self, node: AssignNode, expr_type):
         if expr_type != LAMBDA:
-            raise ValueError(f"Cannot assign type {self._format_type(expr_type)} to a lambda variable (🥩) at line {node.line}!")
+            raise ValueError(f"Cannot assign type {SemanticAnalyzer.format_type(expr_type)} to a lambda variable (🥩) at line {node.line}!")
         if isinstance(node.expr_node, LambdaNode):
             return_type = node.expr_node.inferred_return_type if hasattr(node.expr_node, 'inferred_return_type') else DataType.I32
             self.context.set_lambda_return_type(node.variable, return_type)
@@ -129,21 +130,4 @@ class VariableAnalyzer:
                                  f"Lambdas (🥩) cannot capture outer variables (no closures allowed).")
         self.semantic_analyzer.check_variable_declared(node.value, node.line)
         var_type = self.context.get_variable_type(node.value)
-        return "lambda" if var_type == "lambda" else var_type
-
-    @staticmethod
-    def _format_type(type_obj):
-        if isinstance(type_obj, DataType):
-            type_map = {
-                DataType.I16: "🐽 (i16)",
-                DataType.I32: "🐷 (i32)",
-                DataType.I64: "🐗 (i64)",
-                DataType.BOOL: "wow (bool)",
-                DataType.VOID: "😑 (void)",
-            }
-            return type_map.get(type_obj, str(type_obj))
-        elif type_obj == DataType.STRING:
-            return "👺 (string)"
-        elif type_obj == LAMBDA:
-            return "🥩 (lambda)"
-        return f"🐖{type_obj}🐖"
+        return LAMBDA if var_type == LAMBDA else var_type

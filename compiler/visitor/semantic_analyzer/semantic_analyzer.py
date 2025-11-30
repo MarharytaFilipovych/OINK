@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from typing import Optional
 from ...node.intr_string_node import InterpolatedStringNode
-from ...constants import LAMBDA, get_token_display_name
+from ...constants import LAMBDA
 from ...node.print_node import PrintNode
 from ...visitor.ast_visitor import ASTVisitor
 from ...context.context import Context
@@ -73,8 +73,8 @@ class SemanticAnalyzer(ASTVisitor):
         returned_type = node.expr_node.accept(self) if node.expr_node else DataType.VOID 
             
         if self._expected_return_type is not None:
-            expected_str = self._format_type(self._expected_return_type)
-            returned_str = self._format_type(returned_type)
+            expected_str = self.format_type(self._expected_return_type)
+            returned_str = self.format_type(returned_type)
             if not self.types_match(returned_type, self._expected_return_type):
                 raise ValueError(f"Function 🐖{self._function_name}🐖 returns {returned_str} "
                     f"but declared as {expected_str}!")
@@ -96,7 +96,7 @@ class SemanticAnalyzer(ASTVisitor):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
             raise ValueError(f"SAVE (if statement) condition must be of type wow (bool), but you placed "
-                f"{self._format_type(condition_type)} at line {node.line}! How could you????????")
+                f"{self.format_type(condition_type)} at line {node.line}! How could you????????")
         node.block.accept(self)
         [elif_block.accept(self) for elif_block in node.elif_blocks]
         if node.else_block:
@@ -106,14 +106,14 @@ class SemanticAnalyzer(ASTVisitor):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
             raise ValueError(f"HURT (else-if statement) condition must be of type wow (bool), but you placed "
-                f"{self._format_type(condition_type)} at line {node.line}!")
+                f"{self.format_type(condition_type)} at line {node.line}!")
         node.block.accept(self)
 
     def visit_while_loop(self, node: WhileNode):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
             raise ValueError(f"OINK (while loop) condition must be of type wow (bool), but you placed "
-                f"{self._format_type(condition_type)} at line {node.line}!")
+                f"{self.format_type(condition_type)} at line {node.line}!")
         node.block.accept(self)
 
     def visit_code_block(self, node: CodeBlockNode):
@@ -132,8 +132,7 @@ class SemanticAnalyzer(ASTVisitor):
     def visit_function_call(self, node: FunctionCallNode):
         return self.function_analyzer.visit_function_call(node)
 
-    def visit_read(self, node):
-        from ...llvm_specifics.data_type import DataType
+    def visit_read(self, node: ReadNode):
         self.check_variable_declared(node.variable, node.line)
         self.check_variable_mutable(node.variable, node.line)
         var_type = self.context.get_variable_type(node.variable)
@@ -159,7 +158,7 @@ class SemanticAnalyzer(ASTVisitor):
     def check_type_match(self, expr_type, expected_type, line: int):
         if not self.types_match(expr_type, expected_type):
             raise ValueError(f"Types do not match at line {line}: "
-                f"you cannot assign {self._format_type(expr_type)} to {self._format_type(expected_type)}! Be careful!")
+                f"you cannot assign {self.format_type(expr_type)} to {self.format_type(expected_type)}! Be careful!")
 
     def types_match(self, expr_type, expected_type) -> bool:
         if isinstance(expected_type, DataType) and isinstance(expr_type, DataType):
@@ -190,8 +189,7 @@ class SemanticAnalyzer(ASTVisitor):
             return type_str
 
     @staticmethod
-    def _format_type(type_obj):
-        """Format type for display in error messages"""
+    def format_type(type_obj):
         if isinstance(type_obj, DataType):
             type_map = {
                 DataType.I16: "🐽 (i16)",
