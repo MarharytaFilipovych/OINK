@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from typing import Optional
 from ...node.intr_string_node import InterpolatedStringNode
-from ...constants import LAMBDA, STRING, get_token_display_name
+from ...constants import LAMBDA, get_token_display_name
 from ...node.print_node import PrintNode
 from ...visitor.ast_visitor import ASTVisitor
 from ...context.context import Context
@@ -137,13 +137,13 @@ class SemanticAnalyzer(ASTVisitor):
         self.check_variable_declared(node.variable, node.line)
         self.check_variable_mutable(node.variable, node.line)
         var_type = self.context.get_variable_type(node.variable)
-        if not isinstance(var_type, DataType) or var_type == DataType.BOOL or var_type == DataType.VOID:
+        if (not isinstance(var_type, DataType) and var_type != LAMBDA) or var_type == DataType.BOOL or var_type == DataType.VOID:
             raise ValueError(f"Cannot read into variable \"{node.variable}\" at line {node.line}! "
                 f"Read only supports numeric types (i16, i32, i64) and string (i8*).")
 
     def visit_print(self, node: PrintNode):
         expr_type = node.expr_node.accept(self)
-        if not isinstance(expr_type, DataType) and expr_type != "string":
+        if not isinstance(expr_type, DataType):
             raise ValueError(f"Cannot print struct type at line {node.line}! "
                 f"Only primitive types can be printed with print🤮 (output).")
 
@@ -164,8 +164,8 @@ class SemanticAnalyzer(ASTVisitor):
     def types_match(self, expr_type, expected_type) -> bool:
         if isinstance(expected_type, DataType) and isinstance(expr_type, DataType):
             return self._is_type_compatible(expr_type, expected_type)
-        if isinstance(expected_type, str) and isinstance(expr_type, str):
-            return expr_type == expected_type
+        if isinstance(expected_type, str) and isinstance(expr_type, str): # For struct type matching
+            return expected_type == expr_type
         return False
 
     @staticmethod
@@ -201,7 +201,7 @@ class SemanticAnalyzer(ASTVisitor):
                 DataType.VOID: "😑 (void)",
             }
             return type_map.get(type_obj, str(type_obj))
-        elif type_obj == "string":
+        elif type_obj == DataType.STRING:
             return "👺 (string)"
         elif type_obj == LAMBDA:
             return "🥩 (lambda)"
@@ -226,7 +226,7 @@ class SemanticAnalyzer(ASTVisitor):
         return LAMBDA
     
     def visit_string(self, node):
-        return STRING
+        return DataType.STRING
 
     def visit_interpolated_string(self, node: InterpolatedStringNode):
         for part_type, content in node.parts:
@@ -235,4 +235,4 @@ class SemanticAnalyzer(ASTVisitor):
                 if not isinstance(expr_type, DataType):
                     raise ValueError(f"Cannot interpolate struct type in string at line {node.line}! "
                         f"Only primitive types can be interpolated with 🍗.")
-        return STRING
+        return DataType.STRING

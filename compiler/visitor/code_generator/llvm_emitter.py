@@ -68,9 +68,9 @@ declare i32 @getchar()
 @print_i32_format = private unnamed_addr constant [4 x i8] c"%d\\0A\\00", align 1
 @print_i64_format = private unnamed_addr constant [6 x i8] c"%lld\\0A\\00", align 1
 @print_string_format = private unnamed_addr constant [4 x i8] c"%s\\0A\\00", align 1
-@read_i16_format = private unnamed_addr constant [4 x i8] c"%hd\\00", align 1
-@read_i32_format = private unnamed_addr constant [3 x i8] c"%d\\00", align 1
-@read_i64_format = private unnamed_addr constant [5 x i8] c"%lld\\00", align 1
+@read_i16_format = private unnamed_addr constant [5 x i8] c" %hd\\00", align 1
+@read_i32_format = private unnamed_addr constant [4 x i8] c" %d\\00", align 1
+@read_i64_format = private unnamed_addr constant [6 x i8] c" %lld\\00", align 1
 @read_string_format = private unnamed_addr constant [4 x i8] c" %s\\00", align 1
 
 define void @printResult(i32 %val) {
@@ -105,7 +105,7 @@ define void @printValue_string(i8* %val) {
 
 define i16 @readInput_i16() {
   %val_ptr = alloca i16
-  %fmt_ptr = getelementptr inbounds [4 x i8], [4 x i8]* @read_i16_format, i32 0, i32 0
+  %fmt_ptr = getelementptr inbounds [5 x i8], [5 x i8]* @read_i16_format, i32 0, i32 0
   call i32 (i8*, ...) @scanf(i8* %fmt_ptr, i16* %val_ptr)
   %val = load i16, i16* %val_ptr
   ret i16 %val
@@ -113,7 +113,7 @@ define i16 @readInput_i16() {
 
 define i32 @readInput_i32() {
   %val_ptr = alloca i32
-  %fmt_ptr = getelementptr inbounds [3 x i8], [3 x i8]* @read_i32_format, i32 0, i32 0
+  %fmt_ptr = getelementptr inbounds [4 x i8], [4 x i8]* @read_i32_format, i32 0, i32 0
   call i32 (i8*, ...) @scanf(i8* %fmt_ptr, i32* %val_ptr)
   %val = load i32, i32* %val_ptr
   ret i32 %val
@@ -121,7 +121,7 @@ define i32 @readInput_i32() {
 
 define i64 @readInput_i64() {
   %val_ptr = alloca i64
-  %fmt_ptr = getelementptr inbounds [5 x i8], [5 x i8]* @read_i64_format, i32 0, i32 0
+  %fmt_ptr = getelementptr inbounds [6 x i8], [6 x i8]* @read_i64_format, i32 0, i32 0
   call i32 (i8*, ...) @scanf(i8* %fmt_ptr, i64* %val_ptr)
   %val = load i64, i64* %val_ptr
   ret i64 %val
@@ -134,8 +134,6 @@ define i8* @readInput_string() {
   %c = call i32 @getchar()
   ret i8* %buffer
 }
-
-
 """
 
     def reset_for_function(self):

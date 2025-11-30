@@ -384,11 +384,11 @@ class CodeGenerator(ASTVisitor):
     def __get_scanf_format_len(data_type) -> int:
         if isinstance(data_type, DataType):
             if data_type == DataType.I16:
-                return 4
-            if data_type == DataType.I32:
-                return 3
-            if data_type == DataType.I64:
                 return 5
+            if data_type == DataType.I32:
+                return 4
+            if data_type == DataType.I64:
+                return 6
             if data_type == DataType.STRING:
                 return 4
         return 0
@@ -543,7 +543,7 @@ class CodeGenerator(ASTVisitor):
         elif expr_type == DataType.BOOL:
             return "%d"
         elif expr_type == DataType.STRING:
-            return "%s"
+            return "%s" # Correct format specifier for string type (i8*)
         return "%d"
 
     def _evaluate_interpolated_expressions(self, node):        

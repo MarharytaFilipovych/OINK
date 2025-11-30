@@ -7,6 +7,7 @@ from ..node.number_node import NumberNode
 from ..node.bool_node import BooleanNode
 from ..token.token_type import TokenType
 from ..constants import FALSE, LAMBDA
+from ..node.string_node import StringNode # Added import for StringNode
 
 
 class TypeParser:
@@ -64,5 +65,7 @@ class TypeParser:
             return BooleanNode(FALSE)
         elif data_type in [DataType.I16, DataType.I32, DataType.I64]:
             return NumberNode("0")
+        elif data_type == DataType.STRING: # Added default value for string
+            return StringNode("", 0)
         else:
             raise ValueError(f"No default value defined for {data_type.name.lower()}")

@@ -12,12 +12,60 @@
 - **Strict line structure** for clean, readable code
 - **Type-safe arithmetic** with overflow checking
 - **Functions and structures** with member functions
-- **Built-in I/O operations** for input and output
+- **Built-in I/O operations** for input and output including string reading
 - **String literals** with bacon emoji 🥓 delimiters
 - **String interpolation** with drumstick emoji 🍗 for embedding expressions
+- **String variables** with demon emoji 👺 for storing and manipulating text data
 - **Powerful optimizations** including dead code elimination, function inlining, and unused function removal
 
 ## ✨ Key Features
+
+### 👺 String Variables
+Store and manipulate text data using string variables with the 👺 type marker:
+
+```piglang
+# 😀 👺 🐖name🐖 #
+# eat😋 🐖name🐖 #
+# print🤮 🐖name🐖 #
+```
+
+**String Variable Features:**
+- Declare with `👺` type marker (demon emoji for strings)
+- Can be read from user input using `eat😋`
+- Can be printed using `print🤮`
+- Can be used in string interpolation with `🍗` markers
+- Maximum input length: 255 characters
+- Mutable when declared with `😀`
+
+**String Variable Examples:**
+```piglang
+# Read user name
+# 😀 👺 🐖username🐖 #
+# print🤮 🥓Enter your name: 🥓 #
+# eat😋 🐖username🐖 #
+
+# Print string variable
+# print🤮 🐖username🐖 #
+
+# Use in interpolation
+# print🤮 🥓Hello, 🍗🐖username🐖🍗!🥓 #
+
+# Multiple string variables
+# 😀 👺 🐖first&name🐖 #
+# 😀 👺 🐖last&name🐖 #
+# print🤮 🥓First name: 🥓 #
+# eat😋 🐖first&name🐖 #
+# print🤮 🥓Last name: 🥓 #
+# eat😋 🐖last&name🐖 #
+# print🤮 🥓Full name: 🍗🐖first&name🐖🍗 🍗🐖last&name🐖🍗🥓 #
+```
+
+**Important Notes:**
+- String input automatically skips leading whitespace
+- Trailing newline is consumed automatically after reading
+- Strings are stored as null-terminated C-style strings internally
+- String variables can be read, printed, and interpolated
+- Cannot concatenate strings directly (use interpolation for formatting)
 
 ### 🥓 String Literals
 Create string literals using the bacon emoji as delimiters:
@@ -66,6 +114,11 @@ Embed expressions directly into strings using the drumstick emoji for dynamic, f
 # 😀 🐷 🐖age🐖 @ 25 #
 # print🤮 🥓Your age is: 🍗🐖age🐖🍗\n🥓 #
 
+# String variable interpolation
+# 😀 👺 🐖name🐖 #
+# eat😋 🐖name🐖 #
+# print🤮 🥓Hello, 🍗🐖name🐖🍗! Welcome!🥓 #
+
 # Multiple values in one string
 # 😀 🐷 🐖a🐖 @ 5 #
 # 😀 🐷 🐖b🐖 @ 3 #
@@ -84,6 +137,7 @@ Embed expressions directly into strings using the drumstick emoji for dynamic, f
 - `🐽` (i16) - 16-bit integers
 - `🐷` (i32) - 32-bit integers  
 - `🐗` (i64) - 64-bit integers
+- `👺` (string) - String variables
 - `wow` (Boolean) - Automatically converted to integers (1 for LOVE, 0 for HATE)
 - Arithmetic expressions (e.g., `🍗🐖a🐖 ❤️ 🐖b🐖🍗`)
 - Variable references
@@ -188,8 +242,8 @@ Structures are declared using the `BOAR` keyword and can contain both fields and
 ```
 
 ### 📥📤 Input/Output Functions
-- `eat😋` - Read input from user (supports i16, i32, i64)
-- `print🤮` - Print output to console (supports integers, strings, and interpolated strings)
+- `eat😋` - Read input from user (supports i16, i32, i64, and **strings**)
+- `print🤮` - Print output to console (supports integers, string variables, string literals, and interpolated strings)
 
 ## 📋 Language Specification
 
@@ -205,8 +259,56 @@ Structures are declared using the `BOAR` keyword and can contain both fields and
 | `wow` | Boolean             | `LOVE` (true) or `HATE` (false)                 | `HATE`         |
 | `😑` | Void                | No return value (for functions only)             | N/A            |
 | `🥩` | Lambda              | Anonymous function                               | N/A            |
+| `👺` | String              | Sequence of characters (max 255 chars)           | N/A            |
 | `🥓` | String Literal      | Text enclosed in bacon emojis                    | N/A            |
 | `🍗` | String Interpolation | Expression marker within strings                | N/A            |
+
+### String Variables
+
+String variables are declared with the `👺` (demon emoji) type marker and can store text data read from user input.
+
+**Syntax:**
+```
+😀 👺 🐖variable_name🐖
+```
+
+**Features:**
+- Can be read from user input using `eat😋`
+- Can be printed using `print🤮`
+- Can be interpolated into strings with `🍗` markers
+- Maximum input length: 255 characters
+- Stored as null-terminated C-style strings
+- Must be mutable (declared with `😀`) for reading
+
+**Usage:**
+```piglang
+# Declare and read string
+# 😀 👺 🐖name🐖 #
+# print🤮 🥓What is your name? 🥓 #
+# eat😋 🐖name🐖 #
+
+# Print string variable
+# print🤮 🐖name🐖 #
+
+# Use in interpolation
+# print🤮 🥓Hello, 🍗🐖name🐖🍗!🥓 #
+
+# Multiple string variables
+# 😀 👺 🐖city🐖 #
+# 😀 👺 🐖country🐖 #
+# print🤮 🥓Enter city: 🥓 #
+# eat😋 🐖city🐖 #
+# print🤮 🥓Enter country: 🥓 #
+# eat😋 🐖country🐖 #
+# print🤮 🥓Location: 🍗🐖city🐖🍗, 🍗🐖country🐖🍗🥓 #
+```
+
+**Important Notes:**
+- String input skips leading whitespace automatically
+- Trailing newline is consumed after reading
+- Cannot concatenate strings directly (use interpolation for formatting)
+- Cannot be assigned string literals directly (only read from input)
+- String variables cannot be used in arithmetic operations
 
 ### String Literals
 
@@ -221,7 +323,7 @@ Strings are text literals enclosed in bacon emojis (`🥓`).
 - Single-line strings only (no multi-line support)
 - Escape sequences supported: `\n`, `\t`, `\\`
 - Used primarily with `print🤮` for output
-- Cannot be stored in variables (literals only)
+- Cannot be stored in variables (use 👺 type for string variables)
 
 **Usage:**
 ```piglang
@@ -274,19 +376,30 @@ Lambdas are anonymous functions that can be stored in variables and called like 
 ### Input/Output
 
 #### Read Input: `eat😋`
-Reads numeric input from the user.
+Reads numeric or string input from the user.
 
-**Supported types:** i16 (🐽), i32 (🐷), i64 (🐗)
+**Supported types:** i16 (🐽), i32 (🐷), i64 (🐗), string (👺)
 
 ```piglang
-# 😀 🐷 🐖input_value🐖 #
-# eat😋 🐖input_value🐖 #
+# Read integer
+# 😀 🐷 🐖age🐖 #
+# eat😋 🐖age🐖 #
+
+# Read string
+# 😀 👺 🐖name🐖 #
+# eat😋 🐖name🐖 #
 ```
 
-#### Print Output: `print🤮`
-Prints values to console (supports integers, string literals, and interpolated strings).
+**String Input Behavior:**
+- Automatically skips leading whitespace
+- Reads until whitespace or newline
+- Maximum 255 characters
+- Trailing newline is consumed automatically
 
-**Supported types:** i16 (🐽), i32 (🐷), i64 (🐗), string literals (🥓), interpolated strings (🥓...🍗...🥓)
+#### Print Output: `print🤮`
+Prints values to console (supports integers, string variables, string literals, and interpolated strings).
+
+**Supported types:** i16 (🐽), i32 (🐷), i64 (🐗), string (👺), string literals (🥓), interpolated strings (🥓...🍗...🥓)
 
 ```piglang
 # Print integer value
@@ -298,8 +411,14 @@ Prints values to console (supports integers, string literals, and interpolated s
 # Print string literal
 # print🤮 🥓Hello, World!🥓 #
 
+# Print string variable
+# print🤮 🐖name🐖 #
+
 # Print interpolated string
 # print🤮 🥓Result: 🍗🐖value🐖🍗\n🥓 #
+
+# Print string with string variable
+# print🤮 🥓Welcome, 🍗🐖username🐖🍗!🥓 #
 ```
 
 ### Operator Precedence (High to Low)
@@ -397,7 +516,7 @@ Declaration: mutability, type, identifier wrapped in 🐖, and initializer expre
 Variables are immutable by default unless 😀 is present:
 decl ::= mutability type "🐖" ID "🐖" [ "@" ( expr | struct_init | lambda ) ]
 mutability ::= "😀" | "😭"
-type ::= "🐽" | "🐷" | "🐗" | "wow" | "🥩" | ID
+type ::= "🐽" | "🐷" | "🐗" | "wow" | "🥩" | "👺" | ID
 
 Lambda expression: anonymous function with parameters and body:
 lambda ::= "🥩" "**" lambda_params "**" "🥩" expr "🥩"
@@ -440,8 +559,7 @@ Unary expression: handles logical NOT operator:
 unary_expr ::= [ "💩" ] factor
 
 Factor: the base units of expressions—numeric literals (NUMBER, e.g., "10"), identifiers (ID, e.g., "x"), booleans (LOVE/HATE), string literals, interpolated strings, function calls, member access, lambda expressions, or parenthesized sub-expressions for grouping and overriding precedence:
-factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "🌳" expr "🌳" | ...
- "**" | boolean | string_literal | interpolated_string | function_call | lambda
+factor ::= NUMBER | "🐖" ID "🐖" [ "_" "🐖" ID "🐖" ]* | "🌳" expr "🌳" | "**" | boolean | string_literal | interpolated_string | function_call | lambda
 boolean ::= "LOVE" | "HATE"
 ID ::= LETTER { LETTER | "&" }*
 NUMBER ::= [ "-" ] DIGIT { DIGIT }*
@@ -457,6 +575,7 @@ All examples above demonstrate:
 - **Expression grouping** with `🌳` (e.g., `🌳 🐖x🐖 ❤️ 🐖y🐖 🌳`)
 - **Function arguments** with `**` (e.g., `** 🐷 🐖param🐖 **`)
 - **String literals** with `🥓` and escape sequences (`\n`, `\t`)
+- **String variables** with `👺` type marker for text data
 - **String interpolation** with `🍗` for embedding expressions
 - **Structures** with member functions
 - **Lambda expressions** as first-class values
@@ -496,6 +615,7 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Escape sequences are validated during lexing
 - Unclosed strings result in compile-time errors
 - Interpolation markers must be properly paired within strings
+- String input is limited to 255 characters
 
 ---
 
@@ -507,7 +627,7 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Mood lines are wrapped in `#~` and `~#` (instead of usual `#`)
 
 ### Variable Naming
-- Use descriptive names: `🐖counter🐖`, `🐖total&sum🐖`
+- Use descriptive names: `🐖counter🐖`, `🐖total&sum🐖`, `🐖user&name🐖`
 - Only letters and `&` in variable names can be used
 - Always wrap your variable name in `🐖`
 
@@ -527,7 +647,8 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 - Always wrap structure names in `🐖`
 
 ### String Usage
-- Use strings for user prompts and messages
+- Use string literals (`🥓`) for static messages and prompts
+- Use string variables (`👺`) for user input and dynamic text
 - Keep strings concise and clear
 - Use escape sequences for formatting when needed
 - Use string interpolation for dynamic values and formatted output
@@ -548,7 +669,7 @@ An assignment like `# 🐖x🐖 @ 🐖x🐖 #` (equivalent to x = x) will cause 
 
 Complete example programs demonstrating all OINK features can be found in the `programs/` directory:
 
-- **user_greeting.txt** - Simple user input/output with string interpolation
+- **user_greeting.txt** - Simple user input/output with string variables and interpolation
 - **calculator.txt** - Basic arithmetic with formatted output
 - **factorial.txt** - Recursive function example
 - **lambda_math.txt** - Lambda expressions for math operations
@@ -630,11 +751,26 @@ The compiler will output optimization statistics:
 **What's the bacon emoji (🥓) for?**  
 *Answer*: Bacon comes from pigs! It's the perfect delimiter for string literals in our pig-themed language.
 
+**What's the demon emoji (👺) for?**  
+*Answer*: It marks string variables that can store text data! While bacon (🥓) is for literal strings, the demon (👺) represents mutable string storage.
+
 **What's the drumstick emoji (🍗) for?**  
 *Answer*: String interpolation! It lets you embed expressions directly into strings for dynamic, formatted output. Just like how a drumstick is meaty and flavorful, interpolation adds substance to your strings!
 
 **What's the meat emoji (🥩) for?**  
 *Answer*: It represents lambda expressions - meaty, compact functions! Just like how meat is a concentrated source of nutrition, lambdas are concentrated functions.
+
+**Can I store string literals in variables?**  
+*Answer*: No! String literals (🥓) are for direct output only. Use string variables with the 👺 type to store text from user input.
+
+**How do I read strings from user input?**  
+*Answer*: Declare a string variable with `😀 👺 🐖name🐖` and then read it with `eat😋 🐖name🐖`. The string will be read until whitespace or newline (max 255 characters).
+
+**Can I concatenate strings?**  
+*Answer*: Not directly! Use string interpolation with `🍗` markers to combine strings and other values in formatted output.
+
+**What's the maximum string length?**  
+*Answer*: String variables can hold up to 255 characters of input.
 
 **What's the purpose of Mood Lines?**  
 *Answer*: Mood Lines provide a unique way to write inverse logic without explicit negation operators, making certain patterns more concise.
@@ -670,15 +806,21 @@ The compiler will output optimization statistics:
 *Answer*: You can interpolate as many expressions as you need! Each expression is wrapped in `🍗` markers and evaluated independently.
 
 **Can I interpolate structure values?**  
-*Answer*: No, string interpolation only supports primitive types (i16, i32, i64) and boolean values. For structures, access their fields first and then interpolate those values.
+*Answer*: No, string interpolation only supports primitive types (i16, i32, i64), string variables (👺), and boolean values. For structures, access their fields first and then interpolate those values.
+
+**Can I read strings in structures?**  
+*Answer*: Yes! Structure fields can be of type 👺, allowing you to store string data within structures.
 
 ---
 
 ## 🐷 Quick Reference
 
 - Use `🥓` for string literals - bacon delimiters!
+- Use `👺` for string variables - demon type marker!
 - Use `🍗` for string interpolation - embed expressions in strings!
 - Use `🥩` for lambda expressions - meaty functions!
+- Read strings with `eat😋` (max 255 chars)
+- Print strings with `print🤮`
 - Every program must return something!
 - No variable shadowing allowed!
 - Use `hru` for AND and `bruh` for OR
@@ -688,10 +830,10 @@ The compiler will output optimization statistics:
 - Chain function calls with `_`
 - Read with `eat😋`, print with `print🤮`
 - Strings support escape sequences: `\n`, `\t`, `\\`
-- Interpolation works with all primitive numeric types and booleans
+- Interpolation works with all primitive numeric types, strings, and booleans
 - Avoid non-ASCII characters in strings for best compatibility
 - Compiler optimizations automatically improve your code!
 
-Happy *OINK* coding! 🐷🥩🥓🍗✨
+Happy *OINK* coding! 🐷🥩🥓👺🍗✨
 
 # ENJOY🐖🐖🐖

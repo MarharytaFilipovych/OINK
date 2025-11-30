@@ -142,7 +142,7 @@ class VariableAnalyzer:
                 DataType.VOID: "😑 (void)",
             }
             return type_map.get(type_obj, str(type_obj))
-        elif type_obj == "string":
+        elif type_obj == DataType.STRING:
             return "👺 (string)"
         elif type_obj == LAMBDA:
             return "🥩 (lambda)"

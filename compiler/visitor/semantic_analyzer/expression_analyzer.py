@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from typing import TYPE_CHECKING
-from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT, STRING, get_token_display_name
+from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT, get_token_display_name
 from ...llvm_specifics.data_type import DataType
 from ...node.binary_op_node import BinaryOpNode
 from ...node.number_node import NumberNode
@@ -59,8 +59,14 @@ class ExpressionAnalyzer:
 
     def __validate_arithmetic(self, left_type: DataType, right_type: DataType,
                               operator, node) -> DataType:
-        if left_type == DataType.BOOL or right_type == DataType.BOOL:
-            raise ValueError(f"You cannot play math using {self._format_operator(operator)} on booleans!!!")
+        if left_type in (DataType.BOOL, DataType.STRING) or right_type in (DataType.BOOL, DataType.STRING):
+            op_name = self._format_operator(operator)
+            left_str = self._format_type(left_type)
+            right_str = self._format_type(right_type)
+            line = node.left.line if hasattr(node.left, 'line') else node.right.line
+            raise ValueError(f"You cannot use operator {op_name} for arithmetic on incompatible types: "
+                             f"'{left_str}' and '{right_str}' at line {line}! "
+                             f"Only integer types (🐽, 🐷, 🐗) are supported.")
         result_type = self.__infer_arithmetic_result_type(left_type, right_type)
         node.result_type = result_type
         return result_type
@@ -81,6 +87,7 @@ class ExpressionAnalyzer:
             DataType.I64: "🐗 (i64)",
             DataType.BOOL: "wow (bool)",
             DataType.VOID: "😑 (void)",
+            DataType.STRING: "👺 (string)",
         }
         return type_map.get(data_type, str(data_type))
 
@@ -106,8 +113,8 @@ class ExpressionAnalyzer:
         return DataType.BOOL
     
     @staticmethod
-    def visit_string(node) -> str:
-        return STRING
+    def visit_string(node) -> DataType:
+        return DataType.STRING
 
     def visit_unary_operation(self, node: UnaryOpNode) -> DataType:
         operand_type = node.operand.accept(self.semantic_analyzer)
