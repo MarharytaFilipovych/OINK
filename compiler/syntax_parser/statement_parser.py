@@ -18,6 +18,7 @@ from ..token.token_type import TokenType
 from .token_reader import TokenReader
 from .type_parser import TypeParser
 from .expression_parser import ExpressionParser
+from ..constants import get_token_display_name
 
 
 class StatementParser:
@@ -69,8 +70,8 @@ class StatementParser:
                 self.reader.eat()
             case _:
                 raise ValueError(f"You should have either declared a variable, assigned this cutie to sth, "
-                                 f"or used control flow at line {token.line}, but you decided to use "
-                                 f"this token \"{token.value}\" of the type \"{token.token_type.name.lower()}\"")
+                                f"or used control flow at line {token.line}, but you decided to use "
+                                f"this token \"{token.value}\" ({get_token_display_name(token.token_type.name)})")
         if not consumes_own_line_end:
             self.reader.expect_line_end()
         return stmt
@@ -202,8 +203,7 @@ class StatementParser:
             self.reader.skip_line_start()
             self.reader.expect_token(TokenType.ELSE)
             if self.reader.peek().token_type not in [TokenType.SIMPLE_LINE_BORDER, TokenType.MOOD_LINE_BORDER_END]:
-                 raise ValueError(f"Else statement (KILL) cannot have a condition at line {self.reader.peek().line}!")
-            self.reader.expect_line_end() 
+                raise ValueError(f"{get_token_display_name('ELSE')} cannot have a condition at line {self.reader.peek().line}!")       
             block = self.parse_code_block()
             return block
         self.reader.current_token_index = saved_index

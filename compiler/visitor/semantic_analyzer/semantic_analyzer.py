@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from typing import Optional
 from ...node.intr_string_node import InterpolatedStringNode
-from ...constants import LAMBDA, STRING
+from ...constants import LAMBDA, STRING, get_token_display_name
 from ...node.print_node import PrintNode
 from ...visitor.ast_visitor import ASTVisitor
 from ...context.context import Context
@@ -73,11 +73,11 @@ class SemanticAnalyzer(ASTVisitor):
         returned_type = node.expr_node.accept(self) if node.expr_node else DataType.VOID 
             
         if self._expected_return_type is not None:
-            expected_str = self.type_to_string(self._expected_return_type)
-            returned_str = self.type_to_string(returned_type)
+            expected_str = self._format_type(self._expected_return_type)
+            returned_str = self._format_type(returned_type)
             if not self.types_match(returned_type, self._expected_return_type):
-                raise ValueError(f"Function \"{self._function_name}\" returns \"{returned_str}\" "
-                    f"but declared as \"{expected_str}\"!")
+                raise ValueError(f"Function 🐖{self._function_name}🐖 returns {returned_str} "
+                    f"but declared as {expected_str}!")
         return returned_type
 
     def visit_binary_operation(self, node: BinaryOpNode):
@@ -95,8 +95,8 @@ class SemanticAnalyzer(ASTVisitor):
     def visit_if_statement(self, node: IfNode):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
-            raise ValueError(f"If condition must be of type bool, but you placed \"{condition_type}\" "
-                f"at line {node.line}! How could you????????")
+            raise ValueError(f"SAVE (if statement) condition must be of type wow (bool), but you placed "
+                f"{self._format_type(condition_type)} at line {node.line}! How could you????????")
         node.block.accept(self)
         [elif_block.accept(self) for elif_block in node.elif_blocks]
         if node.else_block:
@@ -105,15 +105,15 @@ class SemanticAnalyzer(ASTVisitor):
     def visit_elif_statement(self, node: ElifNode):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
-            raise ValueError(f"Elif condition must be of type bool, but you placed \"{condition_type}\" "
-                f"at line {node.line}!")
+            raise ValueError(f"HURT (else-if statement) condition must be of type wow (bool), but you placed "
+                f"{self._format_type(condition_type)} at line {node.line}!")
         node.block.accept(self)
 
     def visit_while_loop(self, node: WhileNode):
         condition_type = node.condition.accept(self)
         if condition_type != DataType.BOOL:
-            raise ValueError(f"While condition must be of type bool, but you placed \"{condition_type}\" "
-                f"at line {node.line}!")
+            raise ValueError(f"OINK (while loop) condition must be of type wow (bool), but you placed "
+                f"{self._format_type(condition_type)} at line {node.line}!")
         node.block.accept(self)
 
     def visit_code_block(self, node: CodeBlockNode):
@@ -137,28 +137,28 @@ class SemanticAnalyzer(ASTVisitor):
         self.check_variable_mutable(node.variable, node.line)
         var_type = self.context.get_variable_type(node.variable)
         if not isinstance(var_type, DataType) or var_type == DataType.BOOL:
-            raise ValueError(f"Cannot read into variable \"{node.variable}\" at line {node.line}! "
-                f"Read only supports numeric types (i16, i32, i64).")
+            raise ValueError(f"Cannot read into variable 🐖{node.variable}🐖 at line {node.line}! "
+                f"eat😋 (input) only supports numeric types (🐽 i16, 🐷 i32, 🐗 i64).")
 
     def visit_print(self, node: PrintNode):
         expr_type = node.expr_node.accept(self)
         if not isinstance(expr_type, DataType) and expr_type != "string":
             raise ValueError(f"Cannot print struct type at line {node.line}! "
-                f"Only primitive types can be printed.")
+                f"Only primitive types can be printed with print🤮 (output).")
 
     def check_variable_declared(self, var_name: str, line: int):
         if not self.context.is_variable_declared(var_name):
-            raise ValueError(f"Variable \"{var_name}\" not declared at line {line}!")
+            raise ValueError(f"Variable 🐖{var_name}🐖 not declared at line {line}!")
 
     def check_variable_mutable(self, var_name: str, line: int):
         if not self.context.is_variable_mutable(var_name):
-            raise ValueError(f"Sorry, but you cannot assign something new to an immutable variable!!! "
-                f"Remove \"{var_name}\" from line {line}!")
+            raise ValueError(f"Sorry, but you cannot assign something new to an immutable variable (😭 const)!!! "
+                f"Remove 🐖{var_name}🐖 from line {line}!")
 
     def check_type_match(self, expr_type, expected_type, line: int):
         if not self.types_match(expr_type, expected_type):
             raise ValueError(f"Types do not match at line {line}: "
-                f"you cannot assign \"{expr_type}\" to \"{expected_type}\"! Be careful!")
+                f"you cannot assign {self._format_type(expr_type)} to {self._format_type(expected_type)}! Be careful!")
 
     def types_match(self, expr_type, expected_type) -> bool:
         if isinstance(expected_type, DataType) and isinstance(expr_type, DataType):
@@ -188,15 +188,33 @@ class SemanticAnalyzer(ASTVisitor):
         except ValueError:
             return type_str
 
+    @staticmethod
+    def _format_type(type_obj):
+        """Format type for display in error messages"""
+        if isinstance(type_obj, DataType):
+            type_map = {
+                DataType.I16: "🐽 (i16)",
+                DataType.I32: "🐷 (i32)",
+                DataType.I64: "🐗 (i64)",
+                DataType.BOOL: "wow (bool)",
+                DataType.VOID: "😑 (void)",
+            }
+            return type_map.get(type_obj, str(type_obj))
+        elif type_obj == "string":
+            return "👺 (string)"
+        elif type_obj == LAMBDA:
+            return "🥩 (lambda)"
+        return str(type_obj)
+
     def visit_lambda(self, node):
         for param in node.params:
             if isinstance(param.param_type, str):
                 if not self.context.is_struct_defined(param.param_type):
-                    raise ValueError(f"Type \"{param.param_type}\" is not defined for lambda parameter at line {node.line}!")
+                    raise ValueError(f"Type 🐖{param.param_type}🐖 is not defined for lambda parameter at line {node.line}!")
         self.context.enter_scope()
         for param in node.params:
             if not self.context.declare_variable(param.name, param.param_type, mutable=False):
-                raise ValueError(f"Duplicate parameter \"{param.name}\" in lambda at line {node.line}!")
+                raise ValueError(f"Duplicate parameter 🐖{param.name}🐖 in lambda at line {node.line}!")
         
         was_inside_lambda = self.inside_lambda
         self.inside_lambda = True
@@ -215,5 +233,5 @@ class SemanticAnalyzer(ASTVisitor):
                 expr_type = content.accept(self)
                 if not isinstance(expr_type, DataType):
                     raise ValueError(f"Cannot interpolate struct type in string at line {node.line}! "
-                        f"Only primitive types can be interpolated.")
+                        f"Only primitive types can be interpolated with 🍗.")
         return STRING

@@ -87,3 +87,64 @@ I1 = "i1"
 I16 = "i16"
 I64 = "i64"
 I32 = "i32"
+
+TOKEN_DISPLAY_NAMES = {
+    "I16_TYPE": "🐽 (i16 type)",
+    "I32_TYPE": "🐷 (i32 type)",
+    "I64_TYPE": "🐗 (i64 type)",
+    "BOOL": "wow (boolean type)",
+    "VOID": "😑 (void type)",
+    "STRING_TYPE": "👺 (string type)",
+    "MUT": "😀 (mutable declaration)",
+    "CONST": "😭 (constant declaration)", 
+    "IF": "SAVE (if statement)",
+    "ELIF": "HURT (else-if statement)",
+    "ELSE": "KILL (else statement)",
+    "WHILE": "OINK (while loop)",
+    "RETURN": "... expr ... (return statement)",   
+    "PLUS": "❤️ (addition)",
+    "MINUS": "💔 (subtraction)",
+    "MULTIPLY": "💞 (multiplication)",
+    "DIVIDE": "💕 (division)", 
+    "EQUALS": "🌸🌸 (equals)",
+    "NOT_EQUALS": "💩🌸 (not equals)",
+    "GREATER": "> (greater than)",
+    "LESS": "< (less than)",
+    "GREATER_EQUAL": "🌸> (greater or equal)",
+    "LESS_EQUAL": "🌸< (less or equal)", 
+    "NOT": "💩 (logical NOT)",
+    "AND": "hru (logical AND)",
+    "OR": "bruh (logical OR)",  
+    "TRUE": "LOVE (true)",
+    "FALSE": "HATE (false)",    
+    "ASSIGNMENT": "@ (assignment)",
+    "BRACKET": "** (bracket/argument delimiter)",
+    "SIMPLE_LINE_BORDER": "# (line border)",
+    "MOOD_LINE_BORDER_START": "#~ (mood line start)",
+    "MOOD_LINE_BORDER_END": "~# (mood line end)",
+    "BLOCK_BORDER": "🐖🐖🐖 (block border)",
+    "VARIABLE_BORDER": "🐖 (variable border)",
+    "FUNCTION": "PIG (function)",
+    "MEMBER_FUNCTION": "PIGLET (member function)",
+    "STRUCT": "BOAR (struct)",
+    "MEMBER_ACCESS": "_ (member access)",
+    "READ": "eat😋 (input)",
+    "PRINT": "print🤮 (output)",
+    "LAMBDA": "🥩 (lambda)",
+    "QUOTE": "🥓 (string delimiter)",
+    "EXPRESSION_GROUP": "🌳 (expression grouping)",
+    "INTERP_STRING": "🍗 (string interpolation)",
+    "VARIABLE": "variable name",
+    "NUMBER": "number",
+    "STRING": "string",
+    "NEWLINE": "newline",
+    "THE_END": "end of file",
+    "COMMENT": "👀 (comment)",
+    "MULTILINE_COMMENT": "👀👀👀 (multiline comment)",
+}
+
+
+def get_token_display_name(token_type_name: str) -> str:
+    return TOKEN_DISPLAY_NAMES.get(token_type_name, token_type_name.lower())
+
+

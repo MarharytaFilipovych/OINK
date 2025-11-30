@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from typing import TYPE_CHECKING
-from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT, STRING
+from ...constants import I32_MAX, I32_MIN, I16_MAX, I16_MIN, NOT, STRING, get_token_display_name
 from ...llvm_specifics.data_type import DataType
 from ...node.binary_op_node import BinaryOpNode
 from ...node.number_node import NumberNode
@@ -26,35 +26,63 @@ class ExpressionAnalyzer:
             return self.__validate_arithmetic(left_type, right_type, node.operator, node)
         if node.operator.is_logical():
             return self.__validate_logical(left_type, right_type, node.operator)
-        raise ValueError(f"Where did you take this operator from?: {node.operator}")
+        raise ValueError(f"Where did you take this operator from?: {self._format_operator(node.operator)}")
 
     @staticmethod
-    def __validate_primitive_types(left_type, right_type, operator):
+    def _format_operator(operator):
+        """Format operator for display in error messages"""
+        op_map = {
+            '+': '❤️ (addition)',
+            '-': '💔 (subtraction)',
+            '*': '💞 (multiplication)',
+            '/': '💕 (division)',
+            '==': '🌸🌸 (equals)',
+            '!=': '💩🌸 (not equals)',
+            '>': '> (greater than)',
+            '<': '< (less than)',
+            '>=': '🌸> (greater or equal)',
+            '<=': '🌸< (less or equal)',
+            'and': 'hru (logical AND)',
+            'or': 'bruh (logical OR)',
+        }
+        return op_map.get(str(operator), str(operator))
+
+    def __validate_primitive_types(self, left_type, right_type, operator):
         if not isinstance(left_type, DataType) or not isinstance(right_type, DataType):
-            raise ValueError(f"Cannot use operator \"{operator}\" on struct types! "
-                f"Operators only work with primitive types (i16, i32, i64, bool).")
+            raise ValueError(f"Cannot use operator {self._format_operator(operator)} on struct types! "
+                f"Operators only work with primitive types (🐽 i16, 🐷 i32, 🐗 i64, wow bool).")
 
-    @staticmethod
-    def __validate_comparison(left_type: DataType, right_type: DataType, operator) -> DataType:
+    def __validate_comparison(self, left_type: DataType, right_type: DataType, operator) -> DataType:
         if (left_type == DataType.BOOL) != (right_type == DataType.BOOL):
-            raise ValueError(f"You cannot compare using \"{operator}\" boolean with non-boolean!")
+            raise ValueError(f"You cannot compare using {self._format_operator(operator)} boolean with non-boolean!")
         return DataType.BOOL
 
     def __validate_arithmetic(self, left_type: DataType, right_type: DataType,
                               operator, node) -> DataType:
         if left_type == DataType.BOOL or right_type == DataType.BOOL:
-            raise ValueError(f"You cannot play math using \"{operator}\" on booleans!!!")
+            raise ValueError(f"You cannot play math using {self._format_operator(operator)} on booleans!!!")
         result_type = self.__infer_arithmetic_result_type(left_type, right_type)
         node.result_type = result_type
         return result_type
 
-    @staticmethod
-    def __validate_logical(left_type: DataType, right_type: DataType, operator) -> DataType:
+    def __validate_logical(self, left_type: DataType, right_type: DataType, operator) -> DataType:
         if left_type != DataType.BOOL or right_type != DataType.BOOL:
-             raise ValueError(f"Logical operator \"{operator}\" requires boolean operands, "
-                 f"but got \"{left_type}\" and \"{right_type}\"!")
+             raise ValueError(f"Logical operator {self._format_operator(operator)} requires boolean operands, "
+                 f"but got {self._format_type(left_type)} and {self._format_type(right_type)}!")
     
         return DataType.BOOL
+
+    @staticmethod
+    def _format_type(data_type):
+        """Format type for display in error messages"""
+        type_map = {
+            DataType.I16: "🐽 (i16)",
+            DataType.I32: "🐷 (i32)",
+            DataType.I64: "🐗 (i64)",
+            DataType.BOOL: "wow (bool)",
+            DataType.VOID: "😑 (void)",
+        }
+        return type_map.get(data_type, str(data_type))
 
     @staticmethod
     def __infer_arithmetic_result_type(left_type: DataType, right_type: DataType) -> DataType:
@@ -86,6 +114,6 @@ class ExpressionAnalyzer:
         if node.operator == NOT:
             if operand_type != DataType.BOOL:
                 raise ValueError(f"The NOT operator (💩) can only be applied to boolean values, dummy, "
-                    f"but you applied it to \"{operand_type}\"! Do you think it is okay?")
+                    f"but you applied it to {self._format_type(operand_type)}! Do you think it is okay?")
             return DataType.BOOL
-        raise ValueError(f"Unknown unary operator: \"{node.operator}\"")
+        raise ValueError(f"Unknown unary operator: {self._format_operator(node.operator)}")

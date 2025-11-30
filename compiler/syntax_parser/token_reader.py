@@ -2,6 +2,7 @@
 from typing import Optional
 from ..token.token_type import TokenType
 from ..token.token_class import Token
+from ..constants import get_token_display_name
 
 
 class TokenReader:
@@ -23,11 +24,11 @@ class TokenReader:
     def expect_token(self, token_type: TokenType) -> Token:
         token = self.peek()
         if not token:
-            raise ValueError(f"I expected a token of the type {token_type.name.lower()} but found nothing!")
+            raise ValueError(f"I expected {get_token_display_name(token_type.name)} but found nothing!")
         if token.token_type != token_type:
             raise ValueError(
-                f"I expected a token of the type \"{token_type.name.lower()}\""
-                f" but got \"{token.token_type.name.lower()}\" -> ({token.value}) at line {token.line}!")
+                f"I expected {get_token_display_name(token_type.name)}"
+                f" but got {get_token_display_name(token.token_type.name)} -> ({token.value}) at line {token.line}!")
         return self.eat()
 
     def skip_newlines(self):
@@ -55,8 +56,8 @@ class TokenReader:
     def expect_newline_or_end(self):
         token = self.peek()
         if token and token.token_type not in [TokenType.NEWLINE, TokenType.THE_END]:
-            raise ValueError(f"Expected newline or end, but got \"{token.value}\" of"
-                             f" the type {token.token_type.name.lower()}at line {token.line}")
+            raise ValueError(f"Expected newline or end, but got \"{token.value}\" "
+                            f"({get_token_display_name(token.token_type.name)}) at line {token.line}")
         if token and token.token_type == TokenType.NEWLINE:
             self.eat()
 

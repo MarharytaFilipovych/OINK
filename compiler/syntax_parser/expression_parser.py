@@ -18,6 +18,7 @@ from ..token.token_type import TokenType
 from .token_reader import TokenReader
 from ..llvm_specifics.data_type import DataType
 from ..node.lambda_node import LambdaNode, LambdaParam
+from ..constants import get_token_display_name
 
 
 class ExpressionParser:
@@ -127,8 +128,8 @@ class ExpressionParser:
     def __raise_no_value_error(self):
         line = self.reader.peek() - 1 if self.reader.peek() > 1 else self.reader.peek()
         raise ValueError(
-            f"You should have used either a number, a variable, or a boolean, "
-            f"but you decided to abandon your work (line {line}!")
+            f"You should have written sth, "
+            f"but you decided to abandon your work at line {line}!")
 
     def __handle_value_token(self, token) -> Union[FactorNode, ExprNode]:
         match token.token_type:
@@ -144,8 +145,9 @@ class ExpressionParser:
                 return expr
             case _:
                 raise ValueError(
-                    f"You should have used either a number, a variable, or a boolean "
-                    f"at line {token.line}, not \"{token.value}\" of the type {token.token_type.name.lower()}!" )
+                    f"You should have used sth valuable "
+                    f"at line {token.line}, not \"{token.value}\" ({get_token_display_name(token.token_type.name)})!"
+                )
 
     def __parse_boolean_token(self, token) -> BooleanNode:
         value = token.value
