@@ -8,6 +8,7 @@ class DataType(Enum):
     I64 = ("🐗", "i64")
     BOOL = ("wow", "i1")
     VOID = ("😑", "void")
+    STRING = ("👺", "i8*")
 
     def __init__(self, keyword: str, llvm_representation: str):
         self.keyword = keyword

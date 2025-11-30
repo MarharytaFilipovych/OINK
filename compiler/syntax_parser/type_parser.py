@@ -39,7 +39,7 @@ class TypeParser:
             raise ValueError(f"Unknown type {struct_name} at line {struct_token.line}!")
         return struct_name
 
-    def __parse_builtin_type(self, token) -> DataType:
+    def __parse_builtin_type(self, token):
         self.reader.eat()
         match token.token_type:
             case TokenType.I16_TYPE:
@@ -52,6 +52,8 @@ class TypeParser:
                 return DataType.BOOL
             case TokenType.VOID:
                 return DataType.VOID
+            case TokenType.STRING_TYPE:
+                return DataType.STRING
         return None
 
     @staticmethod

@@ -381,23 +381,32 @@ class CodeGenerator(ASTVisitor):
         raise ValueError(f"We do not support this unary operator: {node.operator}!")
 
     @staticmethod
-    def __get_scanf_format_len(data_type: DataType) -> int:
-        if data_type == DataType.I16:
-            return 4
-        if data_type == DataType.I32:
-            return 3
-        if data_type == DataType.I64:
-            return 5
+    def __get_scanf_format_len(data_type) -> int:
+        if isinstance(data_type, DataType):
+            if data_type == DataType.I16:
+                return 4
+            if data_type == DataType.I32:
+                return 3
+            if data_type == DataType.I64:
+                return 5
+            if data_type == DataType.STRING:
+                return 4
         return 0
 
-    def visit_read(self, node: ReadNode):
+    def visit_read(self, node):
         var_type = self.variable_registry.get_variable_type(node.variable)
-        scanf_format_len = self.__get_scanf_format_len(var_type)
-        format_string_name = LLVMEmitter.get_scanf_format_string(var_type)
-        temp_ptr = self.__allocate_temp(var_type)
-        self.__call_scanf(temp_ptr, var_type, scanf_format_len, format_string_name)
-        temp_val = self.__load_temp_value(var_type, temp_ptr)
-        self.__store_to_variable(node.variable, var_type, temp_val)
+        
+        if isinstance(var_type, DataType) and var_type == DataType.STRING:
+            temp_val = self.emitter.get_temp_register()
+            self.emitter.emit_line(f"  {temp_val} = call i8* @readInput_string()")
+            self.__store_to_variable(node.variable, var_type, temp_val)
+        else:
+            scanf_format_len = self.__get_scanf_format_len(var_type)
+            format_string_name = LLVMEmitter.get_scanf_format_string(var_type)
+            temp_ptr = self.__allocate_temp(var_type)
+            self.__call_scanf(temp_ptr, var_type, scanf_format_len, format_string_name)
+            temp_val = self.__load_temp_value(var_type, temp_ptr)
+            self.__store_to_variable(node.variable, var_type, temp_val)
 
     def __allocate_temp(self, var_type):
         temp_ptr = self.emitter.get_temp_register()
@@ -417,8 +426,12 @@ class CodeGenerator(ASTVisitor):
 
     def __store_to_variable(self, variable_name, var_type, temp_val):
         current_ptr = self.variable_registry.get_current_register(variable_name)
-        self.emitter.emit_line(f"  store {var_type.to_llvm()} {temp_val}, {var_type.to_llvm()}* {current_ptr}")
-
+        if isinstance(var_type, DataType):
+            llvm_type = var_type.to_llvm()
+        else:
+            llvm_type = self.type_converter.get_llvm_type(var_type)
+        self.emitter.emit_line(f"  store {llvm_type} {temp_val}, {llvm_type}* {current_ptr}")
+    
     def visit_print(self, node):
         if isinstance(node.expr_node, InterpolatedStringNode):
             node.expr_node.accept(self)
@@ -529,6 +542,8 @@ class CodeGenerator(ASTVisitor):
             return "%lld"
         elif expr_type == DataType.BOOL:
             return "%d"
+        elif expr_type == DataType.STRING:
+            return "%s"
         return "%d"
 
     def _evaluate_interpolated_expressions(self, node):        
@@ -544,8 +559,8 @@ class CodeGenerator(ASTVisitor):
                     if expr_type == DataType.BOOL:
                         expr_value = self._convert_bool_to_i32(expr_value)
                         expr_type = DataType.I32
-                    expr_values.append(expr_value)
-                    expr_types.append(expr_type)
+                expr_values.append(expr_value)
+                expr_types.append(expr_type)
         return expr_values, expr_types
 
     def _convert_bool_to_i32(self, bool_value):

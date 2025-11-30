@@ -132,13 +132,14 @@ class SemanticAnalyzer(ASTVisitor):
     def visit_function_call(self, node: FunctionCallNode):
         return self.function_analyzer.visit_function_call(node)
 
-    def visit_read(self, node: ReadNode):
+    def visit_read(self, node):
+        from ...llvm_specifics.data_type import DataType
         self.check_variable_declared(node.variable, node.line)
         self.check_variable_mutable(node.variable, node.line)
         var_type = self.context.get_variable_type(node.variable)
-        if not isinstance(var_type, DataType) or var_type == DataType.BOOL:
-            raise ValueError(f"Cannot read into variable 🐖{node.variable}🐖 at line {node.line}! "
-                f"eat😋 (input) only supports numeric types (🐽 i16, 🐷 i32, 🐗 i64).")
+        if not isinstance(var_type, DataType) or var_type == DataType.BOOL or var_type == DataType.VOID:
+            raise ValueError(f"Cannot read into variable \"{node.variable}\" at line {node.line}! "
+                f"Read only supports numeric types (i16, i32, i64) and string (i8*).")
 
     def visit_print(self, node: PrintNode):
         expr_type = node.expr_node.accept(self)

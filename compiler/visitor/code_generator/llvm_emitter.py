@@ -60,14 +60,18 @@ class LLVMEmitter:
     def __get_io_functions_llvm() -> str:
         return """declare i32 @printf(i8*, ...)
 declare i32 @scanf(i8*, ...)
+declare i8* @malloc(i64)
+declare i32 @getchar()
 
 @exit_format = private unnamed_addr constant [29 x i8] c"Program exit with result %d\\0A\\00", align 1
 @print_i16_format = private unnamed_addr constant [5 x i8] c"%hd\\0A\\00", align 1
 @print_i32_format = private unnamed_addr constant [4 x i8] c"%d\\0A\\00", align 1
 @print_i64_format = private unnamed_addr constant [6 x i8] c"%lld\\0A\\00", align 1
+@print_string_format = private unnamed_addr constant [4 x i8] c"%s\\0A\\00", align 1
 @read_i16_format = private unnamed_addr constant [4 x i8] c"%hd\\00", align 1
 @read_i32_format = private unnamed_addr constant [3 x i8] c"%d\\00", align 1
 @read_i64_format = private unnamed_addr constant [5 x i8] c"%lld\\00", align 1
+@read_string_format = private unnamed_addr constant [4 x i8] c" %s\\00", align 1
 
 define void @printResult(i32 %val) {
   %fmt_ptr = getelementptr inbounds [29 x i8], [29 x i8]* @exit_format, i32 0, i32 0
@@ -90,6 +94,12 @@ define void @printValue_i32(i32 %val) {
 define void @printValue_i64(i64 %val) {
   %fmt_ptr = getelementptr inbounds [6 x i8], [6 x i8]* @print_i64_format, i32 0, i32 0
   call i32 (i8*, ...) @printf(i8* %fmt_ptr, i64 %val)
+  ret void
+}
+
+define void @printValue_string(i8* %val) {
+  %fmt_ptr = getelementptr inbounds [4 x i8], [4 x i8]* @print_string_format, i32 0, i32 0
+  call i32 (i8*, ...) @printf(i8* %fmt_ptr, i8* %val)
   ret void
 }
 
@@ -116,6 +126,15 @@ define i64 @readInput_i64() {
   %val = load i64, i64* %val_ptr
   ret i64 %val
 }
+
+define i8* @readInput_string() {
+  %buffer = call i8* @malloc(i64 256)
+  %fmt_ptr = getelementptr inbounds [4 x i8], [4 x i8]* @read_string_format, i32 0, i32 0
+  %result = call i32 (i8*, ...) @scanf(i8* %fmt_ptr, i8* %buffer)
+  %c = call i32 @getchar()
+  ret i8* %buffer
+}
+
 
 """
 
@@ -144,12 +163,21 @@ define i64 @readInput_i64() {
             return "@printValue_i32"
         elif llvm_type == I64:
             return "@printValue_i64"
+        elif llvm_type == "i8*":
+            return "@printValue_string"
         else:
             raise ValueError(f"Unsupported print type: {llvm_type}")
 
     @staticmethod
     def get_scanf_format_string(var_type) -> str:
-        llvm_type_name = var_type.to_llvm().replace('%', '')
+        from ...llvm_specifics.data_type import DataType
+        if isinstance(var_type, DataType):
+            if var_type == DataType.STRING:
+                return "@read_string_format"
+            llvm_type_name = var_type.to_llvm().replace('%', '')
+        else:
+            llvm_type_name = var_type.replace('%', '')
+            
         if llvm_type_name == I16:
             return "@read_i16_format"
         elif llvm_type_name == I32:

@@ -8,6 +8,7 @@ class TokenType(Enum):
     I64_TYPE = auto()  # 🐗
     BOOL = auto()      # wow
     VOID = auto()      # 😑
+    STRING_TYPE = auto() # 👺
     
     MUT = auto()       # 😀
     CONST = auto()     # 😭
@@ -69,7 +70,6 @@ class TokenType(Enum):
     LAMBDA = auto()  # 🥩
     QUOTE = auto() # 🥓
 
-    STRING_TYPE = auto() # 👺
     STRING = auto()
 
     EXPRESSION_GROUP = auto()  # 🌳 (for expression grouping)
@@ -100,4 +100,4 @@ class TokenType(Enum):
     
     def is_data_type(self) -> bool:
         return self in {TokenType.I16_TYPE, TokenType.I32_TYPE, TokenType.I64_TYPE, 
-                        TokenType.BOOL, TokenType.VOID}
+                        TokenType.BOOL, TokenType.VOID, TokenType.STRING_TYPE}
